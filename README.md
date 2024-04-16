@@ -13,7 +13,7 @@ The people who contributed to this project over time:
   <tr>
     <td align="center"><a href="https://github.com/zhan4429"><img src="https://avatars.githubusercontent.com/u/90942318" width="100px;" alt=""/><br /><sub><b>Yucheng Zhang</b></sub></a><br /></td>  
     <td align="center"><a href="https://github.com/PayasBhutra"><img src="https://avatars.githubusercontent.com/u/70447330" width="100px;" alt=""/><br /><sub><b>Payas Bhutra</b></sub></a><br /></td>
-    <td align="center"><a href="https://github.com/shirleyxueli41"><img src="https://avatars.githubusercontent.com/u/88347911?v=4" width="100px;" alt=""/><br /><sub><b>Ryan DeRue</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/shirleyxueli41"><img src="https://avatars.githubusercontent.com/u/88347911?v=4" width="100px;" alt=""/><br /><sub><b>Xue(Shirley) Li</b></sub></a><br /></td>
   </tr>
 </table>
 
