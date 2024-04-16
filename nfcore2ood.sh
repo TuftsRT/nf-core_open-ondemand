@@ -21,10 +21,10 @@ while [[ $# -gt 0 ]]; do
                         ;;
                 -h|--help)
                         echo "Usage: nf2ood.sh [input] [output]"
-                        echo "This script performs some operations on the input and generates output."
+                        echo "This script will convert nf-core pipelines into OOD apps."
                         echo "Arguments:"
-                        echo "  input   - The input parameter"
-                        echo "  output  - The output parameter"
+                        echo " -i/--input input   - The input directory where nf-core pipelines are stored"
+                        echo "  -o/--output output  - The output directory where the OOD apps will be generated"
                         exit 0
                         ;;
                 *)
