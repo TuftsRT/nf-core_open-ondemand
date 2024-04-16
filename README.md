@@ -16,12 +16,12 @@ Arguments:
 ```
 
 ### Download nf-core pipelines
-Before running the script, nf-core pipelines should be downloaded in advance to the local computer/node. You can use [nf-core tools](https://nf-co.re/tools) to download the pipelines. The below example shows how to download `scrnaseq` pipeline using `nf-core download`.
+Before running the script, nf-core pipelines should be downloaded to the local computer/node. You can use [nf-core tools](https://nf-co.re/tools) to download the pipelines. Below example shows how to download `scrnaseq` pipeline using `nf-core download`.
 ```
 nf-core download scrnaseq -r 2.5.1 --outdir 2.5.1 -d  -s singularity -u amend -x none 
 ```
 
-### Input direct
+### Input directory
 At Tufts HPC, all nf-core pipelines are stored in `/cluster/tufts/biocontainers/nf-core/pipelines`. Below is the organization of all pipelines in the folder. 
 
 ```
@@ -107,7 +107,7 @@ Generating OOD app for nf-core-taxprofiler
 Generating OOD app for nf-core-viralrecon
 ```
 
-> **Note:** nf-core_template
+> **Note:**
   The scripts will use nf-core_template as the template to generate different ood apps. Users need to update the template according to the configurations of your own ood platform. 
 
 ## Contributors
