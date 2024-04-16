@@ -1,0 +1,8 @@
+---
+name: smrnaseq
+category: Bioinformatics Apps
+subcategory: nf-core pipelines
+role: batch_connect
+description: |
+  This app will launch the [smrnaseq](https://nf-co.re/smrnaseq) pipeline developed by nf-core community. 
+

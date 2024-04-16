@@ -1,0 +1,7 @@
+   umitools_extract_method.parent().hide();
+   umitools_bc_pattern.parent().hide();
+   umitools_bc_pattern2.parent().hide();
+   umitools_discard_read.parent().hide();
+   umitools_umi_separator.parent().hide();
+   umitools_grouping_method.parent().hide();
+   umitools_dedup_stats.parent().hide();

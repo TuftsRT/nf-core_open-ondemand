@@ -1,0 +1,457 @@
+---
+cluster: "tuftshpc"
+
+attributes:
+
+  cpu_partition:
+    widget: "select"
+    label: "Select cpu partition"
+    help: "NOTE: Please do not choose specific lab partitions if you are not a member of that lab."
+    value: "batch"
+    options:
+      - ["batch","batch"]
+      - ["largemem", "largemem"]
+      - ["preempt", "preempt"]
+      - ["patralab", "patralab"]
+
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/reservation.yml").indent(2) %>
+
+  workdir:
+    label: "Working Directory"
+    data-filepicker: true
+    data-target-file-type: dirs  # Valid values are: files, dirs, or both
+    readonly: false
+    help: "Select your project directory; defaults to $HOME"
+    
+  resume:
+    label: resume
+    widget: check_box
+    checked_value: 1
+    unchecked_value: 0
+    help: |
+           Resume previous run if found
+
+  TOWER_ACCESS_TOKEN:
+    widget: "text_field"
+    required: false
+    label: "TOWER_ACCESS_TOKEN (Optional)"
+    help: "Your TOWER_ACCESS_TOKEN used to monitor runs on [Nextflow Tower](https://seqera.io)."
+
+
+  version:
+    label: Version
+    widget: select
+    options:
+      - ['3.0.1', '/cluster/tufts/biocontainers/nf-core/pipelines/nf-core-rnafusion/3.0.1/3_0_1']
+
+  skip_qc:
+    label: skip_qc
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip QC steps"
+
+  skip_vis:
+    label: skip_vis
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip visualisation steps"
+
+  input:
+    label: input
+    widget: text_field
+    help: "Path to comma-separated file containing information about the samples in the experiment."
+
+  outdir:
+    label: outdir
+    widget: text_field
+    help: "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure."
+
+  multiqc_title:
+    label: multiqc_title
+    widget: text_field
+    help: "MultiQC report title. Printed as page header, used for filename if not otherwise specified."
+
+  build_references:
+    label: build_references
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specifies which analysis type for the pipeline - either build references or analyse data"
+
+  cosmic_username:
+    label: cosmic_username
+    widget: text_field
+    help: "COSMIC username"
+
+  cosmic_passwd:
+    label: cosmic_passwd
+    widget: text_field
+    help: "COSMIC password"
+
+  genomes_base:
+    label: genomes_base
+    widget: text_field
+    help: "Path to reference folder"
+
+  ensembl_version:
+    value: "105"
+    label: ensembl_version
+    widget: text_field
+    help: "ensembl version"
+
+  starfusion_build:
+    label: starfusion_build
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "If set, starfusion references are built from scratch instead of downloaded (default)"
+
+  read_length:
+    value: "100"
+    label: read_length
+    widget: text_field
+    help: "Read length"
+
+  all:
+    label: all
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Build or run all references/analyses"
+
+  arriba:
+    label: arriba
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Build or run arriba references/analyses"
+
+  arriba_ref:
+    label: arriba_ref
+    widget: text_field
+    help: "Path to arriba references"
+
+  arriba_ref_blacklist:
+    label: arriba_ref_blacklist
+    widget: text_field
+    help: "Path to arriba reference blacklist"
+
+  arriba_ref_cytobands:
+    label: arriba_ref_cytobands
+    widget: text_field
+    help: "Path to arriba reference cytobands"
+
+  arriba_ref_known_fusions:
+    label: arriba_ref_known_fusions
+    widget: text_field
+    help: "Path to arriba reference known fusions"
+
+  arriba_ref_protein_domains:
+    label: arriba_ref_protein_domains
+    widget: text_field
+    help: "Path to arriba reference protein domain"
+
+  arriba_fusions:
+    label: arriba_fusions
+    widget: text_field
+    help: "Path to arriba output"
+
+  ensembl_ref:
+    label: ensembl_ref
+    widget: text_field
+    help: "Path to ensembl references"
+
+  fusioncatcher:
+    label: fusioncatcher
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Build or run fusioncatcher references/analyses"
+
+  fusioncatcher_fusions:
+    label: fusioncatcher_fusions
+    widget: text_field
+    help: "Path to fusioncatcher output"
+
+  fusioncatcher_limitSjdbInsertNsj:
+    label: fusioncatcher_limitSjdbInsertNsj
+    widget: text_field
+    help: "Use limitSjdbInsertNsj with int for fusioncatcher"
+
+  fusioncatcher_ref:
+    label: fusioncatcher_ref
+    widget: text_field
+    help: "Path to fusioncatcher references"
+
+  fusioninspector_limitSjdbInsertNsj:
+    label: fusioninspector_limitSjdbInsertNsj
+    widget: text_field
+    help: "Use limitSjdbInsertNsj with int for fusioninspector STAR process"
+
+  fusioninspector_only:
+    label: fusioninspector_only
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip fusion-report. --fusioninspector_fusions PATH needed to provide a fusion list as input"
+
+  fusioninspector_fusions:
+    label: fusioninspector_fusions
+    widget: text_field
+    help: "Path to a fusion list file built with format GENE1--GENE2"
+
+  fusionreport:
+    label: fusionreport
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Build fusionreport references"
+
+  fusionreport_ref:
+    label: fusionreport_ref
+    widget: text_field
+    help: "Path to fusionreport references"
+
+  hgnc_ref:
+    label: hgnc_ref
+    widget: text_field
+    help: "Path to HGNC database file"
+
+  hgnc_date:
+    label: hgnc_date
+    widget: text_field
+    help: "Path to HGNC timestamp file for database retrieval"
+
+  qiagen:
+    label: qiagen
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Use QIAGEN instead of SANGER to download COSMIC database"
+
+  starfusion:
+    label: starfusion
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Build or run starfusion references/analyses"
+
+  starfusion_fusions:
+    label: starfusion_fusions
+    widget: text_field
+    help: "Path to starfusion output"
+
+  starfusion_ref:
+    label: starfusion_ref
+    widget: text_field
+    help: "Path to starfusion references"
+
+  starindex:
+    label: starindex
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Build or run starindex references/analyses"
+
+  starindex_ref:
+    label: starindex_ref
+    widget: text_field
+    help: "Path to starindex references"
+
+  stringtie:
+    label: stringtie
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Run stringtie analysis"
+
+  tools_cutoff:
+    label: tools_cutoff
+    widget: text_field
+    help: "Discard fusions identified by less than INT tools"
+
+  whitelist:
+    label: whitelist
+    widget: text_field
+    help: "Path to fusions to add to the input of fusioninspector"
+
+  fastp_trim:
+    label: fastp_trim
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Preform fastp trimming of reads, default: false"
+
+  trim_tail:
+    label: trim_tail
+    widget: text_field
+    help: "Preform tail trimming of reads, default: null"
+
+  adapter_fasta:
+    label: adapter_fasta
+    widget: text_field
+    help: "Path to adapter fasta file: default: []"
+
+  cram:
+    label: cram
+    widget: text_field
+    help: "List of tools for which to compress BAM file to CRAM,default: [], options: arriba, starfusion. Leave no space between options"
+
+  genome:
+    label: iGenomes
+    widget: select
+    required: false
+    options:
+      - ['None', ' ']
+      - ['GRCh37', 'GRCh37']
+      - ['GRCh38', 'GRCh38']
+      - ['GRCm38', 'GRCm38']
+      - ['TAIR10', 'TAIR10']
+      - ['EB2', 'EB2']
+      - ['UMD3.1', 'UMD3.1']
+      - ['WBcel235', 'WBcel235']
+      - ['CanFam3.1', 'CanFam3.1']
+      - ['GRCz10', 'GRCz10']
+      - ['BDGP6', 'BDGP6']
+      - ['EquCab2', 'EquCab2']
+      - ['EB1', 'EB1']
+      - ['Galgal4', 'Galgal4']
+      - ['Gm01', 'Gm01']
+      - ['Mmul_1', 'Mmul_1']
+      - ['IRGSP-1.0', 'IRGSP-1.0']
+      - ['CHIMP2.1.4', 'CHIMP2.1.4']
+      - ['Rnor_5.0', 'Rnor_5.0']
+      - ['Rnor_6.0', 'Rnor_6.0']
+      - ['R64-1-1', 'R64-1-1']
+      - ['EF2', 'EF2']
+      - ['Sbi1', 'Sbi1']
+      - ['Sscrofa10.2', 'Sscrofa10.2']
+      - ['AGPv3', 'AGPv3']
+      - ['hg38', 'hg38']
+      - ['hg19', 'hg19']
+      - ['mm10', 'mm10']
+      - ['bosTau8', 'bosTau8']
+      - ['ce10', 'ce10']
+      - ['canFam3', 'canFam3']
+      - ['danRer10', 'danRer10']
+      - ['dm6', 'dm6']
+      - ['equCab2', 'equCab2']
+      - ['galGal4', 'galGal4']
+      - ['panTro4', 'panTro4']
+      - ['rn6', 'rn6']
+      - ['sacCer3', 'sacCer3']
+      - ['susScr3', 'susScr3']
+    help: "Name of iGenomes reference."
+  fasta:
+    label: fasta
+    widget: text_field
+    help: "Path to FASTA genome file."
+
+  fai:
+    label: fai
+    widget: text_field
+    help: "Path to FASTA genome index file."
+
+  gtf:
+    label: gtf
+    widget: text_field
+    help: "Path to GTF genome file."
+
+  chrgtf:
+    label: chrgtf
+    widget: text_field
+    help: "Path to GTF genome file."
+
+  transcript:
+    label: transcript
+    widget: text_field
+    help: "Path to GTF genome file."
+
+  refflat:
+    label: refflat
+    widget: text_field
+    help: "Path to GTF genome file."
+
+  rrna_intervals:
+    label: rrna_intervals
+    widget: text_field
+    help: "Path to ribosomal interval list."
+
+
+form:
+  - bc_num_hours
+  - cpu_partition
+  - reservation
+  - version
+  - workdir
+  - outdir
+  - skip_qc
+  - skip_vis
+  - input
+  - multiqc_title
+  - build_references
+  - cosmic_username
+  - cosmic_passwd
+  - genomes_base
+  - ensembl_version
+  - starfusion_build
+  - read_length
+  - all
+  - arriba
+  - arriba_ref
+  - arriba_ref_blacklist
+  - arriba_ref_cytobands
+  - arriba_ref_known_fusions
+  - arriba_ref_protein_domains
+  - arriba_fusions
+  - ensembl_ref
+  - fusioncatcher
+  - fusioncatcher_fusions
+  - fusioncatcher_limitSjdbInsertNsj
+  - fusioncatcher_ref
+  - fusioninspector_limitSjdbInsertNsj
+  - fusioninspector_only
+  - fusioninspector_fusions
+  - fusionreport
+  - fusionreport_ref
+  - hgnc_ref
+  - hgnc_date
+  - qiagen
+  - starfusion
+  - starfusion_fusions
+  - starfusion_ref
+  - starindex
+  - starindex_ref
+  - stringtie
+  - tools_cutoff
+  - whitelist
+  - fastp_trim
+  - trim_tail
+  - adapter_fasta
+  - cram
+  - genome
+  - fasta
+  - fai
+  - gtf
+  - chrgtf
+  - transcript
+  - refflat
+  - rrna_intervals
+  - TOWER_ACCESS_TOKEN
+  - resume

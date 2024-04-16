@@ -1,0 +1,161 @@
+---
+cluster: "tuftshpc"
+
+attributes:
+
+  cpu_partition:
+    widget: "select"
+    label: "Select cpu partition"
+    help: "NOTE: Please do not choose specific lab partitions if you are not a member of that lab."
+    value: "batch"
+    options:
+      - ["batch","batch"]
+      - ["largemem", "largemem"]
+      - ["preempt", "preempt"]
+      - ["patralab", "patralab"]
+
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/reservation.yml").indent(2) %>
+
+  workdir:
+    label: "Working Directory"
+    data-filepicker: true
+    data-target-file-type: dirs  # Valid values are: files, dirs, or both
+    readonly: false
+    help: "Select your project directory; defaults to $HOME"
+    
+  resume:
+    label: resume
+    widget: check_box
+    checked_value: 1
+    unchecked_value: 0
+    help: |
+           Resume previous run if found
+
+  TOWER_ACCESS_TOKEN:
+    widget: "text_field"
+    required: false
+    label: "TOWER_ACCESS_TOKEN (Optional)"
+    help: "Your TOWER_ACCESS_TOKEN used to monitor runs on [Nextflow Tower](https://seqera.io)."
+
+
+  version:
+    label: Version
+    widget: select
+    options:
+      - ['1.2.1', '/cluster/tufts/biocontainers/nf-core/pipelines/nf-core-nanostring/1.2.1/1_2_1']
+
+  input:
+    label: input
+    widget: text_field
+    help: "Path to comma-separated file containing information about the samples in the experiment."
+
+  outdir:
+    label: outdir
+    widget: text_field
+    help: "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure."
+
+  multiqc_title:
+    label: multiqc_title
+    widget: text_field
+    help: "MultiQC report title. Printed as page header, used for filename if not otherwise specified."
+
+  heatmap_id_column:
+    value: "SAMPLE_ID"
+    label: heatmap_id_column
+    widget: text_field
+    help: "The column used for heatmap generation, specifying the rows. The values in this column have to be unique."
+
+  heatmap_genes_to_filter:
+    label: heatmap_genes_to_filter
+    widget: text_field
+    help: "Path to yml file (list, one item per line) to specify which genes should be used for the gene-count heatmap."
+
+  normalization_method:
+    value: "GEO"
+    label: normalization_method
+    widget: text_field
+    help: "The method to use for normalization of nCounter data."
+
+  gene_score_method:
+    value: "PLAGE"
+    label: gene_score_method
+    widget: text_field
+    help: "This selects the algorithm for computing the respective gene score. Default is `PLAGE`."
+
+  gene_score_yaml:
+    label: gene_score_yaml
+    widget: text_field
+    help: "This sets the YAML to be used for computing the gene scores. Needs both a name for each set of genes and respective genes to be selected."
+
+  skip_heatmap:
+    label: skip_heatmap
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip creating the heatmap"
+
+  genome:
+    label: iGenomes
+    widget: select
+    required: false
+    options:
+      - ['None', ' ']
+      - ['GRCh37', 'GRCh37']
+      - ['GRCh38', 'GRCh38']
+      - ['GRCm38', 'GRCm38']
+      - ['TAIR10', 'TAIR10']
+      - ['EB2', 'EB2']
+      - ['UMD3.1', 'UMD3.1']
+      - ['WBcel235', 'WBcel235']
+      - ['CanFam3.1', 'CanFam3.1']
+      - ['GRCz10', 'GRCz10']
+      - ['BDGP6', 'BDGP6']
+      - ['EquCab2', 'EquCab2']
+      - ['EB1', 'EB1']
+      - ['Galgal4', 'Galgal4']
+      - ['Gm01', 'Gm01']
+      - ['Mmul_1', 'Mmul_1']
+      - ['IRGSP-1.0', 'IRGSP-1.0']
+      - ['CHIMP2.1.4', 'CHIMP2.1.4']
+      - ['Rnor_5.0', 'Rnor_5.0']
+      - ['Rnor_6.0', 'Rnor_6.0']
+      - ['R64-1-1', 'R64-1-1']
+      - ['EF2', 'EF2']
+      - ['Sbi1', 'Sbi1']
+      - ['Sscrofa10.2', 'Sscrofa10.2']
+      - ['AGPv3', 'AGPv3']
+      - ['hg38', 'hg38']
+      - ['hg19', 'hg19']
+      - ['mm10', 'mm10']
+      - ['bosTau8', 'bosTau8']
+      - ['ce10', 'ce10']
+      - ['canFam3', 'canFam3']
+      - ['danRer10', 'danRer10']
+      - ['dm6', 'dm6']
+      - ['equCab2', 'equCab2']
+      - ['galGal4', 'galGal4']
+      - ['panTro4', 'panTro4']
+      - ['rn6', 'rn6']
+      - ['sacCer3', 'sacCer3']
+      - ['susScr3', 'susScr3']
+    help: "Name of iGenomes reference."
+
+form:
+  - bc_num_hours
+  - cpu_partition
+  - reservation
+  - version
+  - workdir
+  - outdir
+  - input
+  - multiqc_title
+  - heatmap_id_column
+  - heatmap_genes_to_filter
+  - normalization_method
+  - gene_score_method
+  - gene_score_yaml
+  - skip_heatmap
+  - genome
+  - TOWER_ACCESS_TOKEN
+  - resume

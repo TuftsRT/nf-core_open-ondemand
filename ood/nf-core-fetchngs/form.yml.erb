@@ -1,0 +1,126 @@
+---
+cluster: "tuftshpc"
+
+attributes:
+
+  cpu_partition:
+    widget: "select"
+    label: "Select cpu partition"
+    help: "NOTE: Please do not choose specific lab partitions if you are not a member of that lab."
+    value: "batch"
+    options:
+      - ["batch","batch"]
+      - ["largemem", "largemem"]
+      - ["preempt", "preempt"]
+      - ["patralab", "patralab"]
+
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/reservation.yml").indent(2) %>
+
+  workdir:
+    label: "Working Directory"
+    data-filepicker: true
+    data-target-file-type: dirs  # Valid values are: files, dirs, or both
+    readonly: false
+    help: "Select your project directory; defaults to $HOME"
+    
+  resume:
+    label: resume
+    widget: check_box
+    checked_value: 1
+    unchecked_value: 0
+    help: |
+           Resume previous run if found
+
+  TOWER_ACCESS_TOKEN:
+    widget: "text_field"
+    required: false
+    label: "TOWER_ACCESS_TOKEN (Optional)"
+    help: "Your TOWER_ACCESS_TOKEN used to monitor runs on [Nextflow Tower](https://seqera.io)."
+
+
+  version:
+    label: Version
+    widget: select
+    options:
+      - ['1.12.0', '/cluster/tufts/biocontainers/nf-core/pipelines/nf-core-fetchngs/1.12.0/1_12_0']
+      - ['1.11.0', '/cluster/tufts/biocontainers/nf-core/pipelines/nf-core-fetchngs/1.11.0/1_11_0']
+
+  input:
+    label: input
+    widget: text_field
+    help: "File containing SRA/ENA/GEO/DDBJ identifiers one per line to download their associated metadata and FastQ files."
+
+  ena_metadata_fields:
+    label: ena_metadata_fields
+    widget: text_field
+    help: "Comma-separated list of ENA metadata fields to fetch before downloading data."
+
+  sample_mapping_fields:
+    value: "experiment_accession,run_accession,sample_accession,experiment_alias,run_alias,sample_alias,experiment_title,sample_title,sample_description"
+    label: sample_mapping_fields
+    widget: text_field
+    help: "Comma-separated list of ENA metadata fields used to create a separate `id_mappings.csv` and `multiqc_config.yml` with selected fields that can be used to rename samples in general and in MultiQC."
+
+  nf_core_pipeline:
+    widget: select
+    options:
+      - ['None', ' ']
+      - ['rnaseq', 'rnaseq']
+      - ['atacseq', 'atacseq']
+      - ['viralrecon', 'viralrecon']
+      - ['taxprofiler', 'taxprofiler']
+    label: nf_core_pipeline
+    help: "Name of supported nf-core pipeline e.g. `rnaseq`. A samplesheet for direct use with the pipeline will be created with the appropriate columns."
+
+  nf_core_rnaseq_strandedness:
+    value: "auto"
+    label: nf_core_rnaseq_strandedness
+    widget: text_field
+    help: "Value for `strandedness` entry added to samplesheet created when using `--nf_core_pipeline rnaseq`."
+
+  download_method:
+    value: "ftp"
+    widget: select
+    options:
+      - ['aspera', 'aspera']
+      - ['ftp', 'ftp']
+      - ['sratools', 'sratools']
+    label: download_method
+    help: "Method to download FastQ files. Available options are `aspera`, `ftp` or `sratools`. Default is `ftp`."
+
+  skip_fastq_download:
+    label: skip_fastq_download
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Only download metadata for public data database ids and don't download the FastQ files."
+
+  dbgap_key:
+    label: dbgap_key
+    widget: text_field
+    help: "dbGaP repository key."
+
+  outdir:
+    label: outdir
+    widget: text_field
+    help: "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure."
+
+
+form:
+  - bc_num_hours
+  - cpu_partition
+  - reservation
+  - version
+  - workdir
+  - outdir
+  - input
+  - ena_metadata_fields
+  - sample_mapping_fields
+  - nf_core_pipeline
+  - nf_core_rnaseq_strandedness
+  - download_method
+  - skip_fastq_download
+  - dbgap_key
+  - TOWER_ACCESS_TOKEN
+  - resume

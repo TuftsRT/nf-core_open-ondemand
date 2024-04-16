@@ -1,0 +1,8 @@
+---
+name: chipseq
+category: Bioinformatics Apps
+subcategory: nf-core pipelines
+role: batch_connect
+description: |
+  This app will launch the [chipseq](https://nf-co.re/chipseq) pipeline developed by nf-core community. 
+

@@ -1,0 +1,424 @@
+---
+cluster: "tuftshpc"
+
+attributes:
+
+  cpu_partition:
+    widget: "select"
+    label: "Select cpu partition"
+    help: "NOTE: Please do not choose specific lab partitions if you are not a member of that lab."
+    value: "batch"
+    options:
+      - ["batch","batch"]
+      - ["largemem", "largemem"]
+      - ["preempt", "preempt"]
+      - ["patralab", "patralab"]
+
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/reservation.yml").indent(2) %>
+
+  workdir:
+    label: "Working Directory"
+    data-filepicker: true
+    data-target-file-type: dirs  # Valid values are: files, dirs, or both
+    readonly: false
+    help: "Select your project directory; defaults to $HOME"
+    
+  resume:
+    label: resume
+    widget: check_box
+    checked_value: 1
+    unchecked_value: 0
+    help: |
+           Resume previous run if found
+
+  TOWER_ACCESS_TOKEN:
+    widget: "text_field"
+    required: false
+    label: "TOWER_ACCESS_TOKEN (Optional)"
+    help: "Your TOWER_ACCESS_TOKEN used to monitor runs on [Nextflow Tower](https://seqera.io)."
+
+
+  version:
+    label: Version
+    widget: select
+    options:
+      - ['3.4.0', '/cluster/tufts/biocontainers/nf-core/pipelines/nf-core-sarek/3.4.0/3_4_0']
+
+  input:
+    label: input
+    widget: text_field
+    help: "Path to comma-separated file containing information about the samples in the experiment."
+
+  step:
+    value: "mapping"
+    widget: select
+    options:
+      - ['mapping', 'mapping']
+      - ['markduplicates', 'markduplicates']
+      - ['prepare_recalibration', 'prepare_recalibration']
+      - ['recalibrate', 'recalibrate']
+      - ['variant_calling', 'variant_calling']
+      - ['annotate', 'annotate']
+    label: step
+    help: "Starting step"
+
+  outdir:
+    label: outdir
+    widget: text_field
+    help: "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure."
+
+  split_fastq:
+    value: "50000000"
+    label: split_fastq
+    widget: text_field
+    help: "Specify how many reads each split of a FastQ file contains. Set 0 to turn off splitting at all."
+
+  wes:
+    label: wes
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Enable when exome or panel data is provided."
+
+  intervals:
+    label: intervals
+    widget: text_field
+    help: "Path to target bed file in case of whole exome or targeted sequencing or intervals file."
+
+  nucleotides_per_second:
+    value: "200000"
+    label: nucleotides_per_second
+    widget: text_field
+    help: "Estimate interval size."
+
+  no_intervals:
+    label: no_intervals
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Disable usage of intervals."
+
+  tools:
+    label: tools
+    widget: text_field
+    help: "Tools to use for duplicate marking, variant calling and/or for annotation."
+
+  skip_tools:
+    label: skip_tools
+    widget: text_field
+    help: "Disable specified tools."
+
+  trim_fastq:
+    label: trim_fastq
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Run FastP for read trimming"
+
+  umi_read_structure:
+    label: umi_read_structure
+    widget: text_field
+    help: "Specify UMI read structure"
+
+  aligner:
+    value: "bwa-mem"
+    widget: select
+    options:
+      - ['bwa-mem', 'bwa-mem']
+      - ['bwa-mem2', 'bwa-mem2']
+      - ['dragmap', 'dragmap']
+      - ['sentieon-bwamem', 'sentieon-bwamem']
+    label: aligner
+    help: "Specify aligner to be used to map reads to reference genome."
+
+  save_mapped:
+    label: save_mapped
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save mapped files."
+
+  save_output_as_bam:
+    label: save_output_as_bam
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Saves output from mapping (if `--save_mapped`), Markduplicates & Baserecalibration as BAM file instead of CRAM"
+
+  use_gatk_spark:
+    label: use_gatk_spark
+    widget: text_field
+    help: "Enable usage of GATK Spark implementation for duplicate marking and/or base quality score recalibration"
+
+  concatenate_vcfs:
+    label: concatenate_vcfs
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Option for concatenating germline vcf-files."
+
+  only_paired_variant_calling:
+    label: only_paired_variant_calling
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "If true, skips germline variant calling for matched normal to tumor sample. Normal samples without matched tumor will still be processed through germline variant calling tools."
+
+  joint_germline:
+    label: joint_germline
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on the joint germline variant calling for GATK haplotypecaller"
+
+  joint_mutect2:
+    label: joint_mutect2
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Runs Mutect2 in joint (multi-sample) mode for better concordance among variant calls of tumor samples from the same patient. Mutect2 outputs will be stored in a subfolder named with patient ID under `variant_calling/mutect2/` folder. Only a single normal sample per patient is allowed. Tumor-only mode is also supported."
+
+  vep_custom_args:
+    value: "--everything --filter_common --per_gene --total_length --offline --format vcf"
+    label: vep_custom_args
+    widget: text_field
+    help: "Add an extra custom argument to VEP."
+
+  vep_version:
+    value: "110.0-0"
+    label: vep_version
+    widget: text_field
+    help: "Should reflect the VEP version used in the container."
+
+  bcftools_annotations:
+    label: bcftools_annotations
+    widget: text_field
+
+  bcftools_annotations_index:
+    label: bcftools_annotations_index
+    widget: text_field
+
+  bcftools_header_lines:
+    label: bcftools_header_lines
+    widget: text_field
+
+  genome:
+    label: iGenomes
+    widget: select
+    required: false
+    options:
+      - ['None', ' ']
+      - ['GRCh37', 'GRCh37']
+      - ['GRCh38', 'GRCh38']
+      - ['GRCm38', 'GRCm38']
+      - ['TAIR10', 'TAIR10']
+      - ['EB2', 'EB2']
+      - ['UMD3.1', 'UMD3.1']
+      - ['WBcel235', 'WBcel235']
+      - ['CanFam3.1', 'CanFam3.1']
+      - ['GRCz10', 'GRCz10']
+      - ['BDGP6', 'BDGP6']
+      - ['EquCab2', 'EquCab2']
+      - ['EB1', 'EB1']
+      - ['Galgal4', 'Galgal4']
+      - ['Gm01', 'Gm01']
+      - ['Mmul_1', 'Mmul_1']
+      - ['IRGSP-1.0', 'IRGSP-1.0']
+      - ['CHIMP2.1.4', 'CHIMP2.1.4']
+      - ['Rnor_5.0', 'Rnor_5.0']
+      - ['Rnor_6.0', 'Rnor_6.0']
+      - ['R64-1-1', 'R64-1-1']
+      - ['EF2', 'EF2']
+      - ['Sbi1', 'Sbi1']
+      - ['Sscrofa10.2', 'Sscrofa10.2']
+      - ['AGPv3', 'AGPv3']
+      - ['hg38', 'hg38']
+      - ['hg19', 'hg19']
+      - ['mm10', 'mm10']
+      - ['bosTau8', 'bosTau8']
+      - ['ce10', 'ce10']
+      - ['canFam3', 'canFam3']
+      - ['danRer10', 'danRer10']
+      - ['dm6', 'dm6']
+      - ['equCab2', 'equCab2']
+      - ['galGal4', 'galGal4']
+      - ['panTro4', 'panTro4']
+      - ['rn6', 'rn6']
+      - ['sacCer3', 'sacCer3']
+      - ['susScr3', 'susScr3']
+    help: "Name of iGenomes reference."
+  dbsnp_vqsr:
+    label: dbsnp_vqsr
+    widget: text_field
+    help: "label string for VariantRecalibration (haplotypecaller joint variant calling)"
+
+  fasta:
+    label: fasta
+    widget: text_field
+    help: "Path to FASTA genome file."
+
+  fasta_fai:
+    label: fasta_fai
+    widget: text_field
+    help: "Path to FASTA reference index."
+
+  known_indels_vqsr:
+    label: known_indels_vqsr
+    widget: text_field
+    help: "If you use AWS iGenomes, this has already been set for you appropriately.
+
+1st label string for VariantRecalibration (haplotypecaller joint variant calling)"
+
+  known_snps:
+    label: known_snps
+    widget: text_field
+    help: "If you use AWS iGenomes, this has already been set for you appropriately.
+
+Path to known snps file."
+
+  known_snps_tbi:
+    label: known_snps_tbi
+    widget: text_field
+    help: "Path to known snps file snps."
+
+  known_snps_vqsr:
+    label: known_snps_vqsr
+    widget: text_field
+    help: "If you use AWS iGenomes, this has already been set for you appropriately.
+
+label string for VariantRecalibration (haplotypecaller joint variant calling)"
+
+  ngscheckmate_bed:
+    label: ngscheckmate_bed
+    widget: text_field
+    help: "Path to SNP bed file for sample checking with NGSCheckMate"
+
+  snpeff_db:
+    label: snpeff_db
+    widget: text_field
+    help: "snpEff DB version."
+
+  snpeff_genome:
+    label: snpeff_genome
+    widget: text_field
+    help: "snpEff genome."
+
+  vep_genome:
+    label: vep_genome
+    widget: text_field
+    help: "VEP genome."
+
+  vep_species:
+    label: vep_species
+    widget: text_field
+    help: "VEP species."
+
+  vep_cache_version:
+    label: vep_cache_version
+    widget: text_field
+    help: "VEP cache version."
+
+  save_reference:
+    label: save_reference
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save built references."
+
+  build_only_index:
+    label: build_only_index
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Only built references."
+
+  download_cache:
+    label: download_cache
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Download annotation cache."
+
+  igenomes_base:
+    value: "s3://ngi-igenomes/igenomes/"
+    label: igenomes_base
+    widget: text_field
+    help: "Directory / URL base for iGenomes references."
+
+  vep_cache:
+    value: "s3://annotation-cache/vep_cache/"
+    label: vep_cache
+    widget: text_field
+    help: "Path to VEP cache."
+
+  snpeff_cache:
+    value: "s3://annotation-cache/snpeff_cache/"
+    label: snpeff_cache
+    widget: text_field
+    help: "Path to snpEff cache."
+
+
+form:
+  - bc_num_hours
+  - cpu_partition
+  - reservation
+  - version
+  - workdir
+  - outdir
+  - input
+  - step
+  - split_fastq
+  - wes
+  - intervals
+  - nucleotides_per_second
+  - no_intervals
+  - tools
+  - skip_tools
+  - trim_fastq
+  - umi_read_structure
+  - aligner
+  - save_mapped
+  - save_output_as_bam
+  - use_gatk_spark
+  - concatenate_vcfs
+  - only_paired_variant_calling
+  - joint_germline
+  - joint_mutect2
+  - vep_custom_args
+  - vep_version
+  - bcftools_annotations
+  - bcftools_annotations_index
+  - bcftools_header_lines
+  - genome
+  - dbsnp_vqsr
+  - fasta
+  - fasta_fai
+  - known_indels_vqsr
+  - known_snps
+  - known_snps_tbi
+  - known_snps_vqsr
+  - ngscheckmate_bed
+  - snpeff_db
+  - snpeff_genome
+  - vep_genome
+  - vep_species
+  - vep_cache_version
+  - save_reference
+  - build_only_index
+  - download_cache
+  - vep_cache
+  - snpeff_cache
+  - TOWER_ACCESS_TOKEN
+  - resume

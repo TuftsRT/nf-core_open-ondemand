@@ -1,0 +1,350 @@
+---
+cluster: "tuftshpc"
+
+attributes:
+
+  cpu_partition:
+    widget: "select"
+    label: "Select cpu partition"
+    help: "NOTE: Please do not choose specific lab partitions if you are not a member of that lab."
+    value: "batch"
+    options:
+      - ["batch","batch"]
+      - ["largemem", "largemem"]
+      - ["preempt", "preempt"]
+      - ["patralab", "patralab"]
+
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/reservation.yml").indent(2) %>
+
+  workdir:
+    label: "Working Directory"
+    data-filepicker: true
+    data-target-file-type: dirs  # Valid values are: files, dirs, or both
+    readonly: false
+    help: "Select your project directory; defaults to $HOME"
+    
+  resume:
+    label: resume
+    widget: check_box
+    checked_value: 1
+    unchecked_value: 0
+    help: |
+           Resume previous run if found
+
+  TOWER_ACCESS_TOKEN:
+    widget: "text_field"
+    required: false
+    label: "TOWER_ACCESS_TOKEN (Optional)"
+    help: "Your TOWER_ACCESS_TOKEN used to monitor runs on [Nextflow Tower](https://seqera.io)."
+
+
+  version:
+    label: Version
+    widget: select
+    options:
+      - ['1.0.0', '/cluster/tufts/biocontainers/nf-core/pipelines/nf-core-metatdenovo/1.0.0/1_0_0']
+
+  input:
+    label: input
+    widget: text_field
+    help: "Path to comma-separated file containing information about the samples in the experiment."
+
+  se_reads:
+    label: se_reads
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "activate when using single end reads input"
+
+  outdir:
+    value: "./results"
+    label: outdir
+    widget: text_field
+    help: "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure."
+
+  multiqc_title:
+    label: multiqc_title
+    widget: text_field
+    help: "MultiQC report title. Printed as page header, used for filename if not otherwise specified."
+
+  skip_qc:
+    label: skip_qc
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip all QC steps except for MultiQC."
+
+  skip_fastqc:
+    label: skip_fastqc
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip FastQC."
+
+  clip_r1:
+    label: clip_r1
+    widget: text_field
+    help: "Instructs Trim Galore to remove bp from the 5` end of read 1 (or single-end reads)."
+
+  clip_r2:
+    label: clip_r2
+    widget: text_field
+    help: "Instructs Trim Galore to remove bp from the 5` end of read 2 (paired-end reads only)."
+
+  three_prime_clip_r1:
+    label: three_prime_clip_r1
+    widget: text_field
+    help: "Instructs Trim Galore to remove bp from the 3` end of read 1 AFTER adapter/quality trimming has been performed."
+
+  three_prime_clip_r2:
+    label: three_prime_clip_r2
+    widget: text_field
+    help: "Instructs Trim Galore to remove bp from the 3` end of read 2 AFTER adapter/quality trimming has been performed."
+
+  save_trimmed:
+    label: save_trimmed
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save the trimmed FastQ files in the results directory."
+
+  trim_nextseq:
+    label: trim_nextseq
+    widget: text_field
+    help: "Instructs Trim Galore to apply the --nextseq=X option, to trim based on quality after removing poly-G tails."
+
+  skip_trimming:
+    label: skip_trimming
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip the adapter trimming step."
+
+  sequence_filter:
+    label: sequence_filter
+    widget: text_field
+    help: "Fasta file with sequences to filter away before running assembly etc.."
+
+  bbnorm:
+    label: bbnorm
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Perform normalization to reduce sequencing depth."
+
+  bbnorm_target:
+    value: "100"
+    label: bbnorm_target
+    widget: text_field
+    help: "Reduce the number of reads for assembly average coverage of this number."
+
+  bbnorm_min:
+    value: "5"
+    label: bbnorm_min
+    widget: text_field
+    help: "Reads with an apparent depth of under nx will be presumed to be errors and discarded"
+
+  save_bbnorm_fastq:
+    label: save_bbnorm_fastq
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "save the resulting fastq files from normalization"
+
+  assembler:
+    value: "megahit"
+    widget: select
+    options:
+      - ['megahit', 'megahit']
+      - ['rnaspades', 'rnaspades']
+    label: assembler
+    help: "Specify which assembler you would like to run, possible alternatives: megahit, rnaspades. default: megahit"
+
+  assembly:
+    label: assembly
+    widget: text_field
+    help: "Path to a fasta file with a finished assembly. Assembly will be skipped by the pipeline."
+
+  min_contig_length:
+    value: "0"
+    label: min_contig_length
+    widget: text_field
+    help: "Filter out contigs shorter than this."
+
+  save_bam:
+    label: save_bam
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save the bam files from mapping"
+
+  save_samtools:
+    label: save_samtools
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save the output from samtools"
+
+  protein_fasta:
+    label: protein_fasta
+    widget: text_field
+    help: "Path to a protein fasta file"
+
+  gff:
+    label: gff
+    widget: text_field
+    help: "Path to a gff file"
+
+  orf_caller:
+    value: "prodigal"
+    widget: select
+    options:
+      - ['prodigal', 'prodigal']
+      - ['prokka', 'prokka']
+      - ['transdecoder', 'transdecoder']
+    label: orf_caller
+    help: "Specify which ORF caller you would like to run, possible alternatives: prodigal, prokka, transdecoder, default: prodigal."
+
+  prodigal_trainingfile:
+    label: prodigal_trainingfile
+    widget: text_field
+    help: "Specify a training file for prodigal. By default prodigal will learn from the input sequences"
+
+  skip_eggnog:
+    value: "False"
+    label: skip_eggnog
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip EGGNOG functional annotation"
+
+  eggnog_dbpath:
+    value: "eggnog"
+    label: eggnog_dbpath
+    widget: text_field
+    help: "Specify EGGNOG database path"
+
+  skip_kofamscan:
+    value: "False"
+    label: skip_kofamscan
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "skip kofamscan run"
+
+  kofam_dir:
+    value: "./kofam/"
+    label: kofam_dir
+    widget: text_field
+    help: "Path to a directory with KOfam files. Will be created if it doesn't exist."
+
+  hmmdir:
+    label: hmmdir
+    widget: text_field
+    help: "Directory with hmm files which will be searched for among ORFs"
+
+  hmmfiles:
+    label: hmmfiles
+    widget: text_field
+    help: "Comma-separated list of hmm files which will be searched for among ORFs"
+
+  hmmpattern:
+    value: "*.hmm"
+    label: hmmpattern
+    widget: text_field
+    help: "specify which pattern hmm files end with"
+
+  skip_eukulele:
+    value: "False"
+    label: skip_eukulele
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "skip eukulele run"
+
+  eukulele_method:
+    value: "mets"
+    widget: select
+    options:
+      - ['mets', 'mets']
+      - ['mags', 'mags']
+    label: eukulele_method
+    help: "Specify which method to use for EUKulele. the alternatives are: mets (metatranscriptomics) or  mags (Metagenome Assembled Genomes). default: mets"
+
+  eukulele_db:
+    widget: select
+    options:
+      - ['None', ' ']
+      - ['gtdb', 'gtdb']
+      - ['phylodb', 'phylodb']
+      - ['marmmetsp', 'marmmetsp']
+      - ['mmetsp', 'mmetsp']
+      - ['eukprot', 'eukprot']
+    label: eukulele_db
+    help: "EUKulele database."
+
+  eukulele_dbpath:
+    value: "./eukulele/"
+    label: eukulele_dbpath
+    widget: text_field
+    help: "EUKulele database folder."
+
+
+form:
+  - bc_num_hours
+  - cpu_partition
+  - reservation
+  - version
+  - workdir
+  - outdir
+  - input
+  - se_reads
+  - multiqc_title
+  - skip_qc
+  - skip_fastqc
+  - clip_r1
+  - clip_r2
+  - three_prime_clip_r1
+  - three_prime_clip_r2
+  - save_trimmed
+  - trim_nextseq
+  - skip_trimming
+  - sequence_filter
+  - bbnorm
+  - bbnorm_target
+  - bbnorm_min
+  - save_bbnorm_fastq
+  - assembler
+  - assembly
+  - min_contig_length
+  - save_bam
+  - save_samtools
+  - protein_fasta
+  - gff
+  - orf_caller
+  - prodigal_trainingfile
+  - skip_eggnog
+  - eggnog_dbpath
+  - skip_kofamscan
+  - kofam_dir
+  - hmmdir
+  - hmmfiles
+  - hmmpattern
+  - skip_eukulele
+  - eukulele_method
+  - eukulele_db
+  - eukulele_dbpath
+  - TOWER_ACCESS_TOKEN
+  - resume

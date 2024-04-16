@@ -1,0 +1,543 @@
+---
+cluster: "tuftshpc"
+
+attributes:
+
+  cpu_partition:
+    widget: "select"
+    label: "Select cpu partition"
+    help: "NOTE: Please do not choose specific lab partitions if you are not a member of that lab."
+    value: "batch"
+    options:
+      - ["batch","batch"]
+      - ["largemem", "largemem"]
+      - ["preempt", "preempt"]
+      - ["patralab", "patralab"]
+
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/reservation.yml").indent(2) %>
+
+  workdir:
+    label: "Working Directory"
+    data-filepicker: true
+    data-target-file-type: dirs  # Valid values are: files, dirs, or both
+    readonly: false
+    help: "Select your project directory; defaults to $HOME"
+    
+  resume:
+    label: resume
+    widget: check_box
+    checked_value: 1
+    unchecked_value: 0
+    help: |
+           Resume previous run if found
+
+  TOWER_ACCESS_TOKEN:
+    widget: "text_field"
+    required: false
+    label: "TOWER_ACCESS_TOKEN (Optional)"
+    help: "Your TOWER_ACCESS_TOKEN used to monitor runs on [Nextflow Tower](https://seqera.io)."
+
+
+  version:
+    label: Version
+    widget: select
+    options:
+      - ['2.1.2', '/cluster/tufts/biocontainers/nf-core/pipelines/nf-core-atacseq/2.1.2/2_1_2']
+
+  input:
+    label: input
+    widget: text_field
+    help: "Path to comma-separated file containing information about the samples in the experiment."
+
+  fragment_size:
+    value: "200"
+    label: fragment_size
+    widget: text_field
+    help: "Estimated fragment size used to extend single-end reads."
+
+  seq_center:
+    label: seq_center
+    widget: text_field
+    help: "Sequencing center information to be added to read group of BAM files."
+
+  read_length:
+    widget: select
+    options:
+      - ['None', ' ']
+      - ['50', '50']
+      - ['75', '75']
+      - ['100', '100']
+      - ['150', '150']
+      - ['200', '200']
+    label: read_length
+    help: "Read length used to calculate or retrieve pre-computed MACS2 genome size for peak calling if `--macs_gsize` isn't provided."
+
+  with_control:
+    label: with_control
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Use controls."
+
+  outdir:
+    label: outdir
+    widget: text_field
+    help: "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure."
+
+  multiqc_title:
+    label: multiqc_title
+    widget: text_field
+    help: "MultiQC report title. Printed as page header, used for filename if not otherwise specified."
+
+  genome:
+    label: iGenomes
+    widget: select
+    required: false
+    options:
+      - ['None', ' ']
+      - ['GRCh37', 'GRCh37']
+      - ['GRCh38', 'GRCh38']
+      - ['GRCm38', 'GRCm38']
+      - ['TAIR10', 'TAIR10']
+      - ['EB2', 'EB2']
+      - ['UMD3.1', 'UMD3.1']
+      - ['WBcel235', 'WBcel235']
+      - ['CanFam3.1', 'CanFam3.1']
+      - ['GRCz10', 'GRCz10']
+      - ['BDGP6', 'BDGP6']
+      - ['EquCab2', 'EquCab2']
+      - ['EB1', 'EB1']
+      - ['Galgal4', 'Galgal4']
+      - ['Gm01', 'Gm01']
+      - ['Mmul_1', 'Mmul_1']
+      - ['IRGSP-1.0', 'IRGSP-1.0']
+      - ['CHIMP2.1.4', 'CHIMP2.1.4']
+      - ['Rnor_5.0', 'Rnor_5.0']
+      - ['Rnor_6.0', 'Rnor_6.0']
+      - ['R64-1-1', 'R64-1-1']
+      - ['EF2', 'EF2']
+      - ['Sbi1', 'Sbi1']
+      - ['Sscrofa10.2', 'Sscrofa10.2']
+      - ['AGPv3', 'AGPv3']
+      - ['hg38', 'hg38']
+      - ['hg19', 'hg19']
+      - ['mm10', 'mm10']
+      - ['bosTau8', 'bosTau8']
+      - ['ce10', 'ce10']
+      - ['canFam3', 'canFam3']
+      - ['danRer10', 'danRer10']
+      - ['dm6', 'dm6']
+      - ['equCab2', 'equCab2']
+      - ['galGal4', 'galGal4']
+      - ['panTro4', 'panTro4']
+      - ['rn6', 'rn6']
+      - ['sacCer3', 'sacCer3']
+      - ['susScr3', 'susScr3']
+    help: "Name of iGenomes reference."
+  fasta:
+    label: fasta
+    widget: text_field
+    help: "Path to FASTA genome file."
+
+  gtf:
+    label: gtf
+    widget: text_field
+    help: "Path to GTF annotation file."
+
+  gff:
+    label: gff
+    widget: text_field
+    help: "Path to GFF3 annotation file."
+
+  bwa_index:
+    label: bwa_index
+    widget: text_field
+    help: "Path to directory or tar.gz archive for pre-built BWA index."
+
+  bowtie2_index:
+    label: bowtie2_index
+    widget: text_field
+    help: "Path to directory or tar.gz archive for pre-built Bowtie2 index."
+
+  chromap_index:
+    label: chromap_index
+    widget: text_field
+    help: "Path to directory or tar.gz archive for pre-built Chromap index."
+
+  star_index:
+    label: star_index
+    widget: text_field
+    help: "Path to directory or tar.gz archive for pre-built STAR index."
+
+  gene_bed:
+    label: gene_bed
+    widget: text_field
+    help: "Path to BED file containing gene intervals. This will be created from the GTF file if not specified."
+
+  tss_bed:
+    label: tss_bed
+    widget: text_field
+    help: "Path to BED file containing transcription start sites. This will be created from the gene BED file if not specified."
+
+  macs_gsize:
+    label: macs_gsize
+    widget: text_field
+    help: "Effective genome size parameter required by MACS2."
+
+  blacklist:
+    label: blacklist
+    widget: text_field
+    help: "Path to blacklist regions in BED format, used for filtering alignments."
+
+  mito_name:
+    label: mito_name
+    widget: text_field
+    help: "Name of Mitochondrial chomosome in reference assembly e.g. chrM."
+
+  save_reference:
+    label: save_reference
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "If generated by the pipeline save the aligner index (e.g. BWA) in the results directory."
+
+  keep_mito:
+    value: "False"
+    label: keep_mito
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Reads mapping to mitochondrial contig are not filtered from alignments."
+
+  ataqv_mito_reference:
+    label: ataqv_mito_reference
+    widget: text_field
+    help: "Sets the value of the ataqv --mitochondrial-reference-name argument"
+
+  clip_r1:
+    label: clip_r1
+    widget: text_field
+    help: "Instructs Trim Galore to remove bp from the 5` end of read 1 (or single-end reads)."
+
+  clip_r2:
+    label: clip_r2
+    widget: text_field
+    help: "Instructs Trim Galore to remove bp from the 5` end of read 2 (paired-end reads only)."
+
+  three_prime_clip_r1:
+    label: three_prime_clip_r1
+    widget: text_field
+    help: "Instructs Trim Galore to remove bp from the 3` end of read 1 AFTER adapter/quality trimming has been performed."
+
+  three_prime_clip_r2:
+    label: three_prime_clip_r2
+    widget: text_field
+    help: "Instructs Trim Galore to remove bp from the 3` end of read 2 AFTER adapter/quality trimming has been performed."
+
+  trim_nextseq:
+    label: trim_nextseq
+    widget: text_field
+    help: "Instructs Trim Galore to apply the --nextseq=X option, to trim based on quality after removing poly-G tails."
+
+  min_trimmed_reads:
+    value: "10000"
+    label: min_trimmed_reads
+    widget: text_field
+    help: "Minimum number of trimmed reads below which samples are removed from further processing. Some downstream steps in the pipeline will fail if this threshold is too low."
+
+  skip_trimming:
+    label: skip_trimming
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip the adapter trimming step."
+
+  save_trimmed:
+    label: save_trimmed
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save the trimmed FastQ files in the results directory."
+
+  aligner:
+    value: "bwa"
+    widget: select
+    options:
+      - ['bwa', 'bwa']
+      - ['bowtie2', 'bowtie2']
+      - ['chromap', 'chromap']
+      - ['star', 'star']
+    label: aligner
+    help: "Specifies the alignment algorithm to use - available options are `bwa`, `bowtie2`, `chromap` and `star`."
+
+  keep_dups:
+    label: keep_dups
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Duplicate reads are not filtered from alignments."
+
+  keep_multi_map:
+    label: keep_multi_map
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Reads mapping to multiple locations are not filtered from alignments."
+
+  bwa_min_score:
+    label: bwa_min_score
+    widget: text_field
+    help: "Don’t output BWA MEM alignments with score lower than this parameter."
+
+  skip_merge_replicates:
+    value: "False"
+    label: skip_merge_replicates
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Do not perform alignment merging and downstream analysis by merging replicates i.e. only do this by merging resequenced libraries."
+
+  save_align_intermeds:
+    label: save_align_intermeds
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save the intermediate BAM files from the alignment step."
+
+  save_unaligned:
+    label: save_unaligned
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Where possible, save unaligned reads from either STAR, HISAT2 or Salmon to the results directory."
+
+  narrow_peak:
+    label: narrow_peak
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Run MACS2 in narrowPeak mode."
+
+  broad_cutoff:
+    value: "0.1"
+    label: broad_cutoff
+    widget: text_field
+    help: "Specifies broad cutoff value for MACS2. Only used when --narrow_peak isnt specified."
+
+  macs_fdr:
+    label: macs_fdr
+    widget: text_field
+    help: "Minimum FDR (q-value) cutoff for peak detection, --macs_fdr and --macs_pvalue are mutually exclusive."
+
+  macs_pvalue:
+    label: macs_pvalue
+    widget: text_field
+    help: "p-value cutoff for peak detection, --macs_fdr and --macs_pvalue are mutually exclusive. If --macs_pvalue cutoff is set, q-value will not be calculated and reported as -1 in the final .xls file."
+
+  min_reps_consensus:
+    value: "1"
+    label: min_reps_consensus
+    widget: text_field
+    help: "Number of biological replicates required from a given condition for a peak to contribute to a consensus peak."
+
+  save_macs_pileup:
+    label: save_macs_pileup
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Instruct MACS2 to create bedGraph files normalised to signal per million reads."
+
+  skip_peak_qc:
+    label: skip_peak_qc
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip MACS2 peak QC plot generation."
+
+  skip_peak_annotation:
+    label: skip_peak_annotation
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip annotation of MACS2 and consensus peaks with HOMER."
+
+  skip_consensus_peaks:
+    label: skip_consensus_peaks
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip consensus peak generation, annotation and counting."
+
+  deseq2_vst:
+    value: "True"
+    label: deseq2_vst
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Use vst transformation instead of rlog with DESeq2."
+
+  skip_deseq2_qc:
+    label: skip_deseq2_qc
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip DESeq2 PCA and heatmap plotting."
+
+  skip_fastqc:
+    label: skip_fastqc
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip FastQC."
+
+  skip_picard_metrics:
+    label: skip_picard_metrics
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip Picard CollectMultipleMetrics."
+
+  skip_preseq:
+    value: "True"
+    label: skip_preseq
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip Preseq."
+
+  skip_plot_profile:
+    label: skip_plot_profile
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip deepTools plotProfile."
+
+  skip_plot_fingerprint:
+    label: skip_plot_fingerprint
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip deepTools plotFingerprint."
+
+  skip_igv:
+    label: skip_igv
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip IGV."
+
+  skip_multiqc:
+    label: skip_multiqc
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip MultiQC."
+
+  skip_qc:
+    label: skip_qc
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip all QC steps except for MultiQC."
+
+  skip_ataqv:
+    value: "False"
+    label: skip_ataqv
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip Ataqv."
+
+
+form:
+  - bc_num_hours
+  - cpu_partition
+  - reservation
+  - version
+  - workdir
+  - outdir
+  - input
+  - fragment_size
+  - seq_center
+  - read_length
+  - with_control
+  - multiqc_title
+  - genome
+  - fasta
+  - gtf
+  - gff
+  - bwa_index
+  - bowtie2_index
+  - chromap_index
+  - star_index
+  - gene_bed
+  - tss_bed
+  - macs_gsize
+  - blacklist
+  - mito_name
+  - save_reference
+  - keep_mito
+  - ataqv_mito_reference
+  - clip_r1
+  - clip_r2
+  - three_prime_clip_r1
+  - three_prime_clip_r2
+  - trim_nextseq
+  - min_trimmed_reads
+  - skip_trimming
+  - save_trimmed
+  - aligner
+  - keep_dups
+  - keep_multi_map
+  - bwa_min_score
+  - skip_merge_replicates
+  - save_align_intermeds
+  - save_unaligned
+  - narrow_peak
+  - broad_cutoff
+  - macs_fdr
+  - macs_pvalue
+  - min_reps_consensus
+  - save_macs_pileup
+  - skip_peak_qc
+  - skip_peak_annotation
+  - skip_consensus_peaks
+  - deseq2_vst
+  - skip_deseq2_qc
+  - skip_fastqc
+  - skip_picard_metrics
+  - skip_preseq
+  - skip_plot_profile
+  - skip_plot_fingerprint
+  - skip_igv
+  - skip_multiqc
+  - skip_qc
+  - skip_ataqv
+  - TOWER_ACCESS_TOKEN
+  - resume

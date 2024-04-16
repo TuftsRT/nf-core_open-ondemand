@@ -1,0 +1,8 @@
+---
+name: rnasplice
+category: Bioinformatics Apps
+subcategory: nf-core pipelines
+role: batch_connect
+description: |
+  This app will launch the [rnasplice](https://nf-co.re/rnasplice) pipeline developed by nf-core community. 
+

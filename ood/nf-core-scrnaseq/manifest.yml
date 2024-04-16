@@ -1,0 +1,8 @@
+---
+name: scrnaseq
+category: Bioinformatics Apps
+subcategory: nf-core pipelines
+role: batch_connect
+description: |
+  This app will launch the [scrnaseq](https://nf-co.re/scrnaseq) pipeline developed by nf-core community. 
+

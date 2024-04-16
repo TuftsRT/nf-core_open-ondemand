@@ -1,0 +1,296 @@
+---
+cluster: "tuftshpc"
+
+attributes:
+
+  cpu_partition:
+    widget: "select"
+    label: "Select cpu partition"
+    help: "NOTE: Please do not choose specific lab partitions if you are not a member of that lab."
+    value: "batch"
+    options:
+      - ["batch","batch"]
+      - ["largemem", "largemem"]
+      - ["preempt", "preempt"]
+      - ["patralab", "patralab"]
+
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/reservation.yml").indent(2) %>
+
+  workdir:
+    label: "Working Directory"
+    data-filepicker: true
+    data-target-file-type: dirs  # Valid values are: files, dirs, or both
+    readonly: false
+    help: "Select your project directory; defaults to $HOME"
+    
+  resume:
+    label: resume
+    widget: check_box
+    checked_value: 1
+    unchecked_value: 0
+    help: |
+           Resume previous run if found
+
+  TOWER_ACCESS_TOKEN:
+    widget: "text_field"
+    required: false
+    label: "TOWER_ACCESS_TOKEN (Optional)"
+    help: "Your TOWER_ACCESS_TOKEN used to monitor runs on [Nextflow Tower](https://seqera.io)."
+
+
+  version:
+    label: Version
+    widget: select
+    options:
+      - ['2.5.1', '/cluster/tufts/biocontainers/nf-core/pipelines/nf-core-scrnaseq/2.5.1/2_5_1']
+
+  input:
+    label: input
+    widget: text_field
+    help: "Path to comma-separated file containing information about the samples in the experiment."
+
+  outdir:
+    label: outdir
+    widget: text_field
+    help: "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure."
+
+  multiqc_title:
+    label: multiqc_title
+    widget: text_field
+    help: "MultiQC report title. Printed as page header, used for filename if not otherwise specified."
+
+  barcode_whitelist:
+    label: barcode_whitelist
+    widget: text_field
+    help: "If not using the 10X Genomics platform, a custom barcode whitelist can be used with `--barcode_whitelist`."
+
+  aligner:
+    value: "alevin"
+    widget: select
+    options:
+      - ['kallisto', 'kallisto']
+      - ['star', 'star']
+      - ['alevin', 'alevin']
+      - ['cellranger', 'cellranger']
+      - ['cellrangerarc', 'cellrangerarc']
+      - ['universc', 'universc']
+    label: aligner
+    help: "Name of the tool to use for scRNA (pseudo-) alignment."
+
+  protocol:
+    value: "auto"
+    label: protocol
+    widget: text_field
+    help: "The protocol that was used to generate the single cell data, e.g. 10x Genomics v2 Chemistry.
+
+ Can be `auto` (cellranger only), `10XV1`, `10XV2`, `10XV3`, or any other protocol string that will get directly passed the respective aligner."
+
+  skip_multiqc:
+    label: skip_multiqc
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip MultiQC Report"
+
+  skip_fastqc:
+    label: skip_fastqc
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip FastQC"
+
+  genome:
+    label: iGenomes
+    widget: select
+    required: false
+    options:
+      - ['None', ' ']
+      - ['GRCh37', 'GRCh37']
+      - ['GRCh38', 'GRCh38']
+      - ['GRCm38', 'GRCm38']
+      - ['TAIR10', 'TAIR10']
+      - ['EB2', 'EB2']
+      - ['UMD3.1', 'UMD3.1']
+      - ['WBcel235', 'WBcel235']
+      - ['CanFam3.1', 'CanFam3.1']
+      - ['GRCz10', 'GRCz10']
+      - ['BDGP6', 'BDGP6']
+      - ['EquCab2', 'EquCab2']
+      - ['EB1', 'EB1']
+      - ['Galgal4', 'Galgal4']
+      - ['Gm01', 'Gm01']
+      - ['Mmul_1', 'Mmul_1']
+      - ['IRGSP-1.0', 'IRGSP-1.0']
+      - ['CHIMP2.1.4', 'CHIMP2.1.4']
+      - ['Rnor_5.0', 'Rnor_5.0']
+      - ['Rnor_6.0', 'Rnor_6.0']
+      - ['R64-1-1', 'R64-1-1']
+      - ['EF2', 'EF2']
+      - ['Sbi1', 'Sbi1']
+      - ['Sscrofa10.2', 'Sscrofa10.2']
+      - ['AGPv3', 'AGPv3']
+      - ['hg38', 'hg38']
+      - ['hg19', 'hg19']
+      - ['mm10', 'mm10']
+      - ['bosTau8', 'bosTau8']
+      - ['ce10', 'ce10']
+      - ['canFam3', 'canFam3']
+      - ['danRer10', 'danRer10']
+      - ['dm6', 'dm6']
+      - ['equCab2', 'equCab2']
+      - ['galGal4', 'galGal4']
+      - ['panTro4', 'panTro4']
+      - ['rn6', 'rn6']
+      - ['sacCer3', 'sacCer3']
+      - ['susScr3', 'susScr3']
+    help: "Name of iGenomes reference."
+  fasta:
+    label: fasta
+    widget: text_field
+    help: "Path to FASTA genome file."
+
+  transcript_fasta:
+    label: transcript_fasta
+    widget: text_field
+    help: "A cDNA FASTA file"
+
+  gtf:
+    label: gtf
+    widget: text_field
+    help: "Reference GTF annotation file"
+
+  save_reference:
+    label: save_reference
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specify this parameter to save the indices created (STAR, Kallisto, Salmon) to the results."
+
+  salmon_index:
+    label: salmon_index
+    widget: text_field
+    help: "This can be used to specify a precomputed Salmon index in the pipeline, in order to skip the generation of required indices by Salmon itself."
+
+  txp2gene:
+    label: txp2gene
+    widget: text_field
+    help: "Path to transcript to gene mapping file. This allows the specification of a transcript to gene mapping file for Salmon Alevin and AlevinQC."
+
+  simpleaf_rlen:
+    value: "91"
+    label: simpleaf_rlen
+    widget: text_field
+    help: "It is the target read length the index will be built for, using simpleaf."
+
+  star_index:
+    label: star_index
+    widget: text_field
+    help: "Specify a path to the precomputed STAR index."
+
+  star_ignore_sjdbgtf:
+    label: star_ignore_sjdbgtf
+    widget: text_field
+    help: "Ignore the SJDB GTF file."
+
+  seq_center:
+    label: seq_center
+    widget: text_field
+    help: "Name of sequencing center for BAM read group tag."
+
+  star_feature:
+    value: "Gene"
+    widget: select
+    options:
+      - ['Gene', 'Gene']
+      - ['GeneFull', 'GeneFull']
+      - ['Gene Velocyto', 'Gene Velocyto']
+    label: star_feature
+    help: "Quantification type of different transcriptomic feature. Use `GeneFull` on pre-mRNA count for single-nucleus RNA-seq reads. Use `Gene Velocyto` to generate RNA velocity matrix."
+
+  kallisto_gene_map:
+    label: kallisto_gene_map
+    widget: text_field
+    help: "Specify a Kallisto gene mapping file here. If you don't, this will be automatically created in the Kallisto workflow when specifying a valid `--gtf` file."
+
+  kallisto_index:
+    label: kallisto_index
+    widget: text_field
+    help: "Specify a path to the precomputed Kallisto index."
+
+  kb_workflow:
+    value: "standard"
+    widget: select
+    options:
+      - ['standard', 'standard']
+      - ['lamanno', 'lamanno']
+      - ['nucleus', 'nucleus']
+      - ['kite', 'kite']
+      - ['kite: 10xFB', 'kite: 10xFB']
+    label: kb_workflow
+    help: "Type of workflow. Use `lamanno` for RNA velocity based on La Manno et al. 2018 logic. Use `nucleus` for RNA velocity on single-nucleus RNA-seq reads. Use `kite` for feature barcoding. Use `kite: 10xFB` for 10x Genomics Feature Barcoding technology. (default: standard)"
+
+  cellranger_index:
+    label: cellranger_index
+    widget: text_field
+    help: "Specify a pre-calculated cellranger index. Readily prepared indexes can be obtained from the 10x Genomics website. "
+
+  motifs:
+    label: motifs
+    widget: text_field
+    help: "Specify a motif file to create a cellranger-arc index. Can be taken, e.g., from the JASPAR database."
+
+  cellrangerarc_config:
+    label: cellrangerarc_config
+    widget: text_field
+    help: "Specify a config file to create the cellranger-arc index."
+
+  cellrangerarc_reference:
+    label: cellrangerarc_reference
+    widget: text_field
+    help: "Specify the genome reference name used in the config file to create a cellranger-arc index."
+
+  universc_index:
+    label: universc_index
+    widget: text_field
+    help: "Specify a pre-calculated cellranger index. Readily prepared indexes can be obtained from the 10x Genomics website."
+
+
+form:
+  - bc_num_hours
+  - cpu_partition
+  - reservation
+  - version
+  - workdir
+  - outdir
+  - input
+  - multiqc_title
+  - barcode_whitelist
+  - aligner
+  - protocol
+  - skip_multiqc
+  - skip_fastqc
+  - genome
+  - fasta
+  - transcript_fasta
+  - gtf
+  - save_reference
+  - salmon_index
+  - txp2gene
+  - simpleaf_rlen
+  - star_index
+  - star_ignore_sjdbgtf
+  - seq_center
+  - star_feature
+  - kallisto_gene_map
+  - kallisto_index
+  - kb_workflow
+  - cellranger_index
+  - motifs
+  - cellrangerarc_config
+  - cellrangerarc_reference
+  - universc_index
+  - TOWER_ACCESS_TOKEN
+  - resume

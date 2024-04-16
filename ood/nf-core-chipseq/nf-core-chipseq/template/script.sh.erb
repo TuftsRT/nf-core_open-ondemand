@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+
+# Clean the environment
+module purge
+
+# Go to workding directory
+workdir=<%= context.workdir %>
+
+if [ ! -d "$workdir" ]
+then
+	echo "$workdir does not exist."
+	mkdir -p $workdir
+
+fi
+cp nf-params.json $workdir/
+cd $workdir
+
+# Test whether resume is set
+if [ <%= context.resume %> -eq 1 ]
+then
+        echo "You job will resume previous run"
+        resume="-resume"
+else
+        echo "This is a fresh run"
+        resume=""
+fi
+
+# Test whether Tower will be used
+TOKEN=<%= context.TOWER_ACCESS_TOKEN %>
+
+if [[ -n "${TOKEN// }" ]]; then
+        echo "Your are using Nextflow Tower"
+        export TOWER_ACCESS_TOKEN=$TOKEN
+        with_tower="-with-tower"
+else
+        echo "You are not using Nextflow Tower"
+        with_tower=""
+fi
+
+# Load the required module
+module load singularity
+module load nf-core
+module list
+
+export NXF_SINGULARITY_CACHEDIR=/cluster/tufts/biocontainers/nf-core/singularity-images
+
+sed -i '/"[[:space:]]*"/d' nf-params.json
+sed -i 's/"\(-\?[0-9]\+\(\.[0-9]\+\)\?\)"/\1/g' nf-params.json
+sed -i 's/"\(true\|false\)"/\1/g' nf-params.json
+
+command="nextflow run <%= context.version %> -params-file nf-params.json -profile tufts --partition <%= context.cpu_partition %>  $resume $with_tower"
+echo $command
+eval $command
+

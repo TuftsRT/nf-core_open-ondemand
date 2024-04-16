@@ -1,0 +1,838 @@
+---
+cluster: "tuftshpc"
+
+attributes:
+
+  cpu_partition:
+    widget: "select"
+    label: "Select cpu partition"
+    help: "NOTE: Please do not choose specific lab partitions if you are not a member of that lab."
+    value: "batch"
+    options:
+      - ["batch","batch"]
+      - ["largemem", "largemem"]
+      - ["preempt", "preempt"]
+      - ["patralab", "patralab"]
+
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/reservation.yml").indent(2) %>
+
+  workdir:
+    label: "Working Directory"
+    data-filepicker: true
+    data-target-file-type: dirs  # Valid values are: files, dirs, or both
+    readonly: false
+    help: "Select your project directory; defaults to $HOME"
+    
+  resume:
+    label: resume
+    widget: check_box
+    checked_value: 1
+    unchecked_value: 0
+    help: |
+           Resume previous run if found
+
+  TOWER_ACCESS_TOKEN:
+    widget: "text_field"
+    required: false
+    label: "TOWER_ACCESS_TOKEN (Optional)"
+    help: "Your TOWER_ACCESS_TOKEN used to monitor runs on [Nextflow Tower](https://seqera.io)."
+
+
+  version:
+    label: Version
+    widget: select
+    options:
+      - ['1.1.5', '/cluster/tufts/biocontainers/nf-core/pipelines/nf-core-taxprofiler/1.1.5/1_1_5']
+
+  input:
+    label: input
+    widget: text_field
+    help: "Path to comma-separated file containing information about the samples and libraries/runs."
+
+  databases:
+    label: databases
+    widget: text_field
+    help: "Path to comma-separated file containing information about databases and profiling parameters for each taxonomic profiler"
+
+  outdir:
+    label: outdir
+    widget: text_field
+    help: "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure."
+
+  multiqc_title:
+    label: multiqc_title
+    widget: text_field
+    help: "MultiQC report title. Printed as page header, used for filename if not otherwise specified."
+
+  skip_preprocessing_qc:
+    label: skip_preprocessing_qc
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specify to skip sequencing quality control of raw sequencing reads"
+
+  preprocessing_qc_tool:
+    value: "fastqc"
+    widget: select
+    options:
+      - ['fastqc', 'fastqc']
+      - ['falco', 'falco']
+    label: preprocessing_qc_tool
+    help: "Specify the tool used for quality control of raw sequencing reads"
+
+  save_preprocessed_reads:
+    label: save_preprocessed_reads
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save reads from samples that went through the adapter clipping, pair-merging, and length filtering steps for both short and long reads"
+
+  save_analysis_ready_fastqs:
+    label: save_analysis_ready_fastqs
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save only the final reads from all read processing steps (that are sent to classification/profiling) in results directory."
+
+  perform_shortread_qc:
+    label: perform_shortread_qc
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turns on short read quality control steps (adapter clipping, complexity filtering etc.)"
+
+  shortread_qc_tool:
+    value: "fastp"
+    widget: select
+    options:
+      - ['fastp', 'fastp']
+      - ['adapterremoval', 'adapterremoval']
+    label: shortread_qc_tool
+    help: "Specify which tool to use for short-read QC"
+
+  shortread_qc_skipadaptertrim:
+    label: shortread_qc_skipadaptertrim
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip adapter trimming"
+
+  shortread_qc_adapter1:
+    label: shortread_qc_adapter1
+    widget: text_field
+    help: "Specify adapter 1 nucleotide sequence"
+
+  shortread_qc_adapter2:
+    label: shortread_qc_adapter2
+    widget: text_field
+    help: "Specify adapter 2 nucleotide sequence"
+
+  shortread_qc_adapterlist:
+    label: shortread_qc_adapterlist
+    widget: text_field
+    help: "Specify a list of all possible adapters to trim. Overrides --shortread_qc_adapter1/2. Formats: .txt (AdapterRemoval) or .fasta. (fastp)."
+
+  shortread_qc_mergepairs:
+    label: shortread_qc_mergepairs
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on merging of read pairs for paired-end data"
+
+  shortread_qc_includeunmerged:
+    label: shortread_qc_includeunmerged
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Include unmerged reads from paired-end merging in the downstream analysis"
+
+  shortread_qc_minlength:
+    value: "15"
+    label: shortread_qc_minlength
+    widget: text_field
+    help: "Specify the minimum length of reads to be retained"
+
+  shortread_qc_dedup:
+    label: shortread_qc_dedup
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Perform deduplication of the input reads (fastp only)"
+
+  perform_shortread_complexityfilter:
+    label: perform_shortread_complexityfilter
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turns on nucleotide sequence complexity filtering"
+
+  shortread_complexityfilter_tool:
+    value: "bbduk"
+    widget: select
+    options:
+      - ['bbduk', 'bbduk']
+      - ['prinseqplusplus', 'prinseqplusplus']
+      - ['fastp', 'fastp']
+    label: shortread_complexityfilter_tool
+    help: "Specify which tool to use for complexity filtering"
+
+  shortread_complexityfilter_entropy:
+    value: "0.3"
+    label: shortread_complexityfilter_entropy
+    widget: text_field
+    help: "Specify the minimum sequence entropy level for complexity filtering"
+
+  shortread_complexityfilter_bbduk_windowsize:
+    value: "50"
+    label: shortread_complexityfilter_bbduk_windowsize
+    widget: text_field
+    help: "Specify the window size for BBDuk complexity filtering"
+
+  shortread_complexityfilter_bbduk_mask:
+    label: shortread_complexityfilter_bbduk_mask
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on masking rather than discarding of low complexity reads for BBduk"
+
+  shortread_complexityfilter_fastp_threshold:
+    value: "30"
+    label: shortread_complexityfilter_fastp_threshold
+    widget: text_field
+    help: "Specify the minimum complexity filter threshold of fastp"
+
+  shortread_complexityfilter_prinseqplusplus_mode:
+    value: "entropy"
+    widget: select
+    options:
+      - ['entropy', 'entropy']
+      - ['dust', 'dust']
+    label: shortread_complexityfilter_prinseqplusplus_mode
+    help: "Specify the complexity filter mode for PRINSEQ++"
+
+  shortread_complexityfilter_prinseqplusplus_dustscore:
+    value: "0.5"
+    label: shortread_complexityfilter_prinseqplusplus_dustscore
+    widget: text_field
+    help: "Specify the minimum dust score for PRINTSEQ++ complexity filtering"
+
+  save_complexityfiltered_reads:
+    label: save_complexityfiltered_reads
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save reads from samples that went through the complexity filtering step"
+
+  perform_longread_qc:
+    label: perform_longread_qc
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turns on long read quality control steps (adapter clipping, length filtering etc.)"
+
+  longread_qc_skipadaptertrim:
+    label: longread_qc_skipadaptertrim
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip long-read trimming"
+
+  longread_qc_skipqualityfilter:
+    label: longread_qc_skipqualityfilter
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip long-read length and quality filtering"
+
+  longread_qc_qualityfilter_minlength:
+    value: "1000"
+    label: longread_qc_qualityfilter_minlength
+    widget: text_field
+    help: "Specify the minimum length of reads to be retained"
+
+  longread_qc_qualityfilter_keeppercent:
+    value: "90"
+    label: longread_qc_qualityfilter_keeppercent
+    widget: text_field
+    help: "Specify the percent of high-quality bases to be retained"
+
+  longread_qc_qualityfilter_targetbases:
+    value: "500000000"
+    label: longread_qc_qualityfilter_targetbases
+    widget: text_field
+    help: "Specify the number of high-quality bases in the library to be retained"
+
+  perform_shortread_hostremoval:
+    label: perform_shortread_hostremoval
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on short-read host removal"
+
+  perform_longread_hostremoval:
+    label: perform_longread_hostremoval
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on long-read host removal"
+
+  hostremoval_reference:
+    label: hostremoval_reference
+    widget: text_field
+    help: "Specify path to single reference FASTA of host(s) genome(s)"
+
+  shortread_hostremoval_index:
+    label: shortread_hostremoval_index
+    widget: text_field
+    help: "Specify path to the directory containing pre-made BowTie2 indexes of the host removal reference"
+
+  longread_hostremoval_index:
+    label: longread_hostremoval_index
+    widget: text_field
+    help: "Specify path to a pre-made Minimap2 index file (.mmi) of the host removal reference"
+
+  save_hostremoval_index:
+    label: save_hostremoval_index
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save mapping index of input reference when not already supplied by user"
+
+  save_hostremoval_bam:
+    label: save_hostremoval_bam
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Saved mapped and unmapped reads in BAM format from host removal"
+
+  save_hostremoval_unmapped:
+    label: save_hostremoval_unmapped
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save reads from samples that went through the host-removal step"
+
+  perform_runmerging:
+    label: perform_runmerging
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on run merging"
+
+  save_runmerged_reads:
+    label: save_runmerged_reads
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save reads from samples that went through the run-merging step"
+
+  run_centrifuge:
+    label: run_centrifuge
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on profiling with Centrifuge. Requires database to be present CSV file passed to --databases"
+
+  centrifuge_save_reads:
+    label: centrifuge_save_reads
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on saving of Centrifuge-aligned reads"
+
+  run_diamond:
+    label: run_diamond
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on profiling with DIAMOND. Requires database to be present CSV file passed to --databases"
+
+  diamond_output_format:
+    value: "tsv"
+    widget: select
+    options:
+      - ['blast', 'blast']
+      - ['xml', 'xml']
+      - ['txt', 'txt']
+      - ['daa', 'daa']
+      - ['sam', 'sam']
+      - ['tsv', 'tsv']
+      - ['paf', 'paf']
+    label: diamond_output_format
+    help: "Specify output format from DIAMOND profiling."
+
+  diamond_save_reads:
+    label: diamond_save_reads
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on saving of DIAMOND-aligned reads. Will override --diamond_output_format and no taxon tables will be generated"
+
+  run_kaiju:
+    label: run_kaiju
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on profiling with Kaiju. Requires database to be present CSV file passed to --databases"
+
+  kaiju_expand_viruses:
+    label: kaiju_expand_viruses
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on expanding of virus hits to individual viruses rather than aggregating at a taxonomic level."
+
+  kaiju_taxon_rank:
+    value: "species"
+    widget: select
+    options:
+      - ['phylum', 'phylum']
+      - ['class', 'class']
+      - ['order', 'order']
+      - ['family', 'family']
+      - ['genus', 'genus']
+      - ['species', 'species']
+    label: kaiju_taxon_rank
+    help: "Specify taxonomic rank to be displayed in Kaiju taxon table"
+
+  run_kraken2:
+    label: run_kraken2
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on profiling with Kraken2. Requires database to be present CSV file passed to --databases"
+
+  kraken2_save_reads:
+    label: kraken2_save_reads
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on saving of Kraken2-aligned reads"
+
+  kraken2_save_readclassifications:
+    label: kraken2_save_readclassifications
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on saving of Kraken2 per-read taxonomic assignment file"
+
+  kraken2_save_minimizers:
+    label: kraken2_save_minimizers
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on saving minimizer information in the kraken2 report thus increasing to an eight column layout."
+
+  run_krakenuniq:
+    label: run_krakenuniq
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on profiling with KrakenUniq. Requires one or more KrakenUniq databases to be present in the CSV file passed to --databases."
+
+  krakenuniq_save_reads:
+    label: krakenuniq_save_reads
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on saving of KrakenUniq (un-)classified reads as FASTA."
+
+  krakenuniq_ram_chunk_size:
+    value: "16G"
+    label: krakenuniq_ram_chunk_size
+    widget: text_field
+    help: "Specify how large to chunk the database when loading into memory for KrakenUniq."
+
+  krakenuniq_save_readclassifications:
+    label: krakenuniq_save_readclassifications
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on saving of KrakenUniq per-read taxonomic assignment file."
+
+  krakenuniq_batch_size:
+    value: "20"
+    label: krakenuniq_batch_size
+    widget: text_field
+    help: "Specify the number of samples for each KrakenUniq run."
+
+  run_bracken:
+    label: run_bracken
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on Bracken (and the required Kraken2 prerequisite step)."
+
+  run_malt:
+    label: run_malt
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on profiling with MALT. Requires database to be present CSV file passed to --databases"
+
+  malt_mode:
+    value: "BlastN"
+    label: malt_mode
+    widget: text_field
+    help: "Specify which MALT alignment mode to use"
+
+  malt_save_reads:
+    label: malt_save_reads
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on saving of MALT-aligned reads"
+
+  malt_generate_megansummary:
+    label: malt_generate_megansummary
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on generation of MEGAN summary file from MALT results"
+
+  run_metaphlan:
+    label: run_metaphlan
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on profiling with MetaPhlAn. Requires database to be present CSV file passed to --databases"
+
+  run_motus:
+    label: run_motus
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on profiling with mOTUs. Requires database to be present CSV file passed to --databases"
+
+  motus_use_relative_abundance:
+    label: motus_use_relative_abundance
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on printing relative abundance instead of counts."
+
+  motus_save_mgc_read_counts:
+    label: motus_save_mgc_read_counts
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on saving the mgc reads count."
+
+  motus_remove_ncbi_ids:
+    label: motus_remove_ncbi_ids
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on removing NCBI taxonomic IDs."
+
+  run_kmcp:
+    label: run_kmcp
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on classification with KMCP."
+
+  kmcp_mode:
+    value: "3"
+    label: kmcp_mode
+    widget: text_field
+    help: "Specify which KMCP profiling mode to use."
+
+  kmcp_save_search:
+    label: kmcp_save_search
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on saving the output of KMCP search"
+
+  run_ganon:
+    label: run_ganon
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on profiling with ganon. Requires database to be present CSV file passed to --databases."
+
+  ganon_save_readclassifications:
+    label: ganon_save_readclassifications
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on saving of ganon per-read taxonomic assignment file(s)."
+
+  ganon_report_type:
+    value: "reads"
+    widget: select
+    options:
+      - ['abundance', 'abundance']
+      - ['reads', 'reads']
+      - ['matches', 'matches']
+      - ['dist', 'dist']
+      - ['corr', 'corr']
+    label: ganon_report_type
+    help: "Specify the type of ganon report to save."
+
+  ganon_report_rank:
+    label: ganon_report_rank
+    widget: text_field
+    help: "Specify the taxonomic report the ganon report file should display."
+
+  ganon_report_toppercentile:
+    value: "0"
+    label: ganon_report_toppercentile
+    widget: text_field
+    help: "Specify a percentile within which hits will be reported in ganon report output.."
+
+  ganon_report_mincount:
+    value: "0"
+    label: ganon_report_mincount
+    widget: text_field
+    help: "Specify a minimum number of reads a hit must have to be retained in the ganon report."
+
+  ganon_report_maxcount:
+    value: "0"
+    label: ganon_report_maxcount
+    widget: text_field
+    help: "Specify a maximum number of reads a hit must have to be retained in the ganon report."
+
+  run_profile_standardisation:
+    label: run_profile_standardisation
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on standardisation of taxon tables across profilers"
+
+  standardisation_motus_generatebiom:
+    label: standardisation_motus_generatebiom
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on generation of BIOM output (currently only applies to mOTUs)"
+
+  run_krona:
+    label: run_krona
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on generation of Krona plots for supported profilers"
+
+  krona_taxonomy_directory:
+    label: krona_taxonomy_directory
+    widget: text_field
+    help: "Specify path to krona taxonomy directories (required for MALT krona plots)"
+
+  standardisation_taxpasta_format:
+    value: "tsv"
+    widget: select
+    options:
+      - ['tsv', 'tsv']
+      - ['csv', 'csv']
+      - ['arrow', 'arrow']
+      - ['parquet', 'parquet']
+      - ['biom', 'biom']
+    label: standardisation_taxpasta_format
+    help: "The desired output format."
+
+  taxpasta_taxonomy_dir:
+    label: taxpasta_taxonomy_dir
+    widget: text_field
+    help: "The path to a directory containing taxdump files."
+
+  taxpasta_add_name:
+    label: taxpasta_add_name
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Add the taxon name to the output."
+
+  taxpasta_add_rank:
+    label: taxpasta_add_rank
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Add the taxon rank to the output."
+
+  taxpasta_add_lineage:
+    label: taxpasta_add_lineage
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Add the taxon's entire name lineage to the output."
+
+  taxpasta_add_idlineage:
+    label: taxpasta_add_idlineage
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Add the taxon's entire ID lineage to the output."
+
+  taxpasta_add_ranklineage:
+    label: taxpasta_add_ranklineage
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Add the taxon's entire rank lineage to the output."
+
+  taxpasta_ignore_errors:
+    label: taxpasta_ignore_errors
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Ignore individual profiles that cause errors."
+
+
+form:
+  - bc_num_hours
+  - cpu_partition
+  - reservation
+  - version
+  - workdir
+  - outdir
+  - input
+  - databases
+  - multiqc_title
+  - skip_preprocessing_qc
+  - preprocessing_qc_tool
+  - save_preprocessed_reads
+  - save_analysis_ready_fastqs
+  - perform_shortread_qc
+  - shortread_qc_tool
+  - shortread_qc_skipadaptertrim
+  - shortread_qc_adapter1
+  - shortread_qc_adapter2
+  - shortread_qc_adapterlist
+  - shortread_qc_mergepairs
+  - shortread_qc_includeunmerged
+  - shortread_qc_minlength
+  - shortread_qc_dedup
+  - perform_shortread_complexityfilter
+  - shortread_complexityfilter_tool
+  - shortread_complexityfilter_entropy
+  - shortread_complexityfilter_bbduk_windowsize
+  - shortread_complexityfilter_bbduk_mask
+  - shortread_complexityfilter_fastp_threshold
+  - shortread_complexityfilter_prinseqplusplus_mode
+  - shortread_complexityfilter_prinseqplusplus_dustscore
+  - save_complexityfiltered_reads
+  - perform_longread_qc
+  - longread_qc_skipadaptertrim
+  - longread_qc_skipqualityfilter
+  - longread_qc_qualityfilter_minlength
+  - longread_qc_qualityfilter_keeppercent
+  - longread_qc_qualityfilter_targetbases
+  - perform_shortread_hostremoval
+  - perform_longread_hostremoval
+  - hostremoval_reference
+  - shortread_hostremoval_index
+  - longread_hostremoval_index
+  - save_hostremoval_index
+  - save_hostremoval_bam
+  - save_hostremoval_unmapped
+  - perform_runmerging
+  - save_runmerged_reads
+  - run_centrifuge
+  - centrifuge_save_reads
+  - run_diamond
+  - diamond_output_format
+  - diamond_save_reads
+  - run_kaiju
+  - kaiju_expand_viruses
+  - kaiju_taxon_rank
+  - run_kraken2
+  - kraken2_save_reads
+  - kraken2_save_readclassifications
+  - kraken2_save_minimizers
+  - run_krakenuniq
+  - krakenuniq_save_reads
+  - krakenuniq_ram_chunk_size
+  - krakenuniq_save_readclassifications
+  - krakenuniq_batch_size
+  - run_bracken
+  - run_malt
+  - malt_mode
+  - malt_save_reads
+  - malt_generate_megansummary
+  - run_metaphlan
+  - run_motus
+  - motus_use_relative_abundance
+  - motus_save_mgc_read_counts
+  - motus_remove_ncbi_ids
+  - run_kmcp
+  - kmcp_mode
+  - kmcp_save_search
+  - run_ganon
+  - ganon_save_readclassifications
+  - ganon_report_type
+  - ganon_report_rank
+  - ganon_report_toppercentile
+  - ganon_report_mincount
+  - ganon_report_maxcount
+  - run_profile_standardisation
+  - standardisation_motus_generatebiom
+  - run_krona
+  - krona_taxonomy_directory
+  - standardisation_taxpasta_format
+  - taxpasta_taxonomy_dir
+  - taxpasta_add_name
+  - taxpasta_add_rank
+  - taxpasta_add_lineage
+  - taxpasta_add_idlineage
+  - taxpasta_add_ranklineage
+  - taxpasta_ignore_errors
+  - TOWER_ACCESS_TOKEN
+  - resume

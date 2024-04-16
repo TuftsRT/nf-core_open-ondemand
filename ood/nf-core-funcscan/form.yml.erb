@@ -1,0 +1,1151 @@
+---
+cluster: "tuftshpc"
+
+attributes:
+
+  cpu_partition:
+    widget: "select"
+    label: "Select cpu partition"
+    help: "NOTE: Please do not choose specific lab partitions if you are not a member of that lab."
+    value: "batch"
+    options:
+      - ["batch","batch"]
+      - ["largemem", "largemem"]
+      - ["preempt", "preempt"]
+      - ["patralab", "patralab"]
+
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/reservation.yml").indent(2) %>
+
+  workdir:
+    label: "Working Directory"
+    data-filepicker: true
+    data-target-file-type: dirs  # Valid values are: files, dirs, or both
+    readonly: false
+    help: "Select your project directory; defaults to $HOME"
+    
+  resume:
+    label: resume
+    widget: check_box
+    checked_value: 1
+    unchecked_value: 0
+    help: |
+           Resume previous run if found
+
+  TOWER_ACCESS_TOKEN:
+    widget: "text_field"
+    required: false
+    label: "TOWER_ACCESS_TOKEN (Optional)"
+    help: "Your TOWER_ACCESS_TOKEN used to monitor runs on [Nextflow Tower](https://seqera.io)."
+
+
+  version:
+    label: Version
+    widget: select
+    options:
+      - ['1.1.4', '/cluster/tufts/biocontainers/nf-core/pipelines/nf-core-funcscan/1.1.4/1_1_4']
+
+  input:
+    label: input
+    widget: text_field
+    help: "Path to comma-separated file containing information sample names and paths to corresponding FASTA files."
+
+  outdir:
+    label: outdir
+    widget: text_field
+    help: "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure."
+
+  multiqc_title:
+    label: multiqc_title
+    widget: text_field
+    help: "MultiQC report title. Printed as page header, used for filename if not otherwise specified."
+
+  run_amp_screening:
+    label: run_amp_screening
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Activate antimicrobial peptide screening tools."
+
+  run_arg_screening:
+    label: run_arg_screening
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Activate antimicrobial resistance gene screening tools."
+
+  run_bgc_screening:
+    label: run_bgc_screening
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Activate biosynthetic gene cluster screening tools."
+
+  annotation_tool:
+    value: "pyrodigal"
+    widget: select
+    options:
+      - ['prodigal', 'prodigal']
+      - ['pyrodigal', 'pyrodigal']
+      - ['prokka', 'prokka']
+      - ['bakta', 'bakta']
+    label: annotation_tool
+    help: "Specify which annotation tool to use for some downstream tools."
+
+  save_annotations:
+    label: save_annotations
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specify whether to save gene annotations in the results directory."
+
+  annotation_bakta_db_localpath:
+    label: annotation_bakta_db_localpath
+    widget: text_field
+    help: "Specify a path to BAKTA database."
+
+  annotation_bakta_db_downloadtype:
+    widget: select
+    options:
+      - ['None', ' ']
+      - ['full', 'full']
+      - ['light', 'light']
+    label: annotation_bakta_db_downloadtype
+    help: "Download full or light version of the Bakta database if not supplying own database."
+
+  annotation_bakta_mincontiglen:
+    value: "1"
+    label: annotation_bakta_mincontiglen
+    widget: text_field
+    help: "Specify the minimum contig size."
+
+  annotation_bakta_translationtable:
+    value: "11"
+    label: annotation_bakta_translationtable
+    widget: text_field
+    help: "Specify the genetic code translation table."
+
+  annotation_bakta_gram:
+    value: "?"
+    widget: select
+    options:
+      - ['+', '+']
+      - ['-', '-']
+      - ['?', '?']
+    label: annotation_bakta_gram
+    help: "Specify the type of bacteria to be annotated to detect signaling peptides."
+
+  annotation_bakta_complete:
+    label: annotation_bakta_complete
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specify that all contigs are complete replicons."
+
+  annotation_bakta_renamecontigheaders:
+    label: annotation_bakta_renamecontigheaders
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Changes the original contig headers."
+
+  annotation_bakta_compliant:
+    label: annotation_bakta_compliant
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Clean the result annotations to standardise them to Genbank/ENA conventions."
+
+  annotation_bakta_trna:
+    label: annotation_bakta_trna
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Activate tRNA detection & annotation."
+
+  annotation_bakta_tmrna:
+    label: annotation_bakta_tmrna
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Activate tmRNA detection & annotation."
+
+  annotation_bakta_rrna:
+    label: annotation_bakta_rrna
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Activate rRNA detection & annotation."
+
+  annotation_bakta_ncrna:
+    label: annotation_bakta_ncrna
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Activate ncRNA detection & annotation."
+
+  annotation_bakta_ncrnaregion:
+    label: annotation_bakta_ncrnaregion
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Activate ncRNA region detection & annotation."
+
+  annotation_bakta_crispr:
+    label: annotation_bakta_crispr
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Activate CRISPR array detection & annotation."
+
+  annotation_bakta_skipcds:
+    label: annotation_bakta_skipcds
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip CDS detection & annotation."
+
+  annotation_bakta_pseudo:
+    label: annotation_bakta_pseudo
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Activate pseudogene detection & annotation."
+
+  annotation_bakta_skipsorf:
+    label: annotation_bakta_skipsorf
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip sORF detection & annotation."
+
+  annotation_bakta_gap:
+    label: annotation_bakta_gap
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Activate gap detection & annotation."
+
+  annotation_bakta_ori:
+    label: annotation_bakta_ori
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Activate oriC/oriT detection & annotation."
+
+  annotation_bakta_activate_plot:
+    label: annotation_bakta_activate_plot
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Activate generation of circular genome plots."
+
+  annotation_prokka_singlemode:
+    label: annotation_prokka_singlemode
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Use the default genome-length optimised mode (rather than the metagenome mode)."
+
+  annotation_prokka_rawproduct:
+    label: annotation_prokka_rawproduct
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Suppress the default clean-up of the gene annotations."
+
+  annotation_prokka_kingdom:
+    value: "Bacteria"
+    widget: select
+    options:
+      - ['Archaea', 'Archaea']
+      - ['Bacteria', 'Bacteria']
+      - ['Mitochondria', 'Mitochondria']
+      - ['Viruses', 'Viruses']
+    label: annotation_prokka_kingdom
+    help: "Specify the kingdom that the input represents."
+
+  annotation_prokka_gcode:
+    value: "11"
+    label: annotation_prokka_gcode
+    widget: text_field
+    help: "Specify the translation table used to annotate the sequences."
+
+  annotation_prokka_mincontiglen:
+    value: "1"
+    label: annotation_prokka_mincontiglen
+    widget: text_field
+    help: "Minimum contig size required for annotation (bp)."
+
+  annotation_prokka_evalue:
+    value: "1e-06"
+    label: annotation_prokka_evalue
+    widget: text_field
+    help: "Minimum e-value cut-off."
+
+  annotation_prokka_coverage:
+    value: "80"
+    label: annotation_prokka_coverage
+    widget: text_field
+    help: "Set the assigned minimum coverage."
+
+  annotation_prokka_cdsrnaolap:
+    label: annotation_prokka_cdsrnaolap
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Allow transfer RNA (trRNA) to overlap coding sequences (CDS)."
+
+  annotation_prokka_rnammer:
+    label: annotation_prokka_rnammer
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Use RNAmmer for rRNA prediction."
+
+  annotation_prokka_compliant:
+    label: annotation_prokka_compliant
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Force contig name to Genbank/ENA/DDJB naming rules."
+
+  annotation_prokka_addgenes:
+    label: annotation_prokka_addgenes
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Add the gene features for each CDS hit."
+
+  annotation_prokka_retaincontigheaders:
+    label: annotation_prokka_retaincontigheaders
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Retains contig names."
+
+  annotation_prodigal_singlemode:
+    label: annotation_prodigal_singlemode
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specify whether to use Prodigal's single-genome mode for long sequences."
+
+  annotation_prodigal_closed:
+    label: annotation_prodigal_closed
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Does not allow partial genes on contig edges."
+
+  annotation_prodigal_transtable:
+    value: "11"
+    label: annotation_prodigal_transtable
+    widget: text_field
+    help: "Specifies the translation table used for gene annotation."
+
+  annotation_prodigal_forcenonsd:
+    label: annotation_prodigal_forcenonsd
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Forces Prodigal to scan for motifs."
+
+  annotation_pyrodigal_singlemode:
+    label: annotation_pyrodigal_singlemode
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specify whether to use Pyrodigal's single-genome mode for long sequences."
+
+  annotation_pyrodigal_closed:
+    label: annotation_pyrodigal_closed
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Does not allow partial genes on contig edges."
+
+  annotation_pyrodigal_transtable:
+    value: "11"
+    label: annotation_pyrodigal_transtable
+    widget: text_field
+    help: "Specifies the translation table used for gene annotation."
+
+  annotation_pyrodigal_forcenonsd:
+    label: annotation_pyrodigal_forcenonsd
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Forces Pyrodigal to scan for motifs."
+
+  save_databases:
+    label: save_databases
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specify whether to save pipeline-downloaded databases in your results directory."
+
+  amp_skip_amplify:
+    label: amp_skip_amplify
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip AMPlify during AMP-screening."
+
+  amp_skip_ampir:
+    label: amp_skip_ampir
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip AMPir during AMP-screening."
+
+  amp_ampir_model:
+    value: "precursor"
+    widget: select
+    options:
+      - ['precursor', 'precursor']
+      - ['mature', 'mature']
+    label: amp_ampir_model
+    help: "Specify which machine learning classification model to use."
+
+  amp_ampir_minlength:
+    value: "10"
+    label: amp_ampir_minlength
+    widget: text_field
+    help: "Specify minimum protein length for prediction calculation."
+
+  amp_skip_hmmsearch:
+    label: amp_skip_hmmsearch
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip HMMsearch during AMP-screening."
+
+  amp_hmmsearch_models:
+    label: amp_hmmsearch_models
+    widget: text_field
+    help: "Specify path to the AMP hmm model file(s) to search against. Must have quotes if wildcard used."
+
+  amp_hmmsearch_savealignments:
+    label: amp_hmmsearch_savealignments
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Saves a multiple alignment of all significant hits to a file."
+
+  amp_hmmsearch_savetargets:
+    label: amp_hmmsearch_savetargets
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save a simple tabular file summarising the per-target output."
+
+  amp_hmmsearch_savedomains:
+    label: amp_hmmsearch_savedomains
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save a simple tabular file summarising the per-domain output."
+
+  amp_skip_macrel:
+    label: amp_skip_macrel
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip Macrel during AMP-screening."
+
+  amp_ampcombi_db:
+    label: amp_ampcombi_db
+    widget: text_field
+    help: "Path to AMPcombi reference database directory (DRAMP)."
+
+  amp_ampcombi_cutoff:
+    value: "0.4"
+    label: amp_ampcombi_cutoff
+    widget: text_field
+    help: "Specify probability cutoff to filter AMPs"
+
+  arg_skip_amrfinderplus:
+    label: arg_skip_amrfinderplus
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip AMRFinderPlus during the ARG-screening."
+
+  arg_amrfinderplus_db:
+    label: arg_amrfinderplus_db
+    widget: text_field
+    help: "Specify the path to a local version of the ARMfinderPlus database."
+
+  arg_amrfinderplus_identmin:
+    value: "-1"
+    label: arg_amrfinderplus_identmin
+    widget: text_field
+    help: "Minimum percent identity to reference sequence."
+
+  arg_amrfinderplus_coveragemin:
+    value: "0.5"
+    label: arg_amrfinderplus_coveragemin
+    widget: text_field
+    help: "Minimum coverage of the reference protein."
+
+  arg_amrfinderplus_translationtable:
+    value: "11"
+    label: arg_amrfinderplus_translationtable
+    widget: text_field
+    help: "Specify which NCBI genetic code to use for translated BLAST."
+
+  arg_amrfinderplus_plus:
+    label: arg_amrfinderplus_plus
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Add the plus genes to the report."
+
+  arg_amrfinderplus_name:
+    label: arg_amrfinderplus_name
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Add identified column to AMRFinderPlus output."
+
+  arg_skip_deeparg:
+    label: arg_skip_deeparg
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip DeepARG during the ARG-screening."
+
+  arg_deeparg_data:
+    label: arg_deeparg_data
+    widget: text_field
+    help: "Specify the path to the DeepARG database."
+
+  arg_deeparg_data_version:
+    value: "2"
+    label: arg_deeparg_data_version
+    widget: text_field
+    help: "Specify the numeric version number of a user supplied DeepaRG database."
+
+  arg_deeparg_model:
+    value: "LS"
+    widget: select
+    options:
+      - ['LS', 'LS']
+      - ['SS', 'SS']
+    label: arg_deeparg_model
+    help: "Specify which model to use (short or long sequences)."
+
+  arg_deeparg_minprob:
+    value: "0.8"
+    label: arg_deeparg_minprob
+    widget: text_field
+    help: "Specify minimum probability cutoff under which hits are discarded."
+
+  arg_deeparg_alignmentevalue:
+    value: "1e-10"
+    label: arg_deeparg_alignmentevalue
+    widget: text_field
+    help: "Specify E-value cutoff under which hits are discarded."
+
+  arg_deeparg_alignmentidentity:
+    value: "50"
+    label: arg_deeparg_alignmentidentity
+    widget: text_field
+    help: "Specify percent identity cutoff for sequence alignment under which hits are discarded."
+
+  arg_deeparg_alignmentoverlap:
+    value: "0.8"
+    label: arg_deeparg_alignmentoverlap
+    widget: text_field
+    help: "Specify alignment read overlap."
+
+  arg_deeparg_numalignmentsperentry:
+    value: "1000"
+    label: arg_deeparg_numalignmentsperentry
+    widget: text_field
+    help: "Specify minimum number of alignments per entry for DIAMOND step of DeepARG."
+
+  arg_skip_fargene:
+    label: arg_skip_fargene
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip fARGene during the ARG-screening."
+
+  arg_fargene_hmmmodel:
+    value: "class_a,class_b_1_2,class_b_3,class_c,class_d_1,class_d_2,qnr,tet_efflux,tet_rpg,tet_enzyme"
+    label: arg_fargene_hmmmodel
+    widget: text_field
+    help: "Specify comma-separated list of which pre-defined HMM models to screen against"
+
+  arg_fargene_savetmpfiles:
+    label: arg_fargene_savetmpfiles
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specify to save intermediate temporary files to results directory."
+
+  arg_fargene_score:
+    label: arg_fargene_score
+    widget: text_field
+    help: "The threshold score for a sequence to be classified as a (almost) complete gene."
+
+  arg_fargene_minorflength:
+    value: "90"
+    label: arg_fargene_minorflength
+    widget: text_field
+    help: "The minimum length of a predicted ORF retrieved from annotating the nucleotide sequences."
+
+  arg_fargene_orffinder:
+    label: arg_fargene_orffinder
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Defines which ORF finding algorithm to use."
+
+  arg_fargene_translationformat:
+    value: "pearson"
+    label: arg_fargene_translationformat
+    widget: text_field
+    help: "The translation table/format to use for sequence annotation."
+
+  arg_skip_rgi:
+    label: arg_skip_rgi
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip RGI during the ARG-screening."
+
+  arg_rgi_savejson:
+    label: arg_rgi_savejson
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save RGI output .json file."
+
+  arg_rgi_savetmpfiles:
+    label: arg_rgi_savetmpfiles
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specify to save intermediate temporary files the results directory."
+
+  arg_rgi_alignmenttool:
+    value: "BLAST"
+    widget: select
+    options:
+      - ['BLAST', 'BLAST']
+      - ['DIAMOND', 'DIAMOND']
+    label: arg_rgi_alignmenttool
+    help: "Specify the alignment tool to be used."
+
+  arg_rgi_includeloose:
+    value: "True"
+    label: arg_rgi_includeloose
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Include all of loose, strict and perfect hits (i.e. >=95% identity) found by RGI."
+
+  arg_rgi_excludenudge:
+    value: "True"
+    label: arg_rgi_excludenudge
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Suppresses the default behaviour of RGI with `--arg_rgi_includeloose`."
+
+  arg_rgi_lowquality:
+    label: arg_rgi_lowquality
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Include screening of low quality contigs for partial genes."
+
+  arg_rgi_data:
+    value: "NA"
+    widget: select
+    options:
+      - ['NA', 'NA']
+      - ['wgs', 'wgs']
+      - ['plasmid', 'plasmid']
+      - ['chromosome', 'chromosome']
+    label: arg_rgi_data
+    help: "Specify a more specific data-type of input (e.g. plasmid, chromosome)"
+
+  arg_skip_abricate:
+    label: arg_skip_abricate
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip ABRicate during the ARG-screening."
+
+  arg_abricate_db:
+    value: "ncbi"
+    widget: select
+    options:
+      - ['argannot', 'argannot']
+      - ['card', 'card']
+      - ['ecoh', 'ecoh']
+      - ['ecoli_vf', 'ecoli_vf']
+      - ['megares', 'megares']
+      - ['ncbi', 'ncbi']
+      - ['plasmidfinder', 'plasmidfinder']
+      - ['resfinder', 'resfinder']
+      - ['vfdb', 'vfdb']
+      - ['bacmet2', 'bacmet2']
+      - ['victors', 'victors']
+    label: arg_abricate_db
+    help: "Specify which of the provided public databases to use by ABRicate."
+
+  arg_abricate_minid:
+    value: "80"
+    label: arg_abricate_minid
+    widget: text_field
+    help: "Minimum percent identity of alignment required for a hit to be considered."
+
+  arg_abricate_mincov:
+    value: "80"
+    label: arg_abricate_mincov
+    widget: text_field
+    help: "Minimum percent coverage of alignment required for a hit to be considered."
+
+  bgc_skip_antismash:
+    label: bgc_skip_antismash
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip antiSMASH during the BGC screening"
+
+  bgc_antismash_databases:
+    label: bgc_antismash_databases
+    widget: text_field
+    help: "Path to user-defined local antiSMASH database."
+
+  bgc_antismash_installationdirectory:
+    label: bgc_antismash_installationdirectory
+    widget: text_field
+    help: "Path to user-defined local antiSMASH directory. Only required when running with docker/singularity."
+
+  bgc_antismash_sampleminlength:
+    value: "1000"
+    label: bgc_antismash_sampleminlength
+    widget: text_field
+    help: "Minimum longest-contig length a sample must have to be screened with antiSMASH."
+
+  bgc_antismash_contigminlength:
+    value: "1000"
+    label: bgc_antismash_contigminlength
+    widget: text_field
+    help: "Minimum length a contig must have to be screened with antiSMASH."
+
+  bgc_antismash_cbgeneral:
+    label: bgc_antismash_cbgeneral
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on clusterblast comparison against database of antiSMASH-predicted clusters."
+
+  bgc_antismash_cbknownclusters:
+    label: bgc_antismash_cbknownclusters
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on clusterblast comparison against known gene clusters from the MIBiG database."
+
+  bgc_antismash_cbsubclusters:
+    label: bgc_antismash_cbsubclusters
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on clusterblast comparison against known subclusters responsible for synthesising precursors."
+
+  bgc_antismash_ccmibig:
+    label: bgc_antismash_ccmibig
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on ClusterCompare comparison against known gene clusters from the MIBiG database."
+
+  bgc_antismash_smcogtrees:
+    label: bgc_antismash_smcogtrees
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Generate phylogenetic trees of secondary metabolite group orthologs."
+
+  bgc_antismash_hmmdetectionstrictness:
+    value: "relaxed"
+    widget: select
+    options:
+      - ['relaxed', 'relaxed']
+      - ['strict', 'strict']
+      - ['loose', 'loose']
+    label: bgc_antismash_hmmdetectionstrictness
+    help: "Defines which level of strictness to use for HMM-based cluster detection"
+
+  bgc_antismash_taxon:
+    value: "bacteria"
+    widget: select
+    options:
+      - ['bacteria', 'bacteria']
+      - ['fungi', 'fungi']
+    label: bgc_antismash_taxon
+    help: "Specify which taxonomic classification of input sequence to use"
+
+  bgc_skip_deepbgc:
+    label: bgc_skip_deepbgc
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip deepBGC during the BGC screening."
+
+  bgc_deepbgc_database:
+    label: bgc_deepbgc_database
+    widget: text_field
+    help: "Path to local deepBGC database folder."
+
+  bgc_deepbgc_score:
+    value: "0.5"
+    label: bgc_deepbgc_score
+    widget: text_field
+    help: "Average protein-wise DeepBGC score threshold for extracting BGC regions from Pfam sequences."
+
+  bgc_deepbgc_prodigalsinglemode:
+    label: bgc_deepbgc_prodigalsinglemode
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Run DeepBGC's internal Prodigal step in `single` mode to restrict detecting genes to long contigs"
+
+  bgc_deepbgc_mergemaxproteingap:
+    value: "0"
+    label: bgc_deepbgc_mergemaxproteingap
+    widget: text_field
+    help: "Merge detected BGCs within given number of proteins."
+
+  bgc_deepbgc_mergemaxnuclgap:
+    value: "0"
+    label: bgc_deepbgc_mergemaxnuclgap
+    widget: text_field
+    help: "Merge detected BGCs within given number of nucleotides."
+
+  bgc_deepbgc_minnucl:
+    value: "1"
+    label: bgc_deepbgc_minnucl
+    widget: text_field
+    help: "Minimum BGC nucleotide length."
+
+  bgc_deepbgc_minproteins:
+    value: "1"
+    label: bgc_deepbgc_minproteins
+    widget: text_field
+    help: "Minimum number of proteins in a BGC."
+
+  bgc_deepbgc_mindomains:
+    value: "1"
+    label: bgc_deepbgc_mindomains
+    widget: text_field
+    help: "Minimum number of protein domains in a BGC."
+
+  bgc_deepbgc_minbiodomains:
+    value: "0"
+    label: bgc_deepbgc_minbiodomains
+    widget: text_field
+    help: "Minimum number of known biosynthetic (as defined by antiSMASH) protein domains in a BGC."
+
+  bgc_deepbgc_classifierscore:
+    value: "0.5"
+    label: bgc_deepbgc_classifierscore
+    widget: text_field
+    help: "DeepBGC classification score threshold for assigning classes to BGCs."
+
+  bgc_skip_gecco:
+    label: bgc_skip_gecco
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip GECCO during the BGC screening."
+
+  bgc_gecco_mask:
+    label: bgc_gecco_mask
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Enable unknown region masking to prevent genes from stretching across unknown nucleotides."
+
+  bgc_gecco_cds:
+    value: "3"
+    label: bgc_gecco_cds
+    widget: text_field
+    help: "The minimum number of coding sequences a valid cluster must contain."
+
+  bgc_gecco_pfilter:
+    value: "1e-09"
+    label: bgc_gecco_pfilter
+    widget: text_field
+    help: "The p-value cutoff for protein domains to be included."
+
+  bgc_gecco_threshold:
+    value: "0.8"
+    label: bgc_gecco_threshold
+    widget: text_field
+    help: "The probability threshold for cluster detection."
+
+  bgc_gecco_edgedistance:
+    value: "0"
+    label: bgc_gecco_edgedistance
+    widget: text_field
+    help: "The minimum number of annotated genes that must separate a cluster from the edge."
+
+  bgc_skip_hmmsearch:
+    label: bgc_skip_hmmsearch
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip HMMsearch during BGC-screening."
+
+  bgc_hmmsearch_models:
+    label: bgc_hmmsearch_models
+    widget: text_field
+    help: "Specify path to the BGC hmm model file(s) to search against. Must have quotes if wildcard used."
+
+  bgc_hmmsearch_savealignments:
+    label: bgc_hmmsearch_savealignments
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Saves a multiple alignment of all significant hits to a file."
+
+  bgc_hmmsearch_savetargets:
+    label: bgc_hmmsearch_savetargets
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save a simple tabular file summarising the per-target output."
+
+  bgc_hmmsearch_savedomains:
+    label: bgc_hmmsearch_savedomains
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save a simple tabular file summarising the per-domain output."
+
+  arg_hamronization_summarizeformat:
+    value: "tsv"
+    widget: select
+    options:
+      - ['interactive', 'interactive']
+      - ['tsv', 'tsv']
+      - ['json', 'json']
+    label: arg_hamronization_summarizeformat
+    help: "Specifies summary output format"
+
+
+form:
+  - bc_num_hours
+  - cpu_partition
+  - reservation
+  - version
+  - workdir
+  - outdir
+  - input
+  - multiqc_title
+  - run_amp_screening
+  - run_arg_screening
+  - run_bgc_screening
+  - annotation_tool
+  - save_annotations
+  - annotation_bakta_db_localpath
+  - annotation_bakta_db_downloadtype
+  - annotation_bakta_mincontiglen
+  - annotation_bakta_translationtable
+  - annotation_bakta_gram
+  - annotation_bakta_complete
+  - annotation_bakta_renamecontigheaders
+  - annotation_bakta_compliant
+  - annotation_bakta_trna
+  - annotation_bakta_tmrna
+  - annotation_bakta_rrna
+  - annotation_bakta_ncrna
+  - annotation_bakta_ncrnaregion
+  - annotation_bakta_crispr
+  - annotation_bakta_skipcds
+  - annotation_bakta_pseudo
+  - annotation_bakta_skipsorf
+  - annotation_bakta_gap
+  - annotation_bakta_ori
+  - annotation_bakta_activate_plot
+  - annotation_prokka_singlemode
+  - annotation_prokka_rawproduct
+  - annotation_prokka_kingdom
+  - annotation_prokka_gcode
+  - annotation_prokka_mincontiglen
+  - annotation_prokka_evalue
+  - annotation_prokka_coverage
+  - annotation_prokka_cdsrnaolap
+  - annotation_prokka_rnammer
+  - annotation_prokka_compliant
+  - annotation_prokka_addgenes
+  - annotation_prokka_retaincontigheaders
+  - annotation_prodigal_singlemode
+  - annotation_prodigal_closed
+  - annotation_prodigal_transtable
+  - annotation_prodigal_forcenonsd
+  - annotation_pyrodigal_singlemode
+  - annotation_pyrodigal_closed
+  - annotation_pyrodigal_transtable
+  - annotation_pyrodigal_forcenonsd
+  - save_databases
+  - amp_skip_amplify
+  - amp_skip_ampir
+  - amp_ampir_model
+  - amp_ampir_minlength
+  - amp_skip_hmmsearch
+  - amp_hmmsearch_models
+  - amp_hmmsearch_savealignments
+  - amp_hmmsearch_savetargets
+  - amp_hmmsearch_savedomains
+  - amp_skip_macrel
+  - amp_ampcombi_db
+  - amp_ampcombi_cutoff
+  - arg_skip_amrfinderplus
+  - arg_amrfinderplus_db
+  - arg_amrfinderplus_identmin
+  - arg_amrfinderplus_coveragemin
+  - arg_amrfinderplus_translationtable
+  - arg_amrfinderplus_plus
+  - arg_amrfinderplus_name
+  - arg_skip_deeparg
+  - arg_deeparg_data
+  - arg_deeparg_data_version
+  - arg_deeparg_model
+  - arg_deeparg_minprob
+  - arg_deeparg_alignmentevalue
+  - arg_deeparg_alignmentidentity
+  - arg_deeparg_alignmentoverlap
+  - arg_deeparg_numalignmentsperentry
+  - arg_skip_fargene
+  - arg_fargene_hmmmodel
+  - arg_fargene_savetmpfiles
+  - arg_fargene_score
+  - arg_fargene_minorflength
+  - arg_fargene_orffinder
+  - arg_fargene_translationformat
+  - arg_skip_rgi
+  - arg_rgi_savejson
+  - arg_rgi_savetmpfiles
+  - arg_rgi_alignmenttool
+  - arg_rgi_includeloose
+  - arg_rgi_excludenudge
+  - arg_rgi_lowquality
+  - arg_rgi_data
+  - arg_skip_abricate
+  - arg_abricate_db
+  - arg_abricate_minid
+  - arg_abricate_mincov
+  - bgc_skip_antismash
+  - bgc_antismash_databases
+  - bgc_antismash_installationdirectory
+  - bgc_antismash_sampleminlength
+  - bgc_antismash_contigminlength
+  - bgc_antismash_cbgeneral
+  - bgc_antismash_cbknownclusters
+  - bgc_antismash_cbsubclusters
+  - bgc_antismash_ccmibig
+  - bgc_antismash_smcogtrees
+  - bgc_antismash_hmmdetectionstrictness
+  - bgc_antismash_taxon
+  - bgc_skip_deepbgc
+  - bgc_deepbgc_database
+  - bgc_deepbgc_score
+  - bgc_deepbgc_prodigalsinglemode
+  - bgc_deepbgc_mergemaxproteingap
+  - bgc_deepbgc_mergemaxnuclgap
+  - bgc_deepbgc_minnucl
+  - bgc_deepbgc_minproteins
+  - bgc_deepbgc_mindomains
+  - bgc_deepbgc_minbiodomains
+  - bgc_deepbgc_classifierscore
+  - bgc_skip_gecco
+  - bgc_gecco_mask
+  - bgc_gecco_cds
+  - bgc_gecco_pfilter
+  - bgc_gecco_threshold
+  - bgc_gecco_edgedistance
+  - bgc_skip_hmmsearch
+  - bgc_hmmsearch_models
+  - bgc_hmmsearch_savealignments
+  - bgc_hmmsearch_savetargets
+  - bgc_hmmsearch_savedomains
+  - arg_hamronization_summarizeformat
+  - TOWER_ACCESS_TOKEN
+  - resume

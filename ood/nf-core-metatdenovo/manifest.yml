@@ -1,0 +1,8 @@
+---
+name: metatdenovo
+category: Bioinformatics Apps
+subcategory: nf-core pipelines
+role: batch_connect
+description: |
+  This app will launch the [metatdenovo](https://nf-co.re/metatdenovo) pipeline developed by nf-core community. 
+

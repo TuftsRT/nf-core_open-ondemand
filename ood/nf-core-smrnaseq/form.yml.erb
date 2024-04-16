@@ -1,0 +1,442 @@
+---
+cluster: "tuftshpc"
+
+attributes:
+
+  cpu_partition:
+    widget: "select"
+    label: "Select cpu partition"
+    help: "NOTE: Please do not choose specific lab partitions if you are not a member of that lab."
+    value: "batch"
+    options:
+      - ["batch","batch"]
+      - ["largemem", "largemem"]
+      - ["preempt", "preempt"]
+      - ["patralab", "patralab"]
+
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/reservation.yml").indent(2) %>
+
+  workdir:
+    label: "Working Directory"
+    data-filepicker: true
+    data-target-file-type: dirs  # Valid values are: files, dirs, or both
+    readonly: false
+    help: "Select your project directory; defaults to $HOME"
+    
+  resume:
+    label: resume
+    widget: check_box
+    checked_value: 1
+    unchecked_value: 0
+    help: |
+           Resume previous run if found
+
+  TOWER_ACCESS_TOKEN:
+    widget: "text_field"
+    required: false
+    label: "TOWER_ACCESS_TOKEN (Optional)"
+    help: "Your TOWER_ACCESS_TOKEN used to monitor runs on [Nextflow Tower](https://seqera.io)."
+
+
+  version:
+    label: Version
+    widget: select
+    options:
+      - ['2.3.0', '/cluster/tufts/biocontainers/nf-core/pipelines/nf-core-smrnaseq/2.3.0/2_3_0']
+
+  input:
+    label: input
+    widget: text_field
+    help: "Path to comma-separated file containing information about the samples in the experiment."
+
+  protocol:
+    value: "illumina"
+    widget: select
+    options:
+      - ['illumina', 'illumina']
+      - ['nextflex', 'nextflex']
+      - ['qiaseq', 'qiaseq']
+      - ['cats', 'cats']
+      - ['custom', 'custom']
+    label: protocol
+    help: "Protocol for constructing smRNA-seq libraries."
+
+  outdir:
+    label: outdir
+    widget: text_field
+    help: "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure."
+
+  multiqc_title:
+    label: multiqc_title
+    widget: text_field
+    help: "MultiQC report title. Printed as page header, used for filename if not otherwise specified."
+
+  with_umi:
+    label: with_umi
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Enable UMI-based read deduplication."
+
+  umitools_extract_method:
+    value: "string"
+    label: umitools_extract_method
+    widget: text_field
+    help: "UMI pattern to use. Can be either `string` (default) or `regex`."
+
+  umitools_method:
+    value: "dir"
+    label: umitools_method
+    widget: text_field
+    help: "UMI grouping method"
+
+  skip_umi_extract_before_dedup:
+    value: "True"
+    label: skip_umi_extract_before_dedup
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip the UMI extraction from the reads before deduplication. Please note, if this parameter is set to false, the reads will be deduplicated solely on insert sequence. UMIs might be extracted after deduplication depending on the set umitools_bc_pattern nevertheless if with_umi is set to True."
+
+  umitools_bc_pattern:
+    label: umitools_bc_pattern
+    widget: text_field
+    help: "The UMI barcode pattern to use e.g. `NNNNNN` indicates that the first 6 nucleotides of the read are from the UMI."
+
+  umi_discard_read:
+    label: umi_discard_read
+    widget: text_field
+    help: "After UMI barcode extraction discard either R1 or R2 by setting this parameter to 1 or 2, respectively."
+
+  save_umi_intermeds:
+    label: save_umi_intermeds
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "If this option is specified, intermediate FastQ and BAM files produced by UMI-tools are also saved in the results directory."
+
+  genome:
+    label: iGenomes
+    widget: select
+    required: false
+    options:
+      - ['None', ' ']
+      - ['GRCh37', 'GRCh37']
+      - ['GRCh38', 'GRCh38']
+      - ['GRCm38', 'GRCm38']
+      - ['TAIR10', 'TAIR10']
+      - ['EB2', 'EB2']
+      - ['UMD3.1', 'UMD3.1']
+      - ['WBcel235', 'WBcel235']
+      - ['CanFam3.1', 'CanFam3.1']
+      - ['GRCz10', 'GRCz10']
+      - ['BDGP6', 'BDGP6']
+      - ['EquCab2', 'EquCab2']
+      - ['EB1', 'EB1']
+      - ['Galgal4', 'Galgal4']
+      - ['Gm01', 'Gm01']
+      - ['Mmul_1', 'Mmul_1']
+      - ['IRGSP-1.0', 'IRGSP-1.0']
+      - ['CHIMP2.1.4', 'CHIMP2.1.4']
+      - ['Rnor_5.0', 'Rnor_5.0']
+      - ['Rnor_6.0', 'Rnor_6.0']
+      - ['R64-1-1', 'R64-1-1']
+      - ['EF2', 'EF2']
+      - ['Sbi1', 'Sbi1']
+      - ['Sscrofa10.2', 'Sscrofa10.2']
+      - ['AGPv3', 'AGPv3']
+      - ['hg38', 'hg38']
+      - ['hg19', 'hg19']
+      - ['mm10', 'mm10']
+      - ['bosTau8', 'bosTau8']
+      - ['ce10', 'ce10']
+      - ['canFam3', 'canFam3']
+      - ['danRer10', 'danRer10']
+      - ['dm6', 'dm6']
+      - ['equCab2', 'equCab2']
+      - ['galGal4', 'galGal4']
+      - ['panTro4', 'panTro4']
+      - ['rn6', 'rn6']
+      - ['sacCer3', 'sacCer3']
+      - ['susScr3', 'susScr3']
+    help: "Name of iGenomes reference."
+  mirgenedb:
+    label: mirgenedb
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Boolean whether MirGeneDB should be used instead of miRBase"
+
+  mirtrace_species:
+    label: mirtrace_species
+    widget: text_field
+    help: "Species for miRTrace."
+
+  mirgenedb_species:
+    label: mirgenedb_species
+    widget: text_field
+    help: "Species of MirGeneDB."
+
+  fasta:
+    label: fasta
+    widget: text_field
+    help: "Path to FASTA genome file."
+
+  mirna_gtf:
+    label: mirna_gtf
+    widget: text_field
+    help: "GFF/GTF file with coordinates positions of precursor and miRNAs."
+
+  mirgenedb_gff:
+    label: mirgenedb_gff
+    widget: text_field
+    help: "GFF/GTF file with coordinates positions of precursor and miRNAs."
+
+  mature:
+    value: "https://mirbase.org/download/mature.fa"
+    label: mature
+    widget: text_field
+    help: "Path to FASTA file with mature miRNAs."
+
+  mirgenedb_mature:
+    label: mirgenedb_mature
+    widget: text_field
+    help: "Path to FASTA file with MirGeneDB mature miRNAs."
+
+  hairpin:
+    value: "https://mirbase.org/download/hairpin.fa"
+    label: hairpin
+    widget: text_field
+    help: "Path to FASTA file with miRNAs precursors."
+
+  mirgenedb_hairpin:
+    label: mirgenedb_hairpin
+    widget: text_field
+    help: "Path to FASTA file with miRNAs precursors."
+
+  bowtie_index:
+    label: bowtie_index
+    widget: text_field
+    help: "Path to a Bowtie 1 index directory"
+
+  save_reference:
+    label: save_reference
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save generated reference genome files to results."
+
+  save_aligned:
+    label: save_aligned
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save aligned reads of initial mapping in bam format."
+
+  save_aligned_mirna_quant:
+    value: "True"
+    label: save_aligned_mirna_quant
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save aligned reads of miRNA quant subworkflow in bam format."
+
+  clip_r1:
+    label: clip_r1
+    widget: text_field
+    help: "The number of basepairs to remove from the 5` end of read 1."
+
+  three_prime_clip_r1:
+    label: three_prime_clip_r1
+    widget: text_field
+    help: "The number of basepairs to remove from the 3` end of read 1 AFTER adapter/quality trimming has been performed."
+
+  three_prime_adapter:
+    value: "AGATCGGAAGAGCACACGTCTGAACTCCAGTCA"
+    label: three_prime_adapter
+    widget: text_field
+    help: "Sequencing adapter sequence to use for trimming."
+
+  trim_fastq:
+    value: "True"
+    label: trim_fastq
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Trim FastQ files"
+
+  fastp_min_length:
+    value: "17"
+    label: fastp_min_length
+    widget: text_field
+    help: "Minimum filter length for raw reads."
+
+  fastp_max_length:
+    value: "100"
+    label: fastp_max_length
+    widget: text_field
+    help: "Maximum filter length for raw reads."
+
+  save_trimmed_fail:
+    label: save_trimmed_fail
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save reads failing trimming"
+
+  fastp_known_mirna_adapters:
+    value: "${projectDir}/assets/known_adapters.fa"
+    label: fastp_known_mirna_adapters
+    widget: text_field
+    help: "FastA with known miRNA adapter sequences for adapter trimming"
+
+  min_trimmed_reads:
+    value: "10"
+    label: min_trimmed_reads
+    widget: text_field
+    help: "Minimum number of reads required in input file to use it"
+
+  save_merged:
+    value: "True"
+    label: save_merged
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save merged reads."
+
+  filter_contamination:
+    label: filter_contamination
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Enables the contamination filtering."
+
+  rrna:
+    label: rrna
+    widget: text_field
+    help: "Path to the rRNA fasta file to be used as contamination database."
+
+  trna:
+    label: trna
+    widget: text_field
+    help: "Path to the tRNA fasta file to be used as contamination database."
+
+  cdna:
+    label: cdna
+    widget: text_field
+    help: "Path to the cDNA fasta file to be used as contamination database."
+
+  ncrna:
+    label: ncrna
+    widget: text_field
+    help: "Path to the ncRNA fasta file to be used as contamination database."
+
+  pirna:
+    label: pirna
+    widget: text_field
+    help: "Path to the piRNA fasta file to be used as contamination database."
+
+  other_contamination:
+    label: other_contamination
+    widget: text_field
+    help: "Path to an additional fasta file to be used as contamination database."
+
+  skip_fastqc:
+    label: skip_fastqc
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip FastQC"
+
+  skip_mirdeep:
+    label: skip_mirdeep
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip miRDeep"
+
+  skip_multiqc:
+    label: skip_multiqc
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip MultiQC"
+
+  skip_fastp:
+    label: skip_fastp
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip FastP"
+
+
+form:
+  - bc_num_hours
+  - cpu_partition
+  - reservation
+  - version
+  - workdir
+  - outdir
+  - input
+  - protocol
+  - multiqc_title
+  - with_umi
+  - umitools_extract_method
+  - umitools_method
+  - skip_umi_extract_before_dedup
+  - umitools_bc_pattern
+  - umi_discard_read
+  - save_umi_intermeds
+  - genome
+  - mirgenedb
+  - mirtrace_species
+  - mirgenedb_species
+  - fasta
+  - mirna_gtf
+  - mirgenedb_gff
+  - mature
+  - mirgenedb_mature
+  - hairpin
+  - mirgenedb_hairpin
+  - bowtie_index
+  - save_reference
+  - save_aligned
+  - save_aligned_mirna_quant
+  - clip_r1
+  - three_prime_clip_r1
+  - three_prime_adapter
+  - trim_fastq
+  - fastp_min_length
+  - fastp_max_length
+  - save_trimmed_fail
+  - fastp_known_mirna_adapters
+  - min_trimmed_reads
+  - save_merged
+  - filter_contamination
+  - rrna
+  - trna
+  - cdna
+  - ncrna
+  - pirna
+  - other_contamination
+  - skip_fastqc
+  - skip_mirdeep
+  - skip_multiqc
+  - skip_fastp
+  - TOWER_ACCESS_TOKEN
+  - resume

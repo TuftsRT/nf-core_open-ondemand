@@ -1,0 +1,120 @@
+---
+cluster: "tuftshpc"
+
+attributes:
+
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/reservation.yml").indent(2) %>
+
+  cpu_partition:
+    widget: "select"
+    label: "Select cpu partition"
+    help: "NOTE: Please do not choose specific lab partitions if you are not a member of that lab."
+    value: "batch"
+    options:
+      - ["batch","batch"]
+      - ["largemem", "largemem"]
+      - ["preempt", "preempt"]
+      - ["patralab", "patralab"]
+
+  version:
+    label: Version
+    widget: select
+    options:
+      - ["1.11.0",	"/cluster/tufts/biocontainers/nf-core/pipelines/nf-core-fetchngs_1.11.0/1_11_0"]
+
+  input:
+    data-filepicker: true
+    data-target-file-type: files
+    label: Samplesheet
+    readonly: false
+    help: "File containing SRA/ENA/GEO/DDBJ identifiers one per line to download their associated metadata and FastQ files."
+
+  input_type:
+    widget: select
+    required: false
+    label: "input_type"
+    options:
+      - ["sra", "sra"]
+      - ["synapse", "synapse"]
+    help: "Specifies the type of identifier provided via --input. " 
+    
+  workdir:
+    label: "Working Directory"
+    data-filepicker: true
+    data-target-file-type: dirs  # Valid values are: files, dirs, or both
+    readonly: false
+    help: "Select your project directory; defaults to $HOME"
+
+  output:
+    widget: "text_field"
+    required: true
+    label: "Output directory Name"
+    help: "The output directory where the results will be saved."
+
+  ena_metadata_fields:
+    widget: text_field
+    required: false
+    value: ""
+    label: ena_metadata_fields
+    help: "Comma-separated list of ENA metadata fields to fetch before downloading data."
+
+  sample_mapping_fields:
+    widget: text_field
+    required: false
+    value: ""
+    label: sample_mapping_fields
+    help: |
+            Comma-separated list of ENA metadata fields used to create a separate 'id_mappings.csv' and 'multiqc_config.yml' with selected fields that can be used to rename samples in general and in MultiQC.
+
+  nf_core_pipeline:
+    widget: text_field
+    required: false
+    value: " "
+    label: nf_core_pipeline
+    help: "Name of supported nf-core pipeline e.g. rnaseq. A samplesheet for direct use with the pipeline will be created with the appropriate columns."
+
+  nf_core_rnaseq_strandedness:
+    widget: text_field
+    required: false
+    label: nf_core_rnaseq_strandedness
+    help: |
+           Value for 'strandedness' entry added to samplesheet created when using '--nf_core_pipeline rnaseq'. Default: 'auto'.
+    
+  force_sratools_download:
+    label: force_sratools_download
+    widget: check_box
+    checked_value: 1
+    unchecked_value: 0
+    help: "Force download FASTQ files via sra-tools instead of via the ENA FTP."
+
+  skip_fastq_download:
+    label: skip_fastq_download
+    widget: check_box
+    checked_value: 1
+    unchecked_value: 0
+    help: "Only download metadata for public data database ids and don't download the FastQ files."
+
+  resume:
+    label: Resume
+    widget: check_box
+    checked_value: 1
+    unchecked_value: 0
+    help: |
+           Resume previous run if found
+
+form:
+  - bc_num_hours
+  - cpu_partition
+  - reservation
+  - version
+  - input
+  - input_type
+  - ena_metadata_fields
+  - sample_mapping_fields
+  - workdir
+  - output
+  - nf_core_pipeline
+  - nf_core_rnaseq_strandedness
+  - force_sratools_download
+  - skip_fastq_download
+  - resume

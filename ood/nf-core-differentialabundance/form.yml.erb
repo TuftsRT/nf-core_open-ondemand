@@ -1,0 +1,1081 @@
+---
+cluster: "tuftshpc"
+
+attributes:
+
+  cpu_partition:
+    widget: "select"
+    label: "Select cpu partition"
+    help: "NOTE: Please do not choose specific lab partitions if you are not a member of that lab."
+    value: "batch"
+    options:
+      - ["batch","batch"]
+      - ["largemem", "largemem"]
+      - ["preempt", "preempt"]
+      - ["patralab", "patralab"]
+
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/reservation.yml").indent(2) %>
+
+  workdir:
+    label: "Working Directory"
+    data-filepicker: true
+    data-target-file-type: dirs  # Valid values are: files, dirs, or both
+    readonly: false
+    help: "Select your project directory; defaults to $HOME"
+    
+  resume:
+    label: resume
+    widget: check_box
+    checked_value: 1
+    unchecked_value: 0
+    help: |
+           Resume previous run if found
+
+  TOWER_ACCESS_TOKEN:
+    widget: "text_field"
+    required: false
+    label: "TOWER_ACCESS_TOKEN (Optional)"
+    help: "Your TOWER_ACCESS_TOKEN used to monitor runs on [Nextflow Tower](https://seqera.io)."
+
+
+  version:
+    label: Version
+    widget: select
+    options:
+      - ['1.4.0', '/cluster/tufts/biocontainers/nf-core/pipelines/nf-core-differentialabundance/1.4.0/1_4_0']
+
+  study_name:
+    value: "study"
+    label: study_name
+    widget: text_field
+    help: "A string to identify results in the output directory"
+
+  study_type:
+    value: "rnaseq"
+    widget: select
+    options:
+      - ['rnaseq', 'rnaseq']
+      - ['affy_array', 'affy_array']
+      - ['maxquant', 'maxquant']
+      - ['geo_soft_file', 'geo_soft_file']
+    label: study_type
+    help: "A string identifying the technology used to produce the data"
+
+  input:
+    label: input
+    widget: text_field
+    help: "Path to comma-separated file containing information about the samples in the experiment."
+
+  contrasts:
+    label: contrasts
+    widget: text_field
+    help: "A CSV file describing sample contrasts"
+
+  outdir:
+    label: outdir
+    widget: text_field
+    help: "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure."
+
+  study_abundance_type:
+    value: "counts"
+    label: study_abundance_type
+    widget: text_field
+    help: "Type of abundance measure used, platform-dependent"
+
+  matrix:
+    label: matrix
+    widget: text_field
+    help: "TSV-format abundance matrix"
+
+  transcript_length_matrix:
+    label: transcript_length_matrix
+    widget: text_field
+    help: "(RNA-seq only): optional transcript length matrix with samples and genes as the abundance matrix"
+
+  affy_cel_files_archive:
+    value: "None"
+    label: affy_cel_files_archive
+    widget: text_field
+    help: "Alternative to matrix: a compressed CEL files archive such as often found in GEO"
+
+  querygse:
+    value: "None"
+    label: querygse
+    widget: text_field
+    help: "Use SOFT files from GEO by providing the GSE study identifier"
+
+  observations_id_col:
+    value: "sample"
+    label: observations_id_col
+    widget: text_field
+    help: "Column in the samples sheet to be used as the primary sample identifier"
+
+  observations_type:
+    value: "sample"
+    label: observations_type
+    widget: text_field
+    help: "Type of observation"
+
+  observations_name_col:
+    value: "sample"
+    label: observations_name_col
+    widget: text_field
+    help: "Column in the sample sheet to be used as the display identifier for observations"
+
+  features_id_col:
+    value: "gene_id"
+    label: features_id_col
+    widget: text_field
+    help: "Feature ID attribute in the GTF file (e.g. the gene_id field)"
+
+  features_name_col:
+    value: "gene_name"
+    label: features_name_col
+    widget: text_field
+    help: "Feature name attribute in the GTF file (e.g. the gene symbol field)"
+
+  features_type:
+    value: "gene"
+    label: features_type
+    widget: text_field
+    help: "Type of feature we have, often `gene`"
+
+  sizefactors_from_controls:
+    label: sizefactors_from_controls
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "When set, use the control features in scaling/ normalisation"
+
+  control_features:
+    label: control_features
+    widget: text_field
+    help: "A text file listing technical features (e.g. spikes)"
+
+  features_metadata_cols:
+    value: "gene_id,gene_name,gene_biotype"
+    label: features_metadata_cols
+    widget: text_field
+    help: "Comma-separated string, specifies feature metadata columns to be used for exploratory analysis, platform-specific"
+
+  features:
+    label: features
+    widget: text_field
+    help: "This parameter allows you to supply your own feature annotations. These can often be automatically derived from the GTF used upstream for RNA-seq, or from the Bioconductor annotation package (for affy arrays). "
+
+  features_gtf_feature_type:
+    value: "transcript"
+    label: features_gtf_feature_type
+    widget: text_field
+    help: "Where a GTF file is supplied, which feature type to use"
+
+  features_gtf_table_first_field:
+    value: "gene_id"
+    label: features_gtf_table_first_field
+    widget: text_field
+    help: "Where a GTF file is supplied, which field should go first in the converted output table"
+
+  features_log2_assays:
+    label: features_log2_assays
+    widget: text_field
+    help: "Of which assays to compute the log2. Not necessary for maxquant data as this is controlled by the pipeline."
+
+  affy_file_name_col:
+    value: "file"
+    label: affy_file_name_col
+    widget: text_field
+    help: "Column of the sample sheet containing the Affymetrix CEL file name"
+
+  affy_background:
+    value: "True"
+    label: affy_background
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "logical value. If TRUE, then background correct using RMA background correction."
+
+  affy_bgversion:
+    value: "2"
+    label: affy_bgversion
+    widget: text_field
+    help: "integer value indicating which RMA background to use"
+
+  affy_destructive:
+    label: affy_destructive
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "logical value. If TRUE, then works on the PM matrix in place as much as possible, good for large datasets."
+
+  affy_cdfname:
+    value: "None"
+    label: affy_cdfname
+    widget: text_field
+    help: "Used to specify the name of an alternative cdf package. If set to NULL, then the usual cdf package based on Affymetrix` mappings will be used."
+
+  affy_build_annotation:
+    value: "True"
+    label: affy_build_annotation
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "logical value. If TRUE, a matrix of probe annotations will be derived."
+
+  affy_rm_mask:
+    label: affy_rm_mask
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "should the spots marked as `MASKS` set to NA?"
+
+  affy_rm_outliers:
+    label: affy_rm_outliers
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "should the spots marked as `OUTLIERS` set to NA?"
+
+  affy_rm_extra:
+    label: affy_rm_extra
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "if TRUE, then overrides what is in rm.mask and rm.oultiers."
+
+  proteus_measurecol_prefix:
+    value: "LFQ intensity "
+    label: proteus_measurecol_prefix
+    widget: text_field
+    help: "Prefix of the column names of the MaxQuant proteingroups table in which the intensity values are saved; the prefix has to be followed by the sample names that are also found in the samplesheet. Default: `LFQ intensity `; take care to also consider trailing whitespace between prefix and samplenames."
+
+  proteus_norm_function:
+    value: "normalizeMedian"
+    widget: select
+    options:
+      - ['normalizeMedian', 'normalizeMedian']
+      - ['normalizeQuantiles', 'normalizeQuantiles']
+    label: proteus_norm_function
+    help: "Normalization function to use on the MaxQuant intensities."
+
+  proteus_plotsd_method:
+    value: "violin"
+    widget: select
+    options:
+      - ['violin', 'violin']
+      - ['dist', 'dist']
+      - ['box', 'box']
+    label: proteus_plotsd_method
+    help: "Which method to use for plotting sample distributions of the MaxQuant intensities; one of `violin`, `dist`, `box`."
+
+  proteus_plotmv_loess:
+    value: "True"
+    label: proteus_plotmv_loess
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Should a loess line be added to the plot of mean-variance relationship of the conditions? Default: true."
+
+  proteus_palette_name:
+    value: "Set1"
+    label: proteus_palette_name
+    widget: text_field
+    help: "Valid R palette name"
+
+  proteus_round_digits:
+    value: "-1.0"
+    label: proteus_round_digits
+    widget: text_field
+    help: "Number of decimals to round the MaxQuant intensities to; default: -1 (will not round)."
+
+  filtering_min_abundance:
+    value: "1.0"
+    label: filtering_min_abundance
+    widget: text_field
+    help: "Minimum abundance value"
+
+  filtering_min_samples:
+    value: "1.0"
+    label: filtering_min_samples
+    widget: text_field
+    help: "Minimum observations that must pass the threshold to retain the row/ feature (e.g. gene)."
+
+  filtering_min_proportion:
+    label: filtering_min_proportion
+    widget: text_field
+    help: "A minimum proportion of observations, given as a number between 0 and 1, that must pass the threshold. Overrides  minimum_samples"
+
+  filtering_grouping_var:
+    label: filtering_grouping_var
+    widget: text_field
+    help: "An optional grouping variable to be used to calculate a min_samples value"
+
+  exploratory_clustering_method:
+    value: "ward.D2"
+    label: exploratory_clustering_method
+    widget: text_field
+    help: "Clustering method used in dendrogram creation"
+
+  exploratory_cor_method:
+    value: "spearman"
+    label: exploratory_cor_method
+    widget: text_field
+    help: "Correlation method used in dendrogram creation"
+
+  exploratory_n_features:
+    value: "500"
+    label: exploratory_n_features
+    widget: text_field
+    help: "Number of features selected before certain exploratory analyses. If -1, will use all features."
+
+  exploratory_whisker_distance:
+    value: "1.5"
+    label: exploratory_whisker_distance
+    widget: text_field
+    help: "Length of the whiskers in boxplots as multiple of IQR. Defaults to 1.5."
+
+  exploratory_mad_threshold:
+    value: "-5"
+    label: exploratory_mad_threshold
+    widget: text_field
+    help: "Threshold on MAD score for outlier identification"
+
+  exploratory_main_variable:
+    value: "auto_pca"
+    label: exploratory_main_variable
+    widget: text_field
+    help: "How should the main grouping variable be selected? `auto_pca`, `contrasts`, or a valid column name from the observations table."
+
+  exploratory_palette_name:
+    value: "Set1"
+    label: exploratory_palette_name
+    widget: text_field
+    help: "Valid R palette name"
+
+  differential_file_suffix:
+    value: ".deseq2.results.tsv"
+    label: differential_file_suffix
+    widget: text_field
+    help: "The suffix associated tabular differential results tables"
+
+  differential_feature_id_column:
+    value: "gene_id"
+    label: differential_feature_id_column
+    widget: text_field
+    help: "The feature identifier column in differential results tables"
+
+  differential_fc_column:
+    value: "log2FoldChange"
+    label: differential_fc_column
+    widget: text_field
+    help: "The fold change column in differential results tables"
+
+  differential_pval_column:
+    value: "pvalue"
+    label: differential_pval_column
+    widget: text_field
+    help: "The p value column in differential results tables"
+
+  differential_qval_column:
+    value: "padj"
+    label: differential_qval_column
+    widget: text_field
+    help: "The q value column in differential results tables."
+
+  differential_min_fold_change:
+    value: "2.0"
+    label: differential_min_fold_change
+    widget: text_field
+    help: "Minimum fold change used to calculate differential feature numbers"
+
+  differential_max_pval:
+    value: "1.0"
+    label: differential_max_pval
+    widget: text_field
+    help: "Maximum p value used to calculate differential feature numbers"
+
+  differential_max_qval:
+    value: "0.05"
+    label: differential_max_qval
+    widget: text_field
+    help: "Maximum q value used to calculate differential feature numbers"
+
+  differential_feature_name_column:
+    value: "gene_name"
+    label: differential_feature_name_column
+    widget: text_field
+    help: "Where a features file (GTF) has been provided, what attributed to use to name features"
+
+  differential_foldchanges_logged:
+    value: "True"
+    label: differential_foldchanges_logged
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Indicate whether or not fold changes are on the log scale (default is to assume they are)"
+
+  differential_palette_name:
+    value: "Set1"
+    label: differential_palette_name
+    widget: text_field
+    help: "Valid R palette name"
+
+  differential_subset_to_contrast_samples:
+    label: differential_subset_to_contrast_samples
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "In differential analysis (DEseq2 or Limma), subset to the contrast samples before modelling variance?"
+
+  deseq2_test:
+    value: "Wald"
+    widget: select
+    options:
+      - ['Wald', 'Wald']
+      - ['LRT', 'LRT']
+    label: deseq2_test
+    help: "`test` parameter passed to DESeq()"
+
+  deseq2_fit_type:
+    value: "parametric"
+    widget: select
+    options:
+      - ['parametric', 'parametric']
+      - ['local', 'local']
+      - ['mean', 'mean']
+      - ['glmGamPoi', 'glmGamPoi']
+    label: deseq2_fit_type
+    help: "`fitType` parameter passed to DESeq()"
+
+  deseq2_sf_type:
+    value: "ratio"
+    widget: select
+    options:
+      - ['ratio', 'ratio']
+      - ['poscounts', 'poscounts']
+      - ['iterate', 'iterate']
+    label: deseq2_sf_type
+    help: "`sfType` parameter passed to DESeq()"
+
+  deseq2_min_replicates_for_replace:
+    value: "7"
+    label: deseq2_min_replicates_for_replace
+    widget: text_field
+    help: "`minReplicatesForReplace` parameter passed to DESeq()"
+
+  deseq2_use_t:
+    label: deseq2_use_t
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "`useT` parameter passed to DESeq2"
+
+  deseq2_independent_filtering:
+    value: "True"
+    label: deseq2_independent_filtering
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "`independentFiltering` parameter passed to results()"
+
+  deseq2_lfc_threshold:
+    value: "0"
+    label: deseq2_lfc_threshold
+    widget: text_field
+    help: "`lfcThreshold` parameter passed to results()"
+
+  deseq2_alt_hypothesis:
+    value: "greaterAbs"
+    label: deseq2_alt_hypothesis
+    widget: text_field
+    help: "`altHypothesis` parameter passed to results()"
+
+  deseq2_p_adjust_method:
+    value: "BH"
+    label: deseq2_p_adjust_method
+    widget: text_field
+    help: "`pAdjustMethod` parameter passed to results()"
+
+  deseq2_alpha:
+    value: "0.1"
+    label: deseq2_alpha
+    widget: text_field
+    help: "`alpha` parameter passed to results()"
+
+  deseq2_minmu:
+    value: "0.5"
+    label: deseq2_minmu
+    widget: text_field
+    help: "`minmu` parameter passed to results()"
+
+  deseq2_vs_method:
+    value: "vst"
+    widget: select
+    options:
+      - ['rlog', 'rlog']
+      - ['vst', 'vst']
+      - ['rlog,vst', 'rlog,vst']
+    label: deseq2_vs_method
+    help: "variance stabilisation method to use when making a variance stabilised matrix"
+
+  deseq2_shrink_lfc:
+    value: "True"
+    label: deseq2_shrink_lfc
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Shink fold changes in results?"
+
+  deseq2_cores:
+    value: "1"
+    label: deseq2_cores
+    widget: text_field
+    help: "Number of cores"
+
+  deseq2_vs_blind:
+    value: "True"
+    label: deseq2_vs_blind
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "`blind` parameter for rlog() and/ or vst()"
+
+  deseq2_vst_nsub:
+    value: "1000"
+    label: deseq2_vst_nsub
+    widget: text_field
+    help: "`nsub` parameter passed to vst()"
+
+  limma_ndups:
+    label: limma_ndups
+    widget: text_field
+    help: "passed to lmFit(), positive integer giving the number of times each distinct probe is printed on each array."
+
+  limma_spacing:
+    value: "None"
+    label: limma_spacing
+    widget: text_field
+    help: "passed to lmFit(), positive integer giving the spacing between duplicate occurrences of the same probe, spacing=1 for consecutive rows."
+
+  limma_block:
+    value: "None"
+    label: limma_block
+    widget: text_field
+    help: "Sample sheet column to be used to derive a vector or factor specifying a blocking variable on the arrays"
+
+  limma_correlation:
+    value: "None"
+    label: limma_correlation
+    widget: text_field
+    help: "passed to lmFit(), the inter-duplicate or inter-technical replicate correlation"
+
+  limma_method:
+    value: "ls"
+    widget: select
+    options:
+      - ['ls', 'ls']
+      - ['robust', 'robust']
+    label: limma_method
+    help: "passed to lmFit(), the fitting method"
+
+  limma_proportion:
+    value: "0.01"
+    label: limma_proportion
+    widget: text_field
+    help: "passed to eBayes(), a numeric value between 0 and 1, assumed proportion of genes which are differentially expressed"
+
+  limma_trend:
+    label: limma_trend
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "passed to eBayes(), logical, should an intensity-dependent trend be allowed for the prior variance?"
+
+  limma_robust:
+    label: limma_robust
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "passed to eBayes(), logical, should the estimation of df.prior and var.prior be robustified against outlier sample variances?"
+
+  limma_stdev_coef_lim:
+    value: "0.1,4"
+    label: limma_stdev_coef_lim
+    widget: text_field
+    help: "passed to eBayes, comma separated string of two values, assumed lower and upper limits for the standard deviation of log2-fold-changes for differentially expressed genes"
+
+  limma_winsor_tail_p:
+    value: "0.05,0.1"
+    label: limma_winsor_tail_p
+    widget: text_field
+    help: "passed to eBayes, comma separated string of length 1 or 2, giving left and right tail proportions of x to Winsorize. Used only when robust=TRUE."
+
+  limma_lfc:
+    value: "0"
+    label: limma_lfc
+    widget: text_field
+    help: "passed to topTable(), minimum absolute log2-fold-change required"
+
+  limma_confint:
+    label: limma_confint
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "passed to topTable(), logical, should confidence 95% intervals be output for logFC? Alternatively, can take a numeric value between zero and one specifying the confidence level required."
+
+  limma_adjust_method:
+    value: "BH"
+    widget: select
+    options:
+      - ['holm', 'holm']
+      - ['hochberg', 'hochberg']
+      - ['hommel', 'hommel']
+      - ['bonferroni', 'bonferroni']
+      - ['BH', 'BH']
+      - ['BY', 'BY']
+      - ['fdr', 'fdr']
+      - ['none', 'none']
+    label: limma_adjust_method
+    help: "passed to topTable(), method used to adjust the p-values for multiple testing."
+
+  limma_p_value:
+    value: "1.0"
+    label: limma_p_value
+    widget: text_field
+    help: "cutoff value for adjusted p-values. Only genes with lower p-values are listed."
+
+  gsea_run:
+    label: gsea_run
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Set to run GSEA to infer differential gene sets in contrasts"
+
+  gsea_permute:
+    value: "phenotype"
+    widget: select
+    options:
+      - ['phenotype', 'phenotype']
+      - ['gene_set', 'gene_set']
+    label: gsea_permute
+    help: "Permutation type"
+
+  gsea_nperm:
+    value: "1000"
+    label: gsea_nperm
+    widget: text_field
+    help: "Number of permutations"
+
+  gsea_scoring_scheme:
+    value: "weighted"
+    widget: select
+    options:
+      - ['weighted', 'weighted']
+      - ['weighted_p2', 'weighted_p2']
+      - ['weighted_p1.5', 'weighted_p1.5']
+      - ['classic', 'classic']
+    label: gsea_scoring_scheme
+    help: "Enrichment statistic"
+
+  gsea_metric:
+    value: "Signal2Noise"
+    widget: select
+    options:
+      - ['Signal2Noise', 'Signal2Noise']
+      - ['tTest', 'tTest']
+      - ['Ratio_of_Classes', 'Ratio_of_Classes']
+      - ['Diff_of_Classes', 'Diff_of_Classes']
+      - ['log2_Ratio_of_Classes', 'log2_Ratio_of_Classes']
+    label: gsea_metric
+    help: "Metric for ranking genes"
+
+  gsea_sort:
+    value: "real"
+    widget: select
+    options:
+      - ['real', 'real']
+      - ['absolute', 'absolute']
+    label: gsea_sort
+    help: "Gene list sorting mode"
+
+  gsea_order:
+    value: "descending"
+    widget: select
+    options:
+      - ['descending', 'descending']
+      - ['ascending', 'ascending']
+    label: gsea_order
+    help: "Gene list ordering mode"
+
+  gsea_set_max:
+    value: "500"
+    label: gsea_set_max
+    widget: text_field
+    help: "Max size: exclude larger sets"
+
+  gsea_set_min:
+    value: "15"
+    label: gsea_set_min
+    widget: text_field
+    help: "Min size: exclude smaller sets"
+
+  gsea_norm:
+    value: "meandiv"
+    widget: select
+    options:
+      - ['meandiv', 'meandiv']
+      - ['none', 'none']
+    label: gsea_norm
+    help: "Normalisation mode"
+
+  gsea_rnd_type:
+    value: "no_balance"
+    widget: select
+    options:
+      - ['no_balance', 'no_balance']
+      - ['equalize_and_balance', 'equalize_and_balance']
+    label: gsea_rnd_type
+    help: "Randomization mode"
+
+  gsea_make_sets:
+    value: "True"
+    label: gsea_make_sets
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Make detailed geneset report?"
+
+  gsea_median:
+    label: gsea_median
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Use median for class metrics"
+
+  gsea_num:
+    value: "100"
+    label: gsea_num
+    widget: text_field
+    help: "Number of markers"
+
+  gsea_plot_top_x:
+    value: "20"
+    label: gsea_plot_top_x
+    widget: text_field
+    help: "Plot graphs for the top sets of each phenotype"
+
+  gsea_rnd_seed:
+    value: "timestamp"
+    label: gsea_rnd_seed
+    widget: text_field
+    help: "Seed for permutation"
+
+  gsea_save_rnd_lists:
+    label: gsea_save_rnd_lists
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save random ranked lists"
+
+  gsea_zip_report:
+    label: gsea_zip_report
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Make a zipped file with all reports"
+
+  gsea_gene_sets:
+    value: "None"
+    label: gsea_gene_sets
+    widget: text_field
+    help: "Gene sets in GMT or GMX-format (multiple comma-separated input files are possible)"
+
+  shinyngs_build_app:
+    value: "True"
+    label: shinyngs_build_app
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Should a Shiny app be built?"
+
+  shinyngs_deploy_to_shinyapps_io:
+    label: shinyngs_deploy_to_shinyapps_io
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Should the app be deployed to shinyapps.io?"
+
+  shinyngs_shinyapps_account:
+    value: "None"
+    label: shinyngs_shinyapps_account
+    widget: text_field
+    help: "Your shinyapps.io account name"
+
+  shinyngs_shinyapps_app_name:
+    value: "None"
+    label: shinyngs_shinyapps_app_name
+    widget: text_field
+    help: "The name of the app to push to in your shinyapps.io account"
+
+  shinyngs_guess_unlog_matrices:
+    value: "True"
+    label: shinyngs_guess_unlog_matrices
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Should we guess the log status of matrices and unlog for the app?"
+
+  report_file:
+    label: report_file
+    widget: text_field
+    help: "Rmd report template from which to create the pipeline report"
+
+  logo_file:
+    value: "docs/images/nf-core-differentialabundance_logo_light.png"
+    label: logo_file
+    widget: text_field
+    help: "A logo to display in the report instead of the generic pipeline logo"
+
+  css_file:
+    value: "assets/nf-core_style.css"
+    label: css_file
+    widget: text_field
+    help: "CSS to use to style the output, in lieu of the default nf-core styling"
+
+  citations_file:
+    value: "CITATIONS.md"
+    label: citations_file
+    widget: text_field
+    help: "A markdown file containing citations to include in the fiinal report"
+
+  report_title:
+    value: "None"
+    label: report_title
+    widget: text_field
+    help: "A title for reporting outputs"
+
+  report_author:
+    value: "None"
+    label: report_author
+    widget: text_field
+    help: "An author for reporting outputs"
+
+  report_description:
+    value: "None"
+    label: report_description
+    widget: text_field
+    help: "A description for reporting outputs"
+
+  report_scree:
+    value: "True"
+    label: report_scree
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Whether to generate a scree plot in the report"
+
+  genome:
+    label: iGenomes
+    widget: select
+    required: false
+    options:
+      - ['None', ' ']
+      - ['GRCh37', 'GRCh37']
+      - ['GRCh38', 'GRCh38']
+      - ['GRCm38', 'GRCm38']
+      - ['TAIR10', 'TAIR10']
+      - ['EB2', 'EB2']
+      - ['UMD3.1', 'UMD3.1']
+      - ['WBcel235', 'WBcel235']
+      - ['CanFam3.1', 'CanFam3.1']
+      - ['GRCz10', 'GRCz10']
+      - ['BDGP6', 'BDGP6']
+      - ['EquCab2', 'EquCab2']
+      - ['EB1', 'EB1']
+      - ['Galgal4', 'Galgal4']
+      - ['Gm01', 'Gm01']
+      - ['Mmul_1', 'Mmul_1']
+      - ['IRGSP-1.0', 'IRGSP-1.0']
+      - ['CHIMP2.1.4', 'CHIMP2.1.4']
+      - ['Rnor_5.0', 'Rnor_5.0']
+      - ['Rnor_6.0', 'Rnor_6.0']
+      - ['R64-1-1', 'R64-1-1']
+      - ['EF2', 'EF2']
+      - ['Sbi1', 'Sbi1']
+      - ['Sscrofa10.2', 'Sscrofa10.2']
+      - ['AGPv3', 'AGPv3']
+      - ['hg38', 'hg38']
+      - ['hg19', 'hg19']
+      - ['mm10', 'mm10']
+      - ['bosTau8', 'bosTau8']
+      - ['ce10', 'ce10']
+      - ['canFam3', 'canFam3']
+      - ['danRer10', 'danRer10']
+      - ['dm6', 'dm6']
+      - ['equCab2', 'equCab2']
+      - ['galGal4', 'galGal4']
+      - ['panTro4', 'panTro4']
+      - ['rn6', 'rn6']
+      - ['sacCer3', 'sacCer3']
+      - ['susScr3', 'susScr3']
+    help: "Name of iGenomes reference."
+  gtf:
+    label: gtf
+    widget: text_field
+    help: "Genome annotation file in GTF format"
+
+
+form:
+  - bc_num_hours
+  - cpu_partition
+  - reservation
+  - version
+  - workdir
+  - outdir
+  - study_name
+  - study_type
+  - input
+  - contrasts
+  - study_abundance_type
+  - matrix
+  - transcript_length_matrix
+  - affy_cel_files_archive
+  - querygse
+  - observations_id_col
+  - observations_type
+  - observations_name_col
+  - features_id_col
+  - features_name_col
+  - features_type
+  - sizefactors_from_controls
+  - control_features
+  - features_metadata_cols
+  - features
+  - features_gtf_feature_type
+  - features_gtf_table_first_field
+  - features_log2_assays
+  - affy_file_name_col
+  - affy_background
+  - affy_bgversion
+  - affy_destructive
+  - affy_cdfname
+  - affy_build_annotation
+  - affy_rm_mask
+  - affy_rm_outliers
+  - affy_rm_extra
+  - proteus_measurecol_prefix
+  - proteus_norm_function
+  - proteus_plotsd_method
+  - proteus_plotmv_loess
+  - proteus_palette_name
+  - proteus_round_digits
+  - filtering_min_abundance
+  - filtering_min_samples
+  - filtering_min_proportion
+  - filtering_grouping_var
+  - exploratory_clustering_method
+  - exploratory_cor_method
+  - exploratory_n_features
+  - exploratory_whisker_distance
+  - exploratory_mad_threshold
+  - exploratory_main_variable
+  - exploratory_palette_name
+  - differential_file_suffix
+  - differential_feature_id_column
+  - differential_fc_column
+  - differential_pval_column
+  - differential_qval_column
+  - differential_min_fold_change
+  - differential_max_pval
+  - differential_max_qval
+  - differential_feature_name_column
+  - differential_foldchanges_logged
+  - differential_palette_name
+  - differential_subset_to_contrast_samples
+  - deseq2_test
+  - deseq2_fit_type
+  - deseq2_sf_type
+  - deseq2_min_replicates_for_replace
+  - deseq2_use_t
+  - deseq2_independent_filtering
+  - deseq2_lfc_threshold
+  - deseq2_alt_hypothesis
+  - deseq2_p_adjust_method
+  - deseq2_alpha
+  - deseq2_minmu
+  - deseq2_vs_method
+  - deseq2_shrink_lfc
+  - deseq2_cores
+  - deseq2_vs_blind
+  - deseq2_vst_nsub
+  - limma_ndups
+  - limma_spacing
+  - limma_block
+  - limma_correlation
+  - limma_method
+  - limma_proportion
+  - limma_trend
+  - limma_robust
+  - limma_stdev_coef_lim
+  - limma_winsor_tail_p
+  - limma_lfc
+  - limma_confint
+  - limma_adjust_method
+  - limma_p_value
+  - gsea_run
+  - gsea_permute
+  - gsea_nperm
+  - gsea_scoring_scheme
+  - gsea_metric
+  - gsea_sort
+  - gsea_order
+  - gsea_set_max
+  - gsea_set_min
+  - gsea_norm
+  - gsea_rnd_type
+  - gsea_make_sets
+  - gsea_median
+  - gsea_num
+  - gsea_plot_top_x
+  - gsea_rnd_seed
+  - gsea_save_rnd_lists
+  - gsea_zip_report
+  - gsea_gene_sets
+  - shinyngs_build_app
+  - shinyngs_deploy_to_shinyapps_io
+  - shinyngs_shinyapps_account
+  - shinyngs_shinyapps_app_name
+  - shinyngs_guess_unlog_matrices
+  - report_title
+  - report_author
+  - report_description
+  - report_scree
+  - genome
+  - gtf
+  - TOWER_ACCESS_TOKEN
+  - resume

@@ -1,0 +1,279 @@
+---
+cluster: "tuftshpc"
+
+attributes:
+
+  cpu_partition:
+    widget: "select"
+    label: "Select cpu partition"
+    help: "NOTE: Please do not choose specific lab partitions if you are not a member of that lab."
+    value: "batch"
+    options:
+      - ["batch","batch"]
+      - ["largemem", "largemem"]
+      - ["preempt", "preempt"]
+      - ["patralab", "patralab"]
+
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/reservation.yml").indent(2) %>
+
+  workdir:
+    label: "Working Directory"
+    data-filepicker: true
+    data-target-file-type: dirs  # Valid values are: files, dirs, or both
+    readonly: false
+    help: "Select your project directory; defaults to $HOME"
+    
+  resume:
+    label: resume
+    widget: check_box
+    checked_value: 1
+    unchecked_value: 0
+    help: |
+           Resume previous run if found
+
+  TOWER_ACCESS_TOKEN:
+    widget: "text_field"
+    required: false
+    label: "TOWER_ACCESS_TOKEN (Optional)"
+    help: "Your TOWER_ACCESS_TOKEN used to monitor runs on [Nextflow Tower](https://seqera.io)."
+
+
+  version:
+    label: Version
+    widget: select
+    options:
+      - ['1.1.1', '/cluster/tufts/biocontainers/nf-core/pipelines/nf-core-pangenome/1.1.1/1_1_1']
+      - ['1.1.0', '/cluster/tufts/biocontainers/nf-core/pipelines/nf-core-pangenome/1.1.0/1_1_0']
+
+  input:
+    label: input
+    widget: text_field
+    help: "Path to BGZIPPED input FASTA to build the pangenome graph from."
+
+  n_haplotypes:
+    label: n_haplotypes
+    widget: text_field
+    help: "The number of haplotypes in the input FASTA."
+
+  outdir:
+    label: outdir
+    widget: text_field
+    help: "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure."
+
+  multiqc_title:
+    label: multiqc_title
+    widget: text_field
+    help: "MultiQC report title. Printed as page header, used for filename if not otherwise specified."
+
+  wfmash_map_pct_id:
+    value: "90"
+    label: wfmash_map_pct_id
+    widget: text_field
+    help: "Percent identity in the wfmash mashmap step."
+
+  wfmash_segment_length:
+    value: "5000"
+    label: wfmash_segment_length
+    widget: text_field
+    help: "Segment length for mapping."
+
+  wfmash_block_length:
+    label: wfmash_block_length
+    widget: text_field
+    help: "Minimum block length filter for mapping."
+
+  wfmash_mash_kmer:
+    value: "19"
+    label: wfmash_mash_kmer
+    widget: text_field
+    help: "Kmer size for mashmap."
+
+  wfmash_mash_kmer_thres:
+    value: "0.001"
+    label: wfmash_mash_kmer_thres
+    widget: text_field
+    help: "Ignore the top % most-frequent kmers."
+
+  wfmash_sparse_map:
+    value: "1.0"
+    label: wfmash_sparse_map
+    widget: text_field
+    help: "Keep this fraction of mappings (`auto` for giant component heuristic)."
+
+  wfmash_merge_segments:
+    label: wfmash_merge_segments
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Merge successive mappings."
+
+  wfmash_exclude_delim:
+    label: wfmash_exclude_delim
+    widget: text_field
+    help: "Skip mappings between sequences with the same name prefix before the given delimiter character. This can be helpful if several sequences originate from the same chromosome. It is recommended that the sequence names respect the https://github.com/pangenome/PanSN-spec. In future versions of the pipeline it will be required that the sequence names follow this specification."
+
+  wfmash_chunks:
+    value: "1"
+    label: wfmash_chunks
+    widget: text_field
+    help: "The number of files to generate from the approximate wfmash mappings to scale across a whole cluster. It is recommended to set this to the number of available nodes. If only one machine is available, leave it at 1."
+
+  wfmash_only:
+    label: wfmash_only
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "If this parameter is set, only the wfmash alignment step of the pipeline is executed. This option is offered for users who want to run wfmash on a cluster."
+
+  wfmash_hg_filter_ani_diff:
+    value: "30"
+    label: wfmash_hg_filter_ani_diff
+    widget: text_field
+    help: "Filter out mappings unlikely to be this Average Nucleotide Identity (ANI) less than the best mapping."
+
+  wfmash_n_mappings:
+    value: "1"
+    label: wfmash_n_mappings
+    widget: text_field
+    help: "Number of mappings for each segment."
+
+  seqwish_min_match_length:
+    value: "23"
+    label: seqwish_min_match_length
+    widget: text_field
+    help: "Ignores exact matches below this length."
+
+  seqwish_transclose_batch:
+    value: "10000000"
+    label: seqwish_transclose_batch
+    widget: text_field
+    help: "Number of base pairs to use for transitive closure batch."
+
+  seqwish_sparse_factor:
+    value: "0"
+    label: seqwish_sparse_factor
+    widget: text_field
+    help: "Keep this randomly selected fraction of input matches."
+
+  seqwish_paf:
+    label: seqwish_paf
+    widget: text_field
+    help: "Input PAF file. The wfmash alignment step is skipped."
+
+  skip_smoothxg:
+    label: skip_smoothxg
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip the graph smoothing step of the pipeline."
+
+  smoothxg_poa_length:
+    value: "700,900,1100"
+    label: smoothxg_poa_length
+    widget: text_field
+    help: "Maximum sequence length to put int POA. Is a comma-separated list. For each integer, SMOOTHXG wil be executed once."
+
+  smoothxg_pad_max_depth:
+    value: "100"
+    label: smoothxg_pad_max_depth
+    widget: text_field
+    help: "Path depth at which we don't pad the POA problem."
+
+  smoothxg_poa_padding:
+    value: "0.001"
+    label: smoothxg_poa_padding
+    widget: text_field
+    help: "Pad each end of each seuqence in POA with `smoothxg_poa_padding * longest_poa_seq` base pairs."
+
+  smoothxg_poa_params:
+    value: "1,19,39,3,81,1"
+    label: smoothxg_poa_params
+    widget: text_field
+    help: "Score parameters for POA in the form of `match,mismatch,gap1,ext1,gap2,ext2`. It may also be given as presets: `asm5`, `asm10`, `asm15`, `asm20`. [default: 1,19,39,3,81,1 = asm5]."
+
+  smoothxg_write_maf:
+    label: smoothxg_write_maf
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Write MAF output representing merged POA blocks."
+
+  smoothxg_run_abpoa:
+    label: smoothxg_run_abpoa
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Run abPOA. [default: SPOA]."
+
+  smoothxg_run_global_poa:
+    label: smoothxg_run_global_poa
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Run the POA in global mode. [default: local mode]."
+
+  smoothxg_poa_cpus:
+    value: "0"
+    label: smoothxg_poa_cpus
+    widget: text_field
+    help: "Number of CPUs for the potentially very memory expensive POA phase of SMOOTHXG. Default is `task.cpus`."
+
+  vcf_spec:
+    label: vcf_spec
+    widget: text_field
+    help: "Specify a set of VCFs to produce with `--vcf_spec `REF[:LEN][,REF[:LEN]]*``."
+
+  communities:
+    label: communities
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Enable community detection."
+
+
+form:
+  - bc_num_hours
+  - cpu_partition
+  - reservation
+  - version
+  - workdir
+  - outdir
+  - input
+  - n_haplotypes
+  - multiqc_title
+  - wfmash_map_pct_id
+  - wfmash_segment_length
+  - wfmash_block_length
+  - wfmash_mash_kmer
+  - wfmash_mash_kmer_thres
+  - wfmash_sparse_map
+  - wfmash_merge_segments
+  - wfmash_exclude_delim
+  - wfmash_chunks
+  - wfmash_only
+  - wfmash_hg_filter_ani_diff
+  - wfmash_n_mappings
+  - seqwish_min_match_length
+  - seqwish_transclose_batch
+  - seqwish_sparse_factor
+  - seqwish_paf
+  - skip_smoothxg
+  - smoothxg_poa_length
+  - smoothxg_pad_max_depth
+  - smoothxg_poa_padding
+  - smoothxg_poa_params
+  - smoothxg_write_maf
+  - smoothxg_run_abpoa
+  - smoothxg_run_global_poa
+  - smoothxg_poa_cpus
+  - vcf_spec
+  - communities
+  - TOWER_ACCESS_TOKEN
+  - resume

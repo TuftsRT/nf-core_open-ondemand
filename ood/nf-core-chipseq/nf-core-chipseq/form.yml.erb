@@ -1,0 +1,567 @@
+---
+cluster: "tuftshpc"
+
+attributes:
+
+  cpu_partition:
+    widget: "select"
+    label: "Select cpu partition"
+    help: "NOTE: Please do not choose specific lab partitions if you are not a member of that lab."
+    value: "batch"
+    options:
+      - ["batch","batch"]
+      - ["largemem", "largemem"]
+      - ["preempt", "preempt"]
+      - ["patralab", "patralab"]
+
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/reservation.yml").indent(2) %>
+
+  workdir:
+    label: "Working Directory"
+    data-filepicker: true
+    data-target-file-type: dirs  # Valid values are: files, dirs, or both
+    readonly: false
+    help: "Select your project directory; defaults to $HOME"
+
+  outdir:
+    widget: "text_field"
+    required: true
+    label: "Output directory Name"
+    help: "The output directory where the results will be saved."
+
+  resume:
+    label: Resume
+    widget: check_box
+    checked_value: 1
+    unchecked_value: 0
+    help: |
+           Resume previous run if found
+
+  TOWER_ACCESS_TOKEN:
+    widget: "text_field"
+    required: true
+    label: "TOWER_ACCESS_TOKEN (Optional)"
+    help: "Your TOWER_ACCESS_TOKEN used to monitor runs on [Nextflow Tower](https://seqera.io)."
+
+
+  version:
+    label: Version
+    widget: select
+    options:
+      - ['2.0.0', '/cluster/tufts/biocontainers/nf-core/pipelines/nf-core-chipseq/2.0.0/2_0_0']
+
+  input:
+    data-filepicker: true
+    data-target-file-type: files
+    label: Input(input_output_options)
+    readonly: false
+    help: "Path to comma-separated file containing information about the samples in the experiment. You will need to create a design file with information about the samples in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 5 columns, and a header row. See [usage docs](https://nf-co.re/chipseq/docs/usage#introduction)."
+
+  fragment_size:
+    fa_icon: fas fa-chart-area
+    default: 200
+    label: fragment_size
+    widget: number_field
+    help: "Estimated fragment size used to extend single-end reads."
+
+  seq_center:
+    fa_icon: fas fa-synagogue
+    label: seq_center
+    widget: text_field
+    help: "Sequencing center information to be added to read group of BAM files."
+
+  read_length:
+    fa_icon: fas fa-chart-area
+    widget: number_field
+    options:
+      - ['50', '50']
+      - ['75', '75']
+      - ['100', '100']
+      - ['150', '150']
+      - ['200', '200']
+    label: read_length
+    help: "Read length used to calculate MACS2 genome size for peak calling if `--macs_gsize` isn`t provided."
+
+  multiqc_title:
+    fa_icon: fas fa-file-signature
+    label: multiqc_title
+    widget: text_field
+    help: "MultiQC report title. Printed as page header, used for filename if not otherwise specified."
+
+  genome:
+    label: genome (reference_genome_options)
+    widget: select
+    required: false
+    options:
+      - ['None', ' ']
+      - ['GRCh37', 'GRCh37']
+      - ['GRCh38', 'GRCh38']
+      - ['GRCm38', 'GRCm38']
+      - ['TAIR10', 'TAIR10']
+      - ['EB2', 'EB2']
+      - ['UMD3.1', 'UMD3.1']
+      - ['WBcel235', 'WBcel235']
+      - ['CanFam3.1', 'CanFam3.1']
+      - ['GRCz10', 'GRCz10']
+      - ['BDGP6', 'BDGP6']
+      - ['EquCab2', 'EquCab2']
+      - ['EB1', 'EB1']
+      - ['Galgal4', 'Galgal4']
+      - ['Gm01', 'Gm01']
+      - ['Mmul_1', 'Mmul_1']
+      - ['IRGSP-1.0', 'IRGSP-1.0']
+      - ['CHIMP2.1.4', 'CHIMP2.1.4']
+      - ['Rnor_5.0', 'Rnor_5.0']
+      - ['Rnor_6.0', 'Rnor_6.0']
+      - ['R64-1-1', 'R64-1-1']
+      - ['EF2', 'EF2']
+      - ['Sbi1', 'Sbi1']
+      - ['Sscrofa10.2', 'Sscrofa10.2']
+      - ['AGPv3', 'AGPv3']
+      - ['hg38', 'hg38']
+      - ['hg19', 'hg19']
+      - ['mm10', 'mm10']
+      - ['bosTau8', 'bosTau8']
+      - ['ce10', 'ce10']
+      - ['canFam3', 'canFam3']
+      - ['danRer10', 'danRer10']
+      - ['dm6', 'dm6']
+      - ['equCab2', 'equCab2']
+      - ['galGal4', 'galGal4']
+      - ['panTro4', 'panTro4']
+      - ['rn6', 'rn6']
+      - ['sacCer3', 'sacCer3']
+      - ['susScr3', 'susScr3']
+    help: "If genome is selected (e.g. GRCh37) then the FASTA and GTF files (and existing indices) obtained from [AWS-iGenomes](https://ewels.github.io/AWS-iGenomes/) will be automatically used. However, this method is `not recommended`, because Gene annotations in iGenomes are extremely out of date."
+
+  fasta:
+    format: file-path
+    mimetype: text/plain
+    pattern: ^\S+\.fn?a(sta)?(\.gz)?$
+    fa_icon: far fa-file-code
+    label: fasta
+    widget: text_field
+    help: "Path to FASTA genome file. This parameter is *mandatory* if `--genome` is not specified. If you don`t have the appropriate alignment index available this will be generated for you automatically. Combine with `--save_reference` to save alignment index for future runs."
+
+  gtf:
+    format: file-path
+    mimetype: text/plain
+    pattern: ^\S+\.gtf(\.gz)?$
+    fa_icon: fas fa-code-branch
+    label: gtf
+    widget: text_field
+    help: "Path to GTF annotation file. This parameter is *mandatory* if `--genome` is not specified."
+
+  gff:
+    format: file-path
+    mimetype: text/plain
+    pattern: ^\S+\.gff(\.gz)?$
+    fa_icon: fas fa-code-branch
+    label: gff
+    widget: text_field
+    help: "Path to GFF3 annotation file. This parameter must be specified if `--genome` or `--gtf` are not specified."
+
+  bwa_index:
+    fa_icon: fas fa-bezier-curve
+    label: bwa_index
+    widget: text_field
+    help: "Path to directory or tar.gz archive for pre-built BWA index."
+
+  bowtie2_index:
+    format: path
+    fa_icon: fas fa-bezier-curve
+    label: bowtie2_index
+    widget: text_field
+    help: "Path to directory or tar.gz archive for pre-built Bowtie2 index."
+
+  chromap_index:
+    format: path
+    fa_icon: fas fa-bezier-curve
+    label: chromap_index
+    widget: text_field
+    help: "Path to directory or tar.gz archive for pre-built Chromap index."
+
+  star_index:
+    format: path
+    fa_icon: fas fa-bezier-curve
+    label: star_index
+    widget: text_field
+    help: "Path to directory or tar.gz archive for pre-built STAR index."
+
+  gene_bed:
+    format: file-path
+    mimetype: text/plain
+    pattern: ^\S+\.bed(\.gz)?$
+    fa_icon: fas fa-procedures
+    label: gene_bed
+    widget: text_field
+    help: "Path to BED file containing gene intervals. This will be created from the GTF file if not specified."
+
+  macs_gsize:
+    fa_icon: fas fa-arrows-alt-h
+    label: macs_gsize
+    widget: number_field
+    help: "Effective genome size parameter required by MACS2. [Effective genome size](https://github.com/taoliu/MACS#-g--gsize) parameter required by MACS2. If using an iGenomes reference these have been provided when `--genome` is set as *GRCh37*, *GRCh38*, *GRCm38*, *WBcel235*, *BDGP6*, *R64-1-1*, *EF2*, *hg38*, *hg19* and *mm10*. For other genomes, if this parameter is not specified then the MACS2 peak-calling and differential analysis will be skipped."
+
+  blacklist:
+    fa_icon: fas fa-book-dead
+    label: blacklist
+    widget: text_field
+    help: "Path to blacklist regions in BED format, used for filtering alignments. If provided, alignments that overlap with the regions in this file will be filtered out (see [ENCODE blacklists](https://sites.google.com/site/anshulkundaje/projects/blacklists)). The file should be in BED format. Blacklisted regions for *GRCh37*, *GRCh38*, *GRCm38*, *hg19*, *hg38*, *mm10* are bundled with the pipeline in the [`blacklists`](../assets/blacklists/) directory, and as such will be automatically used if any of those genomes are specified with the `--genome` parameter."
+
+  save_reference:
+    fa_icon: fas fa-save
+    label: save_reference
+    widget: check_box
+    checked_value: true
+    unchecked_value: false
+    help: "If generated by the pipeline save the BWA index in the results directory. If the BWA index is generated by the pipeline use this parameter to save it to your results folder. These can then be used for future pipeline runs, reducing processing times."
+
+  igenomes_base:
+    format: directory-path
+    default: s3://ngi-igenomes/igenomes
+    fa_icon: fas fa-cloud-download-alt
+    hidden: True
+    label: igenomes_base
+    widget: text_field
+    help: "Directory / URL base for iGenomes references."
+
+  igenomes_ignore:
+    fa_icon: fas fa-ban
+    hidden: True
+    label: igenomes_ignore
+    widget: check_box
+    checked_value: true
+    unchecked_value: false
+    help: "Do not load the iGenomes reference config. Do not load `igenomes.config` when running the pipeline. You may choose this option if you observe clashes between custom parameters and those supplied in `igenomes.config`."
+
+  clip_r1:
+    fa_icon: fas fa-cut
+    label: clip_r1
+    widget: number_field
+    help: "Instructs Trim Galore to remove bp from the 5` end of read 1 (or single-end reads)."
+
+  clip_r2:
+    fa_icon: fas fa-cut
+    label: clip_r2
+    widget: number_field
+    help: "Instructs Trim Galore to remove bp from the 5` end of read 2 (paired-end reads only)."
+
+  three_prime_clip_r1:
+    fa_icon: fas fa-cut
+    label: three_prime_clip_r1
+    widget: number_field
+    help: "Instructs Trim Galore to remove bp from the 3` end of read 1 AFTER adapter/quality trimming has been performed."
+
+  three_prime_clip_r2:
+    fa_icon: fas fa-cut
+    label: three_prime_clip_r2
+    widget: number_field
+    help: "Instructs Trim Galore to remove bp from the 3` end of read 2 AFTER adapter/quality trimming has been performed."
+
+  trim_nextseq:
+    fa_icon: fas fa-cut
+    label: trim_nextseq
+    widget: number_field
+    help: "Instructs Trim Galore to apply the --nextseq=X option, to trim based on quality after removing poly-G tails. This enables the option Cutadapt `--nextseq-trim=3`CUTOFF` option via Trim Galore, which will set a quality cutoff (that is normally given with -q instead), but qualities of G bases are ignored. This trimming is in common for the NextSeq- and NovaSeq-platforms, where basecalls without any signal are called as high-quality G bases."
+
+  skip_trimming:
+    fa_icon: fas fa-fast-forward
+    label: skip_trimming
+    widget: check_box
+    checked_value: true
+    unchecked_value: false
+    help: "Skip the adapter trimming step. Use this if your input FastQ files have already been trimmed outside of the workflow or if you`re very confident that there is no adapter contamination in your data."
+
+  save_trimmed:
+    fa_icon: fas fa-save
+    label: save_trimmed
+    widget: check_box
+    checked_value: true
+    unchecked_value: false
+    help: "Save the trimmed FastQ files in the results directory. By default, trimmed FastQ files will not be saved to the results directory. Specify this flag (or set to true in your config file) to copy these files to the results directory when complete."
+
+  aligner:
+    default: bwa
+    fa_icon: fas fa-map-signs
+    widget: select
+    options:
+      - ['bwa', 'bwa']
+      - ['bowtie2', 'bowtie2']
+      - ['chromap', 'chromap']
+      - ['star', 'star']
+    label: aligner
+    help: "Specifies the alignment algorithm to use - available options are `bwa`, `bowtie2` and `star`."
+
+  keep_dups:
+    fa_icon: fas fa-cart-arrow-down
+    label: keep_dups
+    widget: check_box
+    checked_value: true
+    unchecked_value: false
+    help: "Duplicate reads are not filtered from alignments."
+
+  keep_multi_map:
+    fa_icon: fas fa-cart-arrow-down
+    label: keep_multi_map
+    widget: check_box
+    checked_value: true
+    unchecked_value: false
+    help: "Reads mapping to multiple locations are not filtered from alignments."
+
+  bwa_min_score:
+    fa_icon: fas fa-hand-paper
+    label: bwa_min_score
+    widget: number_field
+    help: "Don’t output BWA MEM alignments with score lower than this parameter."
+
+  save_align_intermeds:
+    fa_icon: fas fa-save
+    label: save_align_intermeds
+    widget: check_box
+    checked_value: true
+    unchecked_value: false
+    help: "Save the intermediate BAM files from the alignment step. By default, intermediate BAM files will not be saved. The final BAM files created after the appropriate filtering step are always saved to limit storage usage. Set this parameter to also save other intermediate BAM files."
+
+  save_unaligned:
+    fa_icon: fas fa-save
+    label: save_unaligned
+    widget: check_box
+    checked_value: true
+    unchecked_value: false
+    help: "Where possible, save unaligned reads from either STAR, HISAT2 or Salmon to the results directory. This may either be in the form of FastQ or BAM files depending on the options available for that particular tool."
+
+  bamtools_filter_pe_config:
+    default: $projectDir/assets/bamtools_filter_pe.json
+    hidden: True
+    fa_icon: fas fa-cog
+    label: bamtools_filter_pe_config
+    widget: text_field
+    help: "BAMTools JSON file with custom filters for paired-end data."
+
+  bamtools_filter_se_config:
+    default: $projectDir/assets/bamtools_filter_se.json
+    hidden: True
+    fa_icon: fas fa-cog
+    label: bamtools_filter_se_config
+    widget: text_field
+    help: "BAMTools JSON file with custom filters for single-end data."
+
+  narrow_peak:
+    fa_icon: fas fa-arrows-alt-h
+    label: narrow_peak
+    widget: check_box
+    checked_value: true
+    unchecked_value: false
+    help: "Run MACS2 in narrowPeak mode. MACS2 is run by default with the [`--broad`](https://github.com/taoliu/MACS#--broad) flag. Specify this flag to call peaks in narrowPeak mode."
+
+  broad_cutoff:
+    default: 0.1
+    fa_icon: fas fa-hand-scissors
+    label: broad_cutoff
+    widget: number_field
+    help: "Specifies broad cutoff value for MACS2. Only used when --narrow_peak isnt specified."
+
+  macs_fdr:
+    fa_icon: fas fa-sort-amount-down
+    label: macs_fdr
+    widget: number_field
+    help: "Minimum FDR (q-value) cutoff for peak detection, --macs_fdr and --macs_pvalue are mutually exclusive."
+
+  macs_pvalue:
+    fa_icon: fas fa-sort-amount-down
+    label: macs_pvalue
+    widget: number_field
+    help: "p-value cutoff for peak detection, --macs_fdr and --macs_pvalue are mutually exclusive. If --macs_pvalue cutoff is set, q-value will not be calculated and reported as -1 in the final .xls file."
+
+  min_reps_consensus:
+    default: 1
+    fa_icon: fas fa-sort-numeric-down
+    label: min_reps_consensus
+    widget: number_field
+    help: "Number of biological replicates required from a given condition for a peak to contribute to a consensus peak. If you are confident you have good reproducibility amongst your replicates then you can increase the value of this parameter to create a `reproducible` set of consensus peaks. For example, a value of 2 will mean peaks that have been called in at least 2 replicates will contribute to the consensus set of peaks, and as such peaks that are unique to a given replicate will be discarded."
+
+  save_macs_pileup:
+    fa_icon: fas fa-save
+    label: save_macs_pileup
+    widget: check_box
+    checked_value: true
+    unchecked_value: false
+    help: "Instruct MACS2 to create bedGraph files normalised to signal per million reads."
+
+  skip_peak_qc:
+    fa_icon: fas fa-fast-forward
+    label: skip_peak_qc
+    widget: check_box
+    checked_value: true
+    unchecked_value: false
+    help: "Skip MACS2 peak QC plot generation."
+
+  skip_peak_annotation:
+    fa_icon: fas fa-fast-forward
+    label: skip_peak_annotation
+    widget: check_box
+    checked_value: true
+    unchecked_value: false
+    help: "Skip annotation of MACS2 and consensus peaks with HOMER."
+
+  skip_consensus_peaks:
+    fa_icon: fas fa-fast-forward
+    label: skip_consensus_peaks
+    widget: check_box
+    checked_value: true
+    unchecked_value: false
+    help: "Skip consensus peak generation, annotation and counting."
+
+  skip_fastqc:
+    fa_icon: fas fa-fast-forward
+    label: skip_fastqc
+    widget: check_box
+    checked_value: true
+    unchecked_value: false
+    help: "Skip FastQC."
+
+  skip_picard_metrics:
+    fa_icon: fas fa-fast-forward
+    label: skip_picard_metrics
+    widget: check_box
+    checked_value: true
+    unchecked_value: false
+    help: "Skip Picard CollectMultipleMetrics."
+
+  skip_preseq:
+    fa_icon: fas fa-fast-forward
+    label: skip_preseq
+    widget: check_box
+    checked_value: true
+    unchecked_value: false
+    help: "Skip Preseq."
+
+  deseq2_vst:
+    fa_icon: fas fa-dolly
+    default: True
+    label: deseq2_vst
+    widget: check_box
+    checked_value: true
+    unchecked_value: false
+    help: "Use vst transformation instead of rlog with DESeq2. See [DESeq2 docs](http://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#data-transformations-and-visualization)."
+
+  skip_plot_profile:
+    fa_icon: fas fa-fast-forward
+    label: skip_plot_profile
+    widget: check_box
+    checked_value: true
+    unchecked_value: false
+    help: "Skip deepTools plotProfile."
+
+  skip_plot_fingerprint:
+    fa_icon: fas fa-fast-forward
+    label: skip_plot_fingerprint
+    widget: check_box
+    checked_value: true
+    unchecked_value: false
+    help: "Skip deepTools plotFingerprint."
+
+  skip_spp:
+    fa_icon: fas fa-fast-forward
+    label: skip_spp
+    widget: check_box
+    checked_value: true
+    unchecked_value: false
+    help: "Skip Phantompeakqualtools."
+
+  skip_deseq2_qc:
+    fa_icon: fas fa-fast-forward
+    label: skip_deseq2_qc
+    widget: check_box
+    checked_value: true
+    unchecked_value: false
+    help: "Skip DESeq2 PCA and heatmap plotting."
+
+  skip_igv:
+    fa_icon: fas fa-fast-forward
+    label: skip_igv
+    widget: check_box
+    checked_value: true
+    unchecked_value: false
+    help: "Skip IGV."
+
+  skip_multiqc:
+    fa_icon: fas fa-fast-forward
+    label: skip_multiqc
+    widget: check_box
+    checked_value: true
+    unchecked_value: false
+    help: "Skip MultiQC."
+
+  skip_qc:
+    fa_icon: fas fa-fast-forward
+    label: skip_qc
+    widget: check_box
+    checked_value: true
+    unchecked_value: false
+    help: "Skip all QC steps except for MultiQC."
+
+
+form:
+  - bc_num_hours
+  - cpu_partition
+  - reservation
+  - version
+  - workdir
+  - outdir
+  - input
+  - fragment_size
+  - seq_center
+  - read_length
+  - multiqc_title
+  - genome
+  - igenomes_ignore
+  - fasta
+  - gtf
+  - gff
+  - bwa_index
+  - bowtie2_index
+  - chromap_index
+  - star_index
+  - gene_bed
+  - macs_gsize
+  - blacklist
+  - save_reference
+  - clip_r1
+  - clip_r2
+  - three_prime_clip_r1
+  - three_prime_clip_r2
+  - trim_nextseq
+  - skip_trimming
+  - save_trimmed
+  - aligner
+  - keep_dups
+  - keep_multi_map
+  - bwa_min_score
+  - save_align_intermeds
+  - save_unaligned
+  - bamtools_filter_pe_config
+  - bamtools_filter_se_config
+  - narrow_peak
+  - broad_cutoff
+  - macs_fdr
+  - macs_pvalue
+  - min_reps_consensus
+  - save_macs_pileup
+  - skip_peak_qc
+  - skip_peak_annotation
+  - skip_consensus_peaks
+  - skip_fastqc
+  - skip_picard_metrics
+  - skip_preseq
+  - deseq2_vst
+  - skip_plot_profile
+  - skip_plot_fingerprint
+  - skip_spp
+  - skip_deseq2_qc
+  - skip_igv
+  - skip_multiqc
+  - skip_qc
+  - TOWER_ACCESS_TOKEN
+  - resume

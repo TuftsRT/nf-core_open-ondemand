@@ -1,0 +1,863 @@
+---
+cluster: "tuftshpc"
+
+attributes:
+
+  cpu_partition:
+    widget: "select"
+    label: "Select cpu partition"
+    help: "NOTE: Please do not choose specific lab partitions if you are not a member of that lab."
+    value: "batch"
+    options:
+      - ["batch","batch"]
+      - ["largemem", "largemem"]
+      - ["preempt", "preempt"]
+      - ["patralab", "patralab"]
+
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/reservation.yml").indent(2) %>
+
+  workdir:
+    label: "Working Directory"
+    data-filepicker: true
+    data-target-file-type: dirs  # Valid values are: files, dirs, or both
+    readonly: false
+    help: "Select your project directory; defaults to $HOME"
+    
+  resume:
+    label: resume
+    widget: check_box
+    checked_value: 1
+    unchecked_value: 0
+    help: |
+           Resume previous run if found
+
+  TOWER_ACCESS_TOKEN:
+    widget: "text_field"
+    required: false
+    label: "TOWER_ACCESS_TOKEN (Optional)"
+    help: "Your TOWER_ACCESS_TOKEN used to monitor runs on [Nextflow Tower](https://seqera.io)."
+
+
+  version:
+    label: Version
+    widget: select
+    options:
+      - ['2.8.0', '/cluster/tufts/biocontainers/nf-core/pipelines/nf-core-ampliseq/2.8.0/2_8_0']
+
+  input:
+    label: input
+    widget: text_field
+    help: "Path to tab-separated sample sheet"
+
+  input_fasta:
+    label: input_fasta
+    widget: text_field
+    help: "Path to ASV/OTU fasta file"
+
+  input_folder:
+    label: input_folder
+    widget: text_field
+    help: "Path to folder containing zipped FastQ files"
+
+  FW_primer:
+    label: FW_primer
+    widget: text_field
+    help: "Forward primer sequence"
+
+  RV_primer:
+    label: RV_primer
+    widget: text_field
+    help: "Reverse primer sequence"
+
+  metadata:
+    label: metadata
+    widget: text_field
+    help: "Path to metadata sheet, when missing most downstream analysis are skipped (barplots, PCoA plots, ...)."
+
+  outdir:
+    label: outdir
+    widget: text_field
+    help: "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure."
+
+  illumina_novaseq:
+    label: illumina_novaseq
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "If data has binned quality scores such as Illumina NovaSeq"
+
+  pacbio:
+    label: pacbio
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "If data is single-ended PacBio reads instead of Illumina"
+
+  iontorrent:
+    label: iontorrent
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "If data is single-ended IonTorrent reads instead of Illumina"
+
+  single_end:
+    label: single_end
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "If data is single-ended Illumina reads instead of paired-end"
+
+  illumina_pe_its:
+    label: illumina_pe_its
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "If analysing ITS amplicons or any other region with large length variability with Illumina paired end reads"
+
+  multiple_sequencing_runs:
+    label: multiple_sequencing_runs
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "If using `--input_folder`: samples were sequenced in multiple sequencing runs"
+
+  extension:
+    value: "/*_R{1,2}_001.fastq.gz"
+    label: extension
+    widget: text_field
+    help: "If using `--input_folder`: naming of sequencing files"
+
+  min_read_counts:
+    value: "1"
+    label: min_read_counts
+    widget: text_field
+    help: "Set read count threshold for failed samples."
+
+  ignore_empty_input_files:
+    label: ignore_empty_input_files
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Ignore input files with too few reads."
+
+  retain_untrimmed:
+    label: retain_untrimmed
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Cutadapt will retain untrimmed reads, choose only if input reads are not expected to contain primer sequences."
+
+  cutadapt_min_overlap:
+    value: "3"
+    label: cutadapt_min_overlap
+    widget: text_field
+    help: "Sets the minimum overlap for valid matches of primer sequences with reads for cutadapt (-O)."
+
+  cutadapt_max_error_rate:
+    value: "0.1"
+    label: cutadapt_max_error_rate
+    widget: text_field
+    help: "Sets the maximum error rate for valid matches of primer sequences with reads for cutadapt (-e)."
+
+  double_primer:
+    label: double_primer
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Cutadapt will be run twice to ensure removal of potential double primers"
+
+  ignore_failed_trimming:
+    label: ignore_failed_trimming
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Ignore files with too few reads after trimming."
+
+  trunclenf:
+    label: trunclenf
+    widget: text_field
+    help: "DADA2 read truncation value for forward strand, set this to 0 for no truncation"
+
+  trunclenr:
+    label: trunclenr
+    widget: text_field
+    help: "DADA2 read truncation value for reverse strand, set this to 0 for no truncation"
+
+  trunc_qmin:
+    value: "25"
+    label: trunc_qmin
+    widget: text_field
+    help: "If --trunclenf and --trunclenr are not set, these values will be automatically determined using this median quality score"
+
+  trunc_rmin:
+    value: "0.75"
+    label: trunc_rmin
+    widget: text_field
+    help: "Assures that values chosen with --trunc_qmin will retain a fraction of reads."
+
+  max_ee:
+    value: "2"
+    label: max_ee
+    widget: text_field
+    help: "DADA2 read filtering option"
+
+  min_len:
+    value: "50"
+    label: min_len
+    widget: text_field
+    help: "DADA2 read filtering option"
+
+  max_len:
+    label: max_len
+    widget: text_field
+    help: "DADA2 read filtering option"
+
+  ignore_failed_filtering:
+    label: ignore_failed_filtering
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Ignore files with too few reads after quality filtering."
+
+  sample_inference:
+    value: "independent"
+    widget: select
+    options:
+      - ['independent', 'independent']
+      - ['pooled', 'pooled']
+      - ['pseudo', 'pseudo']
+    label: sample_inference
+    help: "Mode of sample inference: `independent`, `pooled` or `pseudo`"
+
+  concatenate_reads:
+    label: concatenate_reads
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Not recommended: When paired end reads are not sufficiently overlapping for merging."
+
+  vsearch_cluster:
+    label: vsearch_cluster
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Post-cluster ASVs with VSEARCH"
+
+  vsearch_cluster_id:
+    value: "0.97"
+    label: vsearch_cluster_id
+    widget: text_field
+    help: "Pairwise Identity value used when post-clustering ASVs if `--vsearch_cluster` option is used (default: 0.97)."
+
+  filter_ssu:
+    widget: select
+    options:
+      - ['None', ' ']
+      - ['bac,arc,mito,euk', 'bac,arc,mito,euk']
+      - ['bac', 'bac']
+      - ['arc', 'arc']
+      - ['mito', 'mito']
+      - ['euk', 'euk']
+      - ['bac,arc', 'bac,arc']
+      - ['bac,mito', 'bac,mito']
+      - ['bac,euk', 'bac,euk']
+      - ['arc,mito', 'arc,mito']
+      - ['arc,euk', 'arc,euk']
+      - ['mito,euk', 'mito,euk']
+      - ['bac,arc,mito', 'bac,arc,mito']
+      - ['bac,mito,euk', 'bac,mito,euk']
+      - ['arc,mito,euk', 'arc,mito,euk']
+    label: filter_ssu
+    help: "Enable SSU filtering. Comma separated list of kingdoms (domains) in Barrnap, a combination (or one) of `bac`, `arc`, `mito`, and `euk`. ASVs that have their lowest evalue in that kingdoms are kept."
+
+  min_len_asv:
+    label: min_len_asv
+    widget: text_field
+    help: "Minimal ASV length"
+
+  max_len_asv:
+    label: max_len_asv
+    widget: text_field
+    help: "Maximum ASV length"
+
+  filter_codons:
+    label: filter_codons
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Filter ASVs based on codon usage"
+
+  orf_start:
+    value: "1"
+    label: orf_start
+    widget: text_field
+    help: "Starting position of codon tripletts"
+
+  orf_end:
+    label: orf_end
+    widget: text_field
+    help: "Ending position of codon tripletts"
+
+  stop_codons:
+    value: "TAA,TAG"
+    label: stop_codons
+    widget: text_field
+    help: "Define stop codons"
+
+  dada_ref_taxonomy:
+    value: "silva=138"
+    widget: select
+    options:
+      - ['coidb', 'coidb']
+      - ['coidb=221216', 'coidb=221216']
+      - ['gtdb', 'gtdb']
+      - ['gtdb=R05-RS95', 'gtdb=R05-RS95']
+      - ['gtdb=R06-RS202', 'gtdb=R06-RS202']
+      - ['gtdb=R07-RS207', 'gtdb=R07-RS207']
+      - ['gtdb=R08-RS214', 'gtdb=R08-RS214']
+      - ['midori2-co1', 'midori2-co1']
+      - ['midori2-co1=gb250', 'midori2-co1=gb250']
+      - ['phytoref', 'phytoref']
+      - ['pr2', 'pr2']
+      - ['pr2=4.13.0', 'pr2=4.13.0']
+      - ['pr2=4.14.0', 'pr2=4.14.0']
+      - ['pr2=5.0.0', 'pr2=5.0.0']
+      - ['rdp', 'rdp']
+      - ['rdp=18', 'rdp=18']
+      - ['sbdi-gtdb', 'sbdi-gtdb']
+      - ['sbdi-gtdb=R06-RS202-1', 'sbdi-gtdb=R06-RS202-1']
+      - ['sbdi-gtdb=R06-RS202-3', 'sbdi-gtdb=R06-RS202-3']
+      - ['sbdi-gtdb=R07-RS207-1', 'sbdi-gtdb=R07-RS207-1']
+      - ['silva', 'silva']
+      - ['silva=132', 'silva=132']
+      - ['silva=138', 'silva=138']
+      - ['unite-alleuk', 'unite-alleuk']
+      - ['unite-alleuk=8.2', 'unite-alleuk=8.2']
+      - ['unite-alleuk=8.3', 'unite-alleuk=8.3']
+      - ['unite-alleuk=9.0', 'unite-alleuk=9.0']
+      - ['unite-fungi', 'unite-fungi']
+      - ['unite-fungi=8.2', 'unite-fungi=8.2']
+      - ['unite-fungi=8.3', 'unite-fungi=8.3']
+      - ['unite-fungi=9.0', 'unite-fungi=9.0']
+      - ['zehr-nifh', 'zehr-nifh']
+      - ['zehr-nifh=2.5.0', 'zehr-nifh=2.5.0']
+    label: dada_ref_taxonomy
+    help: "Name of supported database, and optionally also version number"
+
+  dada_ref_tax_custom:
+    label: dada_ref_tax_custom
+    widget: text_field
+    help: "Path to a custom DADA2 reference taxonomy database"
+
+  dada_ref_tax_custom_sp:
+    label: dada_ref_tax_custom_sp
+    widget: text_field
+    help: "Path to a custom DADA2 reference taxonomy database for species assignment"
+
+  dada_assign_taxlevels:
+    label: dada_assign_taxlevels
+    widget: text_field
+    help: "Comma separated list of taxonomic levels used in DADA2`s assignTaxonomy function"
+
+  cut_dada_ref_taxonomy:
+    label: cut_dada_ref_taxonomy
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "If the expected amplified sequences are extracted from the DADA2 reference taxonomy database"
+
+  dada_addspecies_allowmultiple:
+    label: dada_addspecies_allowmultiple
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "If multiple exact matches against different species are returned"
+
+  dada_taxonomy_rc:
+    label: dada_taxonomy_rc
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "If reverse-complement of each sequences will be also tested for classification"
+
+  pplace_tree:
+    label: pplace_tree
+    widget: text_field
+    help: "Newick file with reference phylogenetic tree. Requires also `--pplace_aln` and `--pplace_model`."
+
+  pplace_aln:
+    label: pplace_aln
+    widget: text_field
+    help: "File with reference sequences. Requires also `--pplace_tree` and `--pplace_model`."
+
+  pplace_model:
+    label: pplace_model
+    widget: text_field
+    help: "Phylogenetic model to use in placement, e.g. `LG+F` or `GTR+I+F`. Requires also `--pplace_tree` and `--pplace_aln`."
+
+  pplace_alnmethod:
+    value: "hmmer"
+    widget: select
+    options:
+      - ['hmmer', 'hmmer']
+      - ['mafft', 'mafft']
+    label: pplace_alnmethod
+    help: "Method used for alignment, `hmmer` or `mafft`"
+
+  pplace_taxonomy:
+    label: pplace_taxonomy
+    widget: text_field
+    help: "Tab-separated file with taxonomy assignments of reference sequences."
+
+  qiime_ref_taxonomy:
+    widget: select
+    options:
+      - ['None', ' ']
+      - ['silva=138', 'silva=138']
+      - ['silva', 'silva']
+      - ['unite-fungi=8.3', 'unite-fungi=8.3']
+      - ['unite-fungi=8.2', 'unite-fungi=8.2']
+      - ['unite-fungi', 'unite-fungi']
+      - ['unite-alleuk=9.0', 'unite-alleuk=9.0']
+      - ['unite-alleuk=8.3', 'unite-alleuk=8.3']
+      - ['unite-alleuk=8.2', 'unite-alleuk=8.2']
+      - ['unite-alleuk', 'unite-alleuk']
+      - ['greengenes85', 'greengenes85']
+      - ['greengenes2', 'greengenes2']
+      - ['greengenes2=2022.10', 'greengenes2=2022.10']
+    label: qiime_ref_taxonomy
+    help: "Name of supported database, and optionally also version number"
+
+  qiime_ref_tax_custom:
+    label: qiime_ref_tax_custom
+    widget: text_field
+    help: "Path to files of a custom QIIME2 reference taxonomy database (tarball, or two comma-separated files)"
+
+  classifier:
+    label: classifier
+    widget: text_field
+    help: "Path to QIIME2 trained classifier file (typically *-classifier.qza)"
+
+  kraken2_ref_taxonomy:
+    widget: select
+    options:
+      - ['None', ' ']
+      - ['silva', 'silva']
+      - ['silva=138', 'silva=138']
+      - ['silva=132', 'silva=132']
+      - ['rdp', 'rdp']
+      - ['rdp=18', 'rdp=18']
+      - ['greengenes', 'greengenes']
+      - ['greengenes=13.5', 'greengenes=13.5']
+      - ['standard', 'standard']
+      - ['standard=20230605', 'standard=20230605']
+    label: kraken2_ref_taxonomy
+    help: "Name of supported database, and optionally also version number"
+
+  kraken2_ref_tax_custom:
+    label: kraken2_ref_tax_custom
+    widget: text_field
+    help: "Path to a custom Kraken2 reference taxonomy database (*.tar.gz|*.tgz archive or folder)"
+
+  kraken2_assign_taxlevels:
+    label: kraken2_assign_taxlevels
+    widget: text_field
+    help: "Comma separated list of taxonomic levels used in Kraken2. Will overwrite default values."
+
+  kraken2_confidence:
+    value: "0.0"
+    label: kraken2_confidence
+    widget: text_field
+    help: "Confidence score threshold for taxonomic classification."
+
+  sintax_ref_taxonomy:
+    widget: select
+    options:
+      - ['None', ' ']
+      - ['coidb', 'coidb']
+      - ['coidb=221216', 'coidb=221216']
+      - ['unite-fungi=9.0', 'unite-fungi=9.0']
+      - ['unite-fungi=8.3', 'unite-fungi=8.3']
+      - ['unite-fungi=8.2', 'unite-fungi=8.2']
+      - ['unite-fungi', 'unite-fungi']
+      - ['unite-alleuk=9.0', 'unite-alleuk=9.0']
+      - ['unite-alleuk=8.3', 'unite-alleuk=8.3']
+      - ['unite-alleuk=8.2', 'unite-alleuk=8.2']
+      - ['unite-alleuk', 'unite-alleuk']
+    label: sintax_ref_taxonomy
+    help: "Name of supported database, and optionally also version number"
+
+  addsh:
+    label: addsh
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "If ASVs should be assigned to UNITE species hypotheses (SHs). Only relevant for ITS data."
+
+  cut_its:
+    value: "none"
+    widget: select
+    options:
+      - ['none', 'none']
+      - ['full', 'full']
+      - ['its1', 'its1']
+      - ['its2', 'its2']
+    label: cut_its
+    help: "Part of ITS region to use for taxonomy assignment: `full`, `its1`, or `its2`"
+
+  its_partial:
+    value: "0"
+    label: its_partial
+    widget: text_field
+    help: "Cutoff for partial ITS sequences. Only full sequences by default."
+
+  exclude_taxa:
+    value: "mitochondria,chloroplast"
+    label: exclude_taxa
+    widget: text_field
+    help: "Comma separated list of unwanted taxa, to skip taxa filtering use `none`"
+
+  min_frequency:
+    value: "1"
+    label: min_frequency
+    widget: text_field
+    help: "Abundance filtering"
+
+  min_samples:
+    value: "1"
+    label: min_samples
+    widget: text_field
+    help: "Prevalence filtering"
+
+  metadata_category:
+    label: metadata_category
+    widget: text_field
+    help: "Comma separated list of metadata column headers for statistics."
+
+  metadata_category_barplot:
+    label: metadata_category_barplot
+    widget: text_field
+    help: "Comma separated list of metadata column headers for plotting average relative abundance barplots."
+
+  qiime_adonis_formula:
+    label: qiime_adonis_formula
+    widget: text_field
+    help: "Formula for QIIME2 ADONIS metadata feature importance test for beta diversity distances"
+
+  picrust:
+    label: picrust
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "If the functional potential of the bacterial community is predicted."
+
+  sbdiexport:
+    label: sbdiexport
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "If data should be exported in SBDI (Swedish biodiversity infrastructure) Excel format."
+
+  diversity_rarefaction_depth:
+    value: "500"
+    label: diversity_rarefaction_depth
+    widget: text_field
+    help: "Minimum rarefaction depth for diversity analysis. Any sample below that threshold will be removed."
+
+  ancom_sample_min_count:
+    value: "1"
+    label: ancom_sample_min_count
+    widget: text_field
+    help: "Minimum sample counts to retain a sample for ANCOM analysis. Any sample below that threshold will be removed."
+
+  tax_agglom_min:
+    value: "2"
+    label: tax_agglom_min
+    widget: text_field
+    help: "Minimum taxonomy agglomeration level for taxonomic classifications"
+
+  tax_agglom_max:
+    value: "6"
+    label: tax_agglom_max
+    widget: text_field
+    help: "Maximum taxonomy agglomeration level for taxonomic classifications"
+
+  report_template:
+    value: "${projectDir}/assets/report_template.Rmd"
+    label: report_template
+    widget: text_field
+    help: "Path to Markdown file (Rmd)"
+
+  report_css:
+    value: "${projectDir}/assets/nf-core_style.css"
+    label: report_css
+    widget: text_field
+    help: "Path to style file (css)"
+
+  report_logo:
+    value: "${projectDir}/assets/nf-core-ampliseq_logo_light_long.png"
+    label: report_logo
+    widget: text_field
+    help: "Path to logo file (png)"
+
+  report_title:
+    value: "Summary of analysis results"
+    label: report_title
+    widget: text_field
+    help: "String used as report title"
+
+  report_abstract:
+    label: report_abstract
+    widget: text_field
+    help: "Path to Markdown file (md) that replaces the `Abstract` section"
+
+  skip_fastqc:
+    label: skip_fastqc
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip FastQC"
+
+  skip_cutadapt:
+    label: skip_cutadapt
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip primer trimming with cutadapt. This is not recommended! Use only in case primer sequences were removed before and the data does not contain any primer sequences."
+
+  skip_dada_quality:
+    label: skip_dada_quality
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip quality check with DADA2. Can only be skipped when `--trunclenf` and `--trunclenr` are set."
+
+  skip_barrnap:
+    label: skip_barrnap
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip annotating SSU matches."
+
+  skip_qiime:
+    label: skip_qiime
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip all steps that are executed by QIIME2, including QIIME2 software download, taxonomy assignment by QIIME2, barplots, relative abundance tables, diversity analysis, differential abundance testing."
+
+  skip_qiime_downstream:
+    label: skip_qiime_downstream
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip steps that are executed by QIIME2 except for taxonomic classification. Skip steps including barplots, relative abundance tables, diversity analysis, differential abundance testing."
+
+  skip_taxonomy:
+    label: skip_taxonomy
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip taxonomic classification. Incompatible with `--sbdiexport`"
+
+  skip_dada_taxonomy:
+    label: skip_dada_taxonomy
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip taxonomic classification with DADA2"
+
+  skip_dada_addspecies:
+    label: skip_dada_addspecies
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip species level when using DADA2 for taxonomic classification. This reduces the required memory dramatically under certain conditions. Incompatible with `--sbdiexport`"
+
+  skip_barplot:
+    label: skip_barplot
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip producing barplot"
+
+  skip_abundance_tables:
+    label: skip_abundance_tables
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip producing any relative abundance tables"
+
+  skip_alpha_rarefaction:
+    label: skip_alpha_rarefaction
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip alpha rarefaction"
+
+  skip_diversity_indices:
+    label: skip_diversity_indices
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip alpha and beta diversity analysis"
+
+  skip_ancom:
+    label: skip_ancom
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip differential abundance testing"
+
+  skip_multiqc:
+    label: skip_multiqc
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip MultiQC reporting"
+
+  skip_report:
+    label: skip_report
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip Markdown summary report"
+
+
+form:
+  - bc_num_hours
+  - cpu_partition
+  - reservation
+  - version
+  - workdir
+  - outdir
+  - input
+  - input_fasta
+  - input_folder
+  - FW_primer
+  - RV_primer
+  - metadata
+  - illumina_novaseq
+  - pacbio
+  - iontorrent
+  - single_end
+  - illumina_pe_its
+  - multiple_sequencing_runs
+  - extension
+  - min_read_counts
+  - ignore_empty_input_files
+  - retain_untrimmed
+  - cutadapt_min_overlap
+  - cutadapt_max_error_rate
+  - double_primer
+  - ignore_failed_trimming
+  - trunclenf
+  - trunclenr
+  - trunc_qmin
+  - trunc_rmin
+  - max_ee
+  - min_len
+  - max_len
+  - ignore_failed_filtering
+  - sample_inference
+  - concatenate_reads
+  - vsearch_cluster
+  - vsearch_cluster_id
+  - filter_ssu
+  - min_len_asv
+  - max_len_asv
+  - filter_codons
+  - orf_start
+  - orf_end
+  - stop_codons
+  - dada_ref_taxonomy
+  - dada_ref_tax_custom
+  - dada_ref_tax_custom_sp
+  - dada_assign_taxlevels
+  - cut_dada_ref_taxonomy
+  - dada_addspecies_allowmultiple
+  - dada_taxonomy_rc
+  - pplace_tree
+  - pplace_aln
+  - pplace_model
+  - pplace_alnmethod
+  - pplace_taxonomy
+  - qiime_ref_taxonomy
+  - qiime_ref_tax_custom
+  - classifier
+  - kraken2_ref_taxonomy
+  - kraken2_ref_tax_custom
+  - kraken2_assign_taxlevels
+  - kraken2_confidence
+  - sintax_ref_taxonomy
+  - addsh
+  - cut_its
+  - its_partial
+  - exclude_taxa
+  - min_frequency
+  - min_samples
+  - metadata_category
+  - metadata_category_barplot
+  - qiime_adonis_formula
+  - picrust
+  - sbdiexport
+  - diversity_rarefaction_depth
+  - ancom_sample_min_count
+  - tax_agglom_min
+  - tax_agglom_max
+  - report_title
+  - report_abstract
+  - skip_fastqc
+  - skip_cutadapt
+  - skip_dada_quality
+  - skip_barrnap
+  - skip_qiime
+  - skip_qiime_downstream
+  - skip_taxonomy
+  - skip_dada_taxonomy
+  - skip_dada_addspecies
+  - skip_barplot
+  - skip_abundance_tables
+  - skip_alpha_rarefaction
+  - skip_diversity_indices
+  - skip_ancom
+  - skip_multiqc
+  - skip_report
+  - TOWER_ACCESS_TOKEN
+  - resume

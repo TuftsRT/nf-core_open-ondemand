@@ -1,0 +1,868 @@
+---
+cluster: "tuftshpc"
+
+attributes:
+
+  cpu_partition:
+    widget: "select"
+    label: "Select cpu partition"
+    help: "NOTE: Please do not choose specific lab partitions if you are not a member of that lab."
+    value: "batch"
+    options:
+      - ["batch","batch"]
+      - ["largemem", "largemem"]
+      - ["preempt", "preempt"]
+      - ["patralab", "patralab"]
+
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/reservation.yml").indent(2) %>
+
+  workdir:
+    label: "Working Directory"
+    data-filepicker: true
+    data-target-file-type: dirs  # Valid values are: files, dirs, or both
+    readonly: false
+    help: "Select your project directory; defaults to $HOME"
+    
+  resume:
+    label: resume
+    widget: check_box
+    checked_value: 1
+    unchecked_value: 0
+    help: |
+           Resume previous run if found
+
+  TOWER_ACCESS_TOKEN:
+    widget: "text_field"
+    required: false
+    label: "TOWER_ACCESS_TOKEN (Optional)"
+    help: "Your TOWER_ACCESS_TOKEN used to monitor runs on [Nextflow Tower](https://seqera.io)."
+
+
+  version:
+    label: Version
+    widget: select
+    options:
+      - ['1.0.3', '/cluster/tufts/biocontainers/nf-core/pipelines/nf-core-rnasplice/1.0.3/1_0_3']
+      - ['1.0.2', '/cluster/tufts/biocontainers/nf-core/pipelines/nf-core-rnasplice/1.0.2/1_0_2']
+
+  input:
+    label: input
+    widget: text_field
+    help: "Path to comma-separated file containing information about the samples in the experiment."
+
+  contrasts:
+    label: contrasts
+    widget: text_field
+    help: "Path to comma-separated file containing information about the contrasts in the experiment."
+
+  source:
+    value: "fastq"
+    widget: select
+    options:
+      - ['fastq', 'fastq']
+      - ['genome_bam', 'genome_bam']
+      - ['transcriptome_bam', 'transcriptome_bam']
+      - ['salmon_results', 'salmon_results']
+    label: source
+    help: "Source of input files."
+
+  outdir:
+    label: outdir
+    widget: text_field
+    help: "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure."
+
+  multiqc_title:
+    label: multiqc_title
+    widget: text_field
+    help: "MultiQC report title. Printed as page header, used for filename if not otherwise specified."
+
+  save_merged_fastq:
+    label: save_merged_fastq
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save FastQ files after merging re-sequenced libraries in the results directory."
+
+  genome:
+    label: iGenomes
+    widget: select
+    required: false
+    options:
+      - ['None', ' ']
+      - ['GRCh37', 'GRCh37']
+      - ['GRCh38', 'GRCh38']
+      - ['GRCm38', 'GRCm38']
+      - ['TAIR10', 'TAIR10']
+      - ['EB2', 'EB2']
+      - ['UMD3.1', 'UMD3.1']
+      - ['WBcel235', 'WBcel235']
+      - ['CanFam3.1', 'CanFam3.1']
+      - ['GRCz10', 'GRCz10']
+      - ['BDGP6', 'BDGP6']
+      - ['EquCab2', 'EquCab2']
+      - ['EB1', 'EB1']
+      - ['Galgal4', 'Galgal4']
+      - ['Gm01', 'Gm01']
+      - ['Mmul_1', 'Mmul_1']
+      - ['IRGSP-1.0', 'IRGSP-1.0']
+      - ['CHIMP2.1.4', 'CHIMP2.1.4']
+      - ['Rnor_5.0', 'Rnor_5.0']
+      - ['Rnor_6.0', 'Rnor_6.0']
+      - ['R64-1-1', 'R64-1-1']
+      - ['EF2', 'EF2']
+      - ['Sbi1', 'Sbi1']
+      - ['Sscrofa10.2', 'Sscrofa10.2']
+      - ['AGPv3', 'AGPv3']
+      - ['hg38', 'hg38']
+      - ['hg19', 'hg19']
+      - ['mm10', 'mm10']
+      - ['bosTau8', 'bosTau8']
+      - ['ce10', 'ce10']
+      - ['canFam3', 'canFam3']
+      - ['danRer10', 'danRer10']
+      - ['dm6', 'dm6']
+      - ['equCab2', 'equCab2']
+      - ['galGal4', 'galGal4']
+      - ['panTro4', 'panTro4']
+      - ['rn6', 'rn6']
+      - ['sacCer3', 'sacCer3']
+      - ['susScr3', 'susScr3']
+    help: "Name of iGenomes reference."
+  fasta:
+    label: fasta
+    widget: text_field
+    help: "Path to FASTA genome file."
+
+  gtf:
+    label: gtf
+    widget: text_field
+    help: "Path to GTF annotation file."
+
+  gff:
+    label: gff
+    widget: text_field
+    help: "Path to GFF3 annotation file."
+
+  transcript_fasta:
+    label: transcript_fasta
+    widget: text_field
+    help: "Path to FASTA transcriptome file."
+
+  star_index:
+    label: star_index
+    widget: text_field
+    help: "Path to directory or tar.gz archive for pre-built STAR index."
+
+  salmon_index:
+    label: salmon_index
+    widget: text_field
+    help: "Path to directory or tar.gz archive for pre-built Salmon index."
+
+  gencode:
+    label: gencode
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specify if your transcript FASTA file is in GENCODE format."
+
+  gtf_extra_attributes:
+    value: "gene_name"
+    label: gtf_extra_attributes
+    widget: text_field
+    help: "By default, the pipeline uses the gene_name field to obtain additional gene identifiers from the input GTF file when running Salmon."
+
+  gtf_group_features:
+    value: "gene_id"
+    label: gtf_group_features
+    widget: text_field
+    help: "Define the attribute type used to group features in the GTF file when running Salmon."
+
+  save_reference:
+    label: save_reference
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "If generated by the pipeline save the STAR index in the results directory."
+
+  clip_r1:
+    label: clip_r1
+    widget: text_field
+    help: "Instructs Trim Galore to remove bp from the 5` end of read 1 (or single-end reads)."
+
+  clip_r2:
+    label: clip_r2
+    widget: text_field
+    help: "Instructs Trim Galore to remove bp from the 5` end of read 2 (paired-end reads only)."
+
+  three_prime_clip_r1:
+    label: three_prime_clip_r1
+    widget: text_field
+    help: "Instructs Trim Galore to remove bp from the 3` end of read 1 AFTER adapter/quality trimming has been performed."
+
+  three_prime_clip_r2:
+    label: three_prime_clip_r2
+    widget: text_field
+    help: "Instructs Trim Galore to remove bp from the 3` end of read 2 AFTER adapter/quality trimming has been performed."
+
+  trim_nextseq:
+    label: trim_nextseq
+    widget: text_field
+    help: "Instructs Trim Galore to apply the --nextseq=X option, to trim based on quality after removing poly-G tails."
+
+  save_trimmed:
+    label: save_trimmed
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save the trimmed FastQ files in the results directory."
+
+  skip_trimming:
+    label: skip_trimming
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Use this if your input FastQ files have already been trimmed outside of the workflow or if you're very confident that there is no adapter contamination in your data."
+
+  skip_trimgalore_fastqc:
+    label: skip_trimgalore_fastqc
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip TrimGalore! FastQC."
+
+  min_trimmed_reads:
+    value: "10000"
+    label: min_trimmed_reads
+    widget: text_field
+    help: "Minimum number of trimmed reads below which samples are flagged in multiqc output."
+
+  skip_fastqc:
+    label: skip_fastqc
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip FastQC."
+
+  skip_bigwig:
+    value: "True"
+    label: skip_bigwig
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip bigWig file creation."
+
+  aligner:
+    value: "star"
+    label: aligner
+    widget: text_field
+    help: "Specifies the alignment algorithm to use - available options are `star_salmon`, or `star`."
+
+  pseudo_aligner:
+    value: "salmon"
+    widget: select
+    options:
+      - ['salmon', 'salmon']
+    label: pseudo_aligner
+    help: "Specifies the pseudo aligner to use - available options are `salmon`. Runs in addition to `--aligner`."
+
+  bam_csi_index:
+    label: bam_csi_index
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Create a CSI index for BAM files instead of the traditional BAI index. This will be required for genomes with larger chromosome sizes."
+
+  star_ignore_sjdbgtf:
+    label: star_ignore_sjdbgtf
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "When using pre-built STAR indices do not re-extract and use splice junctions from the GTF file."
+
+  salmon_quant_libtype:
+    label: salmon_quant_libtype
+    widget: text_field
+    help: " Override Salmon library type inferred based on strandedness defined in meta object."
+
+  seq_center:
+    label: seq_center
+    widget: text_field
+    help: "Sequencing center information to be added to read group of BAM files."
+
+  skip_alignment:
+    label: skip_alignment
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip all of the alignment-based processes within the pipeline."
+
+  save_unaligned:
+    label: save_unaligned
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Where possible, save unaligned reads from either STAR or Salmon to the results directory."
+
+  save_align_intermeds:
+    label: save_align_intermeds
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save the intermediate BAM files from the alignment step."
+
+  rmats:
+    label: rmats
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Run rMATS workflow."
+
+  rmats_splice_diff_cutoff:
+    value: "0.0001"
+    label: rmats_splice_diff_cutoff
+    widget: text_field
+    help: "The cutoff used in the null hypothesis test for differential splicing."
+
+  rmats_paired_stats:
+    value: "True"
+    label: rmats_paired_stats
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Use paired statistical model."
+
+  rmats_read_len:
+    value: "40"
+    label: rmats_read_len
+    widget: text_field
+    help: "The length of each read."
+
+  rmats_novel_splice_site:
+    label: rmats_novel_splice_site
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Detect splicing events that involve an unannotated splice site."
+
+  rmats_min_intron_len:
+    value: "50"
+    label: rmats_min_intron_len
+    widget: text_field
+    help: "Minimum Intron Length."
+
+  rmats_max_exon_len:
+    value: "500"
+    label: rmats_max_exon_len
+    widget: text_field
+    help: "Maximum exon length."
+
+  dexseq_exon:
+    label: dexseq_exon
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Run DEXSeq differential exon usage workflow."
+
+  save_dexseq_annotation:
+    label: save_dexseq_annotation
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save pre-processed GFF annotation file."
+
+  gff_dexseq:
+    label: gff_dexseq
+    widget: text_field
+    help: "Path to GFF3 annotation file."
+
+  alignment_quality:
+    value: "10"
+    label: alignment_quality
+    widget: text_field
+    help: "Minimum alignment quality required for reads to be counted."
+
+  aggregation:
+    value: "True"
+    label: aggregation
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Combine overlapping genes into a single aggregate gene."
+
+  save_dexseq_plot:
+    value: "True"
+    label: save_dexseq_plot
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save plots of the per gene DEXSeq results."
+
+  n_dexseq_plot:
+    value: "10"
+    label: n_dexseq_plot
+    widget: text_field
+    help: "Plot the N most significant genes from the DEXSeq results."
+
+  edger_exon:
+    label: edger_exon
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Run edgeR workflow."
+
+  save_edger_plot:
+    value: "True"
+    label: save_edger_plot
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save plots of the per gene edgeR results."
+
+  n_edger_plot:
+    value: "10"
+    label: n_edger_plot
+    widget: text_field
+    help: "Plot the N most significant genes from the edgeR results."
+
+  dexseq_dtu:
+    label: dexseq_dtu
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Run DEXSeq differential transcript usage workflow."
+
+  dtu_txi:
+    value: "dtuScaledTPM"
+    widget: select
+    options:
+      - ['dtuScaledTPM', 'dtuScaledTPM']
+      - ['scaledTPM', 'scaledTPM']
+    label: dtu_txi
+    help: "Generate estimated counts using dtuScaledTPM or scaledTPM abundance estimates."
+
+  min_samps_gene_expr:
+    value: "6"
+    label: min_samps_gene_expr
+    widget: text_field
+    help: "Minimal number of samples where genes should be expressed."
+
+  min_samps_feature_expr:
+    value: "0"
+    label: min_samps_feature_expr
+    widget: text_field
+    help: "Minimal number of samples where features should be expressed."
+
+  min_samps_feature_prop:
+    value: "0"
+    label: min_samps_feature_prop
+    widget: text_field
+    help: "Minimal proportion of samples where features should be expressed."
+
+  min_gene_expr:
+    value: "10"
+    label: min_gene_expr
+    widget: text_field
+    help: "Minimal gene expression."
+
+  min_feature_expr:
+    value: "10"
+    label: min_feature_expr
+    widget: text_field
+    help: "Minimal feature expression."
+
+  min_feature_prop:
+    value: "0.1"
+    label: min_feature_prop
+    widget: text_field
+    help: "Minimal proportion for feature expression. This value should be between 0 and 1."
+
+  sashimi_plot:
+    label: sashimi_plot
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Create sashimi plots using MISO."
+
+  miso_genes:
+    value: "ENSG00000004961, ENSG00000005302"
+    label: miso_genes
+    widget: text_field
+    help: "List containing identifiers of genes to plot."
+
+  miso_genes_file:
+    value: "None"
+    label: miso_genes_file
+    widget: text_field
+    help: "New-line separate file containing identifiers of genes to plot."
+
+  miso_read_len:
+    value: "75"
+    label: miso_read_len
+    widget: text_field
+    help: "Read length used to calculate coverage."
+
+  fig_height:
+    value: "7"
+    label: fig_height
+    widget: text_field
+    help: "Sashimi figure height (inches)."
+
+  fig_width:
+    value: "7"
+    label: fig_width
+    widget: text_field
+    help: "Sashimi figure width (inches)."
+
+  suppa:
+    value: "True"
+    label: suppa
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Run SUPPA workflow."
+
+  suppa_per_local_event:
+    value: "True"
+    label: suppa_per_local_event
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Quantify event inclusion levels (PSIs) from multiple samples."
+
+  suppa_per_isoform:
+    value: "True"
+    label: suppa_per_isoform
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Quantify isoform inclusion levels (PSIs) from multiple samples."
+
+  suppa_tpm:
+    label: suppa_tpm
+    widget: text_field
+    help: "Expression file containing the abundances of all transcripts (ideally in TPM units)."
+
+  generateevents_pool_genes:
+    value: "True"
+    label: generateevents_pool_genes
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Redefine genes by clustering together transcripts by genomic stranded overlap and sharing at least one exon."
+
+  generateevents_event_type:
+    value: "SE SS MX RI FL"
+    label: generateevents_event_type
+    widget: text_field
+    help: "Space separated list of events to generate."
+
+  generateevents_boundary:
+    value: "S"
+    widget: select
+    options:
+      - ['S', 'S']
+      - ['V', 'V']
+    label: generateevents_boundary
+    help: "Boundary type (only used for local AS events)."
+
+  generateevents_threshold:
+    value: "10"
+    label: generateevents_threshold
+    widget: text_field
+    help: "Variability treshold."
+
+  generateevents_exon_length:
+    value: "100"
+    label: generateevents_exon_length
+    widget: text_field
+    help: "Defines the number of nucleotides to display in the output GTF."
+
+  psiperevent_total_filter:
+    value: "0"
+    label: psiperevent_total_filter
+    widget: text_field
+    help: "Minimum total expression of the transcripts involved in the event."
+
+  diffsplice_local_event:
+    value: "True"
+    label: diffsplice_local_event
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Calculate differential splicing for AS events across multiple conditions with replicates."
+
+  diffsplice_isoform:
+    value: "True"
+    label: diffsplice_isoform
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Calculate differential splicing for differential transcript usage across multiple conditions with replicates"
+
+  diffsplice_method:
+    value: "empirical"
+    widget: select
+    options:
+      - ['empirical', 'empirical']
+      - ['classical', 'classical']
+    label: diffsplice_method
+    help: "The method to use to calculate the significance."
+
+  diffsplice_area:
+    value: "1000"
+    label: diffsplice_area
+    widget: text_field
+    help: "Integer indicating the number of points in the local area of the delta PSI - average TPM distribution."
+
+  diffsplice_lower_bound:
+    value: "0"
+    label: diffsplice_lower_bound
+    widget: text_field
+    help: "Lower-bound for the absolute delta PSI value to test for significance."
+
+  diffsplice_gene_correction:
+    value: "True"
+    label: diffsplice_gene_correction
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Correct the p-values by gene."
+
+  diffsplice_paired:
+    value: "True"
+    label: diffsplice_paired
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Indicates if replicates across conditions are paired."
+
+  diffsplice_alpha:
+    value: "0.05"
+    label: diffsplice_alpha
+    widget: text_field
+    help: "Family-wise error rate to use for the multiple test correction."
+
+  diffsplice_median:
+    label: diffsplice_median
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Use the median to calculate the Delta PSI, instead of the mean."
+
+  diffsplice_tpm_threshold:
+    value: "0"
+    label: diffsplice_tpm_threshold
+    widget: text_field
+    help: "Minimum expression (calculated as average TPM value within-replicates and between-conditions) to be included in the analysis."
+
+  diffsplice_nan_threshold:
+    value: "0"
+    label: diffsplice_nan_threshold
+    widget: text_field
+    help: "Proportion of samples with nan values allowed per condition to calculate a DeltaPSI ."
+
+  clusterevents_local_event:
+    value: "True"
+    label: clusterevents_local_event
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Cluster events according to PSI values across conditions"
+
+  clusterevents_isoform:
+    value: "True"
+    label: clusterevents_isoform
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Cluster transcripts according to PSI values across conditions"
+
+  clusterevents_sigthreshold:
+    label: clusterevents_sigthreshold
+    widget: text_field
+    help: "P-value threshold to consider an event significant from the dpsi file."
+
+  clusterevents_dpsithreshold:
+    value: "0.05"
+    label: clusterevents_dpsithreshold
+    widget: text_field
+    help: "Lower-bound for the absolute delta PSI value to cluster."
+
+  clusterevents_eps:
+    value: "0.05"
+    label: clusterevents_eps
+    widget: text_field
+    help: "Maximum distance (between 0 and 1) to consider two events as members of the same cluster."
+
+  clusterevents_metric:
+    value: "euclidean"
+    widget: select
+    options:
+      - ['euclidean', 'euclidean']
+      - ['manhattan', 'manhattan']
+      - ['cosine', 'cosine']
+    label: clusterevents_metric
+    help: "Distance metric."
+
+  clusterevents_separation:
+    label: clusterevents_separation
+    widget: text_field
+    help: "Maximum distance in PSI space of an event to a cluster."
+
+  clusterevents_min_pts:
+    value: "20"
+    label: clusterevents_min_pts
+    widget: text_field
+    help: "Minimum number of events required per cluster."
+
+  clusterevents_method:
+    value: "DBSCAN"
+    widget: select
+    options:
+      - ['OPTICS', 'OPTICS']
+      - ['DBSCAN', 'DBSCAN']
+    label: clusterevents_method
+    help: "Clustering method to use (DBSCAN, OPTICS)."
+
+
+form:
+  - bc_num_hours
+  - cpu_partition
+  - reservation
+  - version
+  - workdir
+  - outdir
+  - input
+  - contrasts
+  - source
+  - multiqc_title
+  - save_merged_fastq
+  - genome
+  - fasta
+  - gtf
+  - gff
+  - transcript_fasta
+  - star_index
+  - salmon_index
+  - gencode
+  - gtf_extra_attributes
+  - gtf_group_features
+  - save_reference
+  - clip_r1
+  - clip_r2
+  - three_prime_clip_r1
+  - three_prime_clip_r2
+  - trim_nextseq
+  - save_trimmed
+  - skip_trimming
+  - skip_trimgalore_fastqc
+  - min_trimmed_reads
+  - skip_fastqc
+  - skip_bigwig
+  - aligner
+  - pseudo_aligner
+  - bam_csi_index
+  - star_ignore_sjdbgtf
+  - salmon_quant_libtype
+  - seq_center
+  - skip_alignment
+  - save_unaligned
+  - save_align_intermeds
+  - rmats
+  - rmats_splice_diff_cutoff
+  - rmats_paired_stats
+  - rmats_read_len
+  - rmats_novel_splice_site
+  - rmats_min_intron_len
+  - rmats_max_exon_len
+  - dexseq_exon
+  - save_dexseq_annotation
+  - gff_dexseq
+  - alignment_quality
+  - aggregation
+  - save_dexseq_plot
+  - n_dexseq_plot
+  - edger_exon
+  - save_edger_plot
+  - n_edger_plot
+  - dexseq_dtu
+  - dtu_txi
+  - min_samps_gene_expr
+  - min_samps_feature_expr
+  - min_samps_feature_prop
+  - min_gene_expr
+  - min_feature_expr
+  - min_feature_prop
+  - sashimi_plot
+  - miso_genes
+  - miso_genes_file
+  - miso_read_len
+  - fig_height
+  - fig_width
+  - suppa
+  - suppa_per_local_event
+  - suppa_per_isoform
+  - suppa_tpm
+  - generateevents_pool_genes
+  - generateevents_event_type
+  - generateevents_boundary
+  - generateevents_threshold
+  - generateevents_exon_length
+  - psiperevent_total_filter
+  - diffsplice_local_event
+  - diffsplice_isoform
+  - diffsplice_method
+  - diffsplice_area
+  - diffsplice_lower_bound
+  - diffsplice_gene_correction
+  - diffsplice_paired
+  - diffsplice_alpha
+  - diffsplice_median
+  - diffsplice_tpm_threshold
+  - diffsplice_nan_threshold
+  - clusterevents_local_event
+  - clusterevents_isoform
+  - clusterevents_sigthreshold
+  - clusterevents_dpsithreshold
+  - clusterevents_eps
+  - clusterevents_metric
+  - clusterevents_separation
+  - clusterevents_min_pts
+  - clusterevents_method
+  - TOWER_ACCESS_TOKEN
+  - resume

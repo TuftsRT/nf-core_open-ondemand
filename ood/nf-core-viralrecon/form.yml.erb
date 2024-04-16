@@ -1,0 +1,683 @@
+---
+cluster: "tuftshpc"
+
+attributes:
+
+  cpu_partition:
+    widget: "select"
+    label: "Select cpu partition"
+    help: "NOTE: Please do not choose specific lab partitions if you are not a member of that lab."
+    value: "batch"
+    options:
+      - ["batch","batch"]
+      - ["largemem", "largemem"]
+      - ["preempt", "preempt"]
+      - ["patralab", "patralab"]
+
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/reservation.yml").indent(2) %>
+
+  workdir:
+    label: "Working Directory"
+    data-filepicker: true
+    data-target-file-type: dirs  # Valid values are: files, dirs, or both
+    readonly: false
+    help: "Select your project directory; defaults to $HOME"
+    
+  resume:
+    label: resume
+    widget: check_box
+    checked_value: 1
+    unchecked_value: 0
+    help: |
+           Resume previous run if found
+
+  TOWER_ACCESS_TOKEN:
+    widget: "text_field"
+    required: false
+    label: "TOWER_ACCESS_TOKEN (Optional)"
+    help: "Your TOWER_ACCESS_TOKEN used to monitor runs on [Nextflow Tower](https://seqera.io)."
+
+
+  version:
+    label: Version
+    widget: select
+    options:
+      - ['2.6.0', '/cluster/tufts/biocontainers/nf-core/pipelines/nf-core-viralrecon/2.6.0/2_6_0']
+
+  input:
+    label: input
+    widget: text_field
+    help: "Path to comma-separated file containing information about the samples you would like to analyse."
+
+  platform:
+    widget: select
+    options:
+      - ['None', ' ']
+      - ['illumina', 'illumina']
+      - ['nanopore', 'nanopore']
+    label: platform
+    help: "NGS platform used to sequence the samples."
+
+  protocol:
+    widget: select
+    options:
+      - ['None', ' ']
+      - ['metagenomic', 'metagenomic']
+      - ['amplicon', 'amplicon']
+    label: protocol
+    help: "Specifies the type of protocol used for sequencing."
+
+  outdir:
+    label: outdir
+    widget: text_field
+    help: "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure."
+
+  genome:
+    label: iGenomes
+    widget: select
+    required: false
+    options:
+      - ['None', ' ']
+      - ['GRCh37', 'GRCh37']
+      - ['GRCh38', 'GRCh38']
+      - ['GRCm38', 'GRCm38']
+      - ['TAIR10', 'TAIR10']
+      - ['EB2', 'EB2']
+      - ['UMD3.1', 'UMD3.1']
+      - ['WBcel235', 'WBcel235']
+      - ['CanFam3.1', 'CanFam3.1']
+      - ['GRCz10', 'GRCz10']
+      - ['BDGP6', 'BDGP6']
+      - ['EquCab2', 'EquCab2']
+      - ['EB1', 'EB1']
+      - ['Galgal4', 'Galgal4']
+      - ['Gm01', 'Gm01']
+      - ['Mmul_1', 'Mmul_1']
+      - ['IRGSP-1.0', 'IRGSP-1.0']
+      - ['CHIMP2.1.4', 'CHIMP2.1.4']
+      - ['Rnor_5.0', 'Rnor_5.0']
+      - ['Rnor_6.0', 'Rnor_6.0']
+      - ['R64-1-1', 'R64-1-1']
+      - ['EF2', 'EF2']
+      - ['Sbi1', 'Sbi1']
+      - ['Sscrofa10.2', 'Sscrofa10.2']
+      - ['AGPv3', 'AGPv3']
+      - ['hg38', 'hg38']
+      - ['hg19', 'hg19']
+      - ['mm10', 'mm10']
+      - ['bosTau8', 'bosTau8']
+      - ['ce10', 'ce10']
+      - ['canFam3', 'canFam3']
+      - ['danRer10', 'danRer10']
+      - ['dm6', 'dm6']
+      - ['equCab2', 'equCab2']
+      - ['galGal4', 'galGal4']
+      - ['panTro4', 'panTro4']
+      - ['rn6', 'rn6']
+      - ['sacCer3', 'sacCer3']
+      - ['susScr3', 'susScr3']
+    help: "Name of viral reference genome."
+  fasta:
+    label: fasta
+    widget: text_field
+    help: "Path to FASTA genome file."
+
+  gff:
+    label: gff
+    widget: text_field
+    help: "Full path to GFF annotation file."
+
+  bowtie2_index:
+    label: bowtie2_index
+    widget: text_field
+    help: "Path to directory or tar.gz archive for pre-built Bowtie2 index."
+
+  primer_bed:
+    label: primer_bed
+    widget: text_field
+    help: "If the `--protocol amplicon` parameter is provided then iVar is used to trim primer sequences after read alignment and before variant calling."
+
+  primer_fasta:
+    label: primer_fasta
+    widget: text_field
+    help: "If the `--protocol amplicon` parameter is provided then Cutadapt is used to trim primer sequences from FastQ files before de novo assembly."
+
+  primer_set:
+    label: primer_set
+    widget: text_field
+    help: "The primer set to be used for the data analysis."
+
+  primer_set_version:
+    label: primer_set_version
+    widget: text_field
+    help: "Version of the primer set e.g. `--primer_set artic --primer_set_version 3`."
+
+  primer_left_suffix:
+    value: "_LEFT"
+    label: primer_left_suffix
+    widget: text_field
+    help: "Suffix used in name field of `--primer_bed` to indicate left primer position."
+
+  primer_right_suffix:
+    value: "_RIGHT"
+    label: primer_right_suffix
+    widget: text_field
+    help: "Suffix used in name field of `--primer_bed` to indicate right primer position."
+
+  save_reference:
+    label: save_reference
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "If generated by the pipeline save reference genome related files to the results folder."
+
+  fastq_dir:
+    label: fastq_dir
+    widget: text_field
+    help: "Path to a folder containing fastq files from the Nanopore run."
+
+  fast5_dir:
+    label: fast5_dir
+    widget: text_field
+    help: "Path to a folder containing fast5 files from the Nanopore run."
+
+  sequencing_summary:
+    label: sequencing_summary
+    widget: text_field
+    help: "Sequencing summary file generated after Nanopore run completion."
+
+  min_barcode_reads:
+    value: "100"
+    label: min_barcode_reads
+    widget: text_field
+    help: "Minimum number of raw reads required per sample/barcode in order to be considered for the downstream processing steps."
+
+  min_guppyplex_reads:
+    value: "10"
+    label: min_guppyplex_reads
+    widget: text_field
+    help: "Minimum number of reads required after the artic guppyplex process per sample/barcode in order to be considered for the downstream processing steps."
+
+  artic_minion_caller:
+    value: "nanopolish"
+    widget: select
+    options:
+      - ['nanopolish', 'nanopolish']
+      - ['medaka', 'medaka']
+    label: artic_minion_caller
+    help: "Variant caller used when running artic minion (default: `nanopolish`)."
+
+  artic_minion_aligner:
+    value: "minimap2"
+    widget: select
+    options:
+      - ['minimap2', 'minimap2']
+      - ['bwa', 'bwa']
+    label: artic_minion_aligner
+    help: "Aligner used when running artic minion (default: `minimap2`)."
+
+  artic_scheme:
+    label: artic_scheme
+    widget: text_field
+    help: "Primer scheme recognised by the artic minion command."
+
+  artic_minion_medaka_model:
+    label: artic_minion_medaka_model
+    widget: text_field
+    help: "Parameter passed to artic minion and required when using the `--artic_minion_caller medaka` workflow."
+
+  skip_pycoqc:
+    label: skip_pycoqc
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip pycoQC."
+
+  skip_nanoplot:
+    label: skip_nanoplot
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip NanoPlot."
+
+  nextclade_dataset:
+    label: nextclade_dataset
+    widget: text_field
+    help: "Full path to Nextclade dataset required for `nextclade run` command."
+
+  nextclade_dataset_name:
+    label: nextclade_dataset_name
+    widget: text_field
+    help: "Name of Nextclade dataset to retrieve. A list of available datasets can be obtained using the `nextclade dataset list` command."
+
+  nextclade_dataset_reference:
+    label: nextclade_dataset_reference
+    widget: text_field
+    help: "Accession id to download dataset based on a particular reference sequence. A list of available datasets can be obtained using the `nextclade dataset list` command."
+
+  nextclade_dataset_tag:
+    label: nextclade_dataset_tag
+    widget: text_field
+    help: "Version tag of the dataset to download. A list of available datasets can be obtained using the `nextclade dataset list` command."
+
+  asciigenome_read_depth:
+    value: "50"
+    label: asciigenome_read_depth
+    widget: text_field
+    help: "Maximum read depth used to generate ASCIIGenome screenshots for variant locii."
+
+  asciigenome_window_size:
+    value: "50"
+    label: asciigenome_window_size
+    widget: text_field
+    help: "Maximum window size before and after variant locii used to generate ASCIIGenome screenshots."
+
+  skip_mosdepth:
+    label: skip_mosdepth
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip genome-wide and amplicon coverage plot generation from mosdepth output."
+
+  skip_pangolin:
+    label: skip_pangolin
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip Pangolin lineage analysis for genome consensus sequence."
+
+  skip_nextclade:
+    label: skip_nextclade
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip Nextclade clade assignment, mutation calling, and sequence quality checks for genome consensus sequence."
+
+  skip_asciigenome:
+    label: skip_asciigenome
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip variant screenshot generation with ASCIIGenome."
+
+  skip_variants_quast:
+    label: skip_variants_quast
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip generation of QUAST aggregated report for consensus sequences."
+
+  skip_variants_long_table:
+    label: skip_variants_long_table
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip long table generation for reporting variants."
+
+  skip_multiqc:
+    label: skip_multiqc
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip MultiQC."
+
+  kraken2_db:
+    value: "s3://ngi-igenomes/test-data/viralrecon/kraken2_human.tar.gz"
+    label: kraken2_db
+    widget: text_field
+    help: "Full path to Kraken2 database built from host genome."
+
+  kraken2_db_name:
+    value: "human"
+    label: kraken2_db_name
+    widget: text_field
+    help: "Name for host genome as recognised by Kraken2 when using the `kraken2 build` command."
+
+  kraken2_variants_host_filter:
+    label: kraken2_variants_host_filter
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Remove host reads identified by Kraken2 before running variant calling steps in the pipeline."
+
+  kraken2_assembly_host_filter:
+    value: "True"
+    label: kraken2_assembly_host_filter
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Remove host reads identified by Kraken2 before running aseembly steps in the pipeline."
+
+  save_trimmed_fail:
+    label: save_trimmed_fail
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save the trimmed FastQ files in the results directory."
+
+  skip_fastqc:
+    label: skip_fastqc
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip FastQC."
+
+  skip_kraken2:
+    label: skip_kraken2
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip Kraken2 process for removing host classified reads."
+
+  skip_fastp:
+    label: skip_fastp
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip the initial read trimming step peformed by fastp."
+
+  skip_cutadapt:
+    label: skip_cutadapt
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip the amplicon trimming step with Cutadapt when using --protocol amplicon."
+
+  variant_caller:
+    widget: select
+    options:
+      - ['None', ' ']
+      - ['ivar', 'ivar']
+      - ['bcftools', 'bcftools']
+    label: variant_caller
+    help: "Specify which variant calling algorithm you would like to use. Available options are `ivar` (default for `--protocol amplicon`) and `bcftools` (default for `--protocol metagenomic`)."
+
+  consensus_caller:
+    value: "bcftools"
+    widget: select
+    options:
+      - ['ivar', 'ivar']
+      - ['bcftools', 'bcftools']
+    label: consensus_caller
+    help: "Specify which consensus calling algorithm you would like to use. Available options are `bcftools` and `ivar` (default: `bcftools`)."
+
+  min_mapped_reads:
+    value: "1000"
+    label: min_mapped_reads
+    widget: text_field
+    help: "Minimum number of mapped reads below which samples are removed from further processing. Some downstream steps in the pipeline will fail if this threshold is too low."
+
+  ivar_trim_noprimer:
+    label: ivar_trim_noprimer
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "This option unsets the `-e` parameter in `ivar trim` to discard reads without primers."
+
+  ivar_trim_offset:
+    label: ivar_trim_offset
+    widget: text_field
+    help: "This option sets the `-x` parameter in `ivar trim` so that reads that occur at the specified offset positions relative to primer positions will also be trimmed."
+
+  filter_duplicates:
+    label: filter_duplicates
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Filtered duplicates reads detected by Picard MarkDuplicates from alignments."
+
+  save_unaligned:
+    label: save_unaligned
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save unaligned reads in FastQ format from Bowtie 2 to the results directory."
+
+  save_mpileup:
+    label: save_mpileup
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save mpileup files generated when calling variants with iVar variants or iVar consensus."
+
+  skip_ivar_trim:
+    label: skip_ivar_trim
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip iVar primer trimming step. Not recommended for --protocol amplicon."
+
+  skip_markduplicates:
+    value: "True"
+    label: skip_markduplicates
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip picard MarkDuplicates step."
+
+  skip_picard_metrics:
+    label: skip_picard_metrics
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip Picard CollectMultipleMetrics steps."
+
+  skip_snpeff:
+    label: skip_snpeff
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip SnpEff and SnpSift annotation of variants."
+
+  skip_consensus_plots:
+    label: skip_consensus_plots
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip creation of consensus base density plots."
+
+  skip_consensus:
+    label: skip_consensus
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip genome consensus creation step and any downstream QC."
+
+  skip_variants:
+    label: skip_variants
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specify this parameter to skip all of the variant calling and mapping steps in the pipeline."
+
+  assemblers:
+    value: "spades"
+    label: assemblers
+    widget: text_field
+    help: "Specify which assembly algorithms you would like to use. Available options are `spades`, `unicycler` and `minia`."
+
+  spades_mode:
+    value: "rnaviral"
+    widget: select
+    options:
+      - ['rnaviral', 'rnaviral']
+      - ['corona', 'corona']
+      - ['metaviral', 'metaviral']
+      - ['meta', 'meta']
+      - ['metaplasmid', 'metaplasmid']
+      - ['plasmid', 'plasmid']
+      - ['isolate', 'isolate']
+      - ['rna', 'rna']
+      - ['bio', 'bio']
+    label: spades_mode
+    help: "Specify the SPAdes mode you would like to run (default: `rnaviral`)."
+
+  spades_hmm:
+    label: spades_hmm
+    widget: text_field
+    help: "Path to profile HMMs specific for gene/organism to enhance SPAdes assembly."
+
+  blast_db:
+    label: blast_db
+    widget: text_field
+    help: "Path to directory or tar.gz archive for pre-built BLAST database."
+
+  skip_bandage:
+    label: skip_bandage
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip Bandage image creation for assembly visualisation."
+
+  skip_blast:
+    label: skip_blast
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip blastn of assemblies relative to reference genome."
+
+  skip_abacas:
+    label: skip_abacas
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip ABACAS process for assembly contiguation."
+
+  skip_plasmidid:
+    value: "True"
+    label: skip_plasmidid
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip assembly report generation by PlasmidID."
+
+  skip_assembly_quast:
+    label: skip_assembly_quast
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip generation of QUAST aggregated report for assemblies."
+
+  skip_assembly:
+    label: skip_assembly
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specify this parameter to skip all of the de novo assembly steps in the pipeline."
+
+
+form:
+  - bc_num_hours
+  - cpu_partition
+  - reservation
+  - version
+  - workdir
+  - outdir
+  - input
+  - platform
+  - protocol
+  - genome
+  - fasta
+  - gff
+  - bowtie2_index
+  - primer_bed
+  - primer_fasta
+  - primer_set
+  - primer_set_version
+  - primer_left_suffix
+  - primer_right_suffix
+  - save_reference
+  - fastq_dir
+  - fast5_dir
+  - sequencing_summary
+  - min_barcode_reads
+  - min_guppyplex_reads
+  - artic_minion_caller
+  - artic_minion_aligner
+  - artic_scheme
+  - artic_minion_medaka_model
+  - skip_pycoqc
+  - skip_nanoplot
+  - nextclade_dataset
+  - nextclade_dataset_name
+  - nextclade_dataset_reference
+  - nextclade_dataset_tag
+  - asciigenome_read_depth
+  - asciigenome_window_size
+  - skip_mosdepth
+  - skip_pangolin
+  - skip_nextclade
+  - skip_asciigenome
+  - skip_variants_quast
+  - skip_variants_long_table
+  - skip_multiqc
+  - kraken2_db
+  - kraken2_db_name
+  - kraken2_variants_host_filter
+  - kraken2_assembly_host_filter
+  - save_trimmed_fail
+  - skip_fastqc
+  - skip_kraken2
+  - skip_fastp
+  - skip_cutadapt
+  - variant_caller
+  - consensus_caller
+  - min_mapped_reads
+  - ivar_trim_noprimer
+  - ivar_trim_offset
+  - filter_duplicates
+  - save_unaligned
+  - save_mpileup
+  - skip_ivar_trim
+  - skip_markduplicates
+  - skip_picard_metrics
+  - skip_snpeff
+  - skip_consensus_plots
+  - skip_consensus
+  - skip_variants
+  - assemblers
+  - spades_mode
+  - spades_hmm
+  - blast_db
+  - skip_bandage
+  - skip_blast
+  - skip_abacas
+  - skip_plasmidid
+  - skip_assembly_quast
+  - skip_assembly
+  - TOWER_ACCESS_TOKEN
+  - resume

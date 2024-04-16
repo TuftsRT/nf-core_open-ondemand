@@ -1,0 +1,1499 @@
+---
+cluster: "tuftshpc"
+
+attributes:
+
+  cpu_partition:
+    widget: "select"
+    label: "Select cpu partition"
+    help: "NOTE: Please do not choose specific lab partitions if you are not a member of that lab."
+    value: "batch"
+    options:
+      - ["batch","batch"]
+      - ["largemem", "largemem"]
+      - ["preempt", "preempt"]
+      - ["patralab", "patralab"]
+
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/reservation.yml").indent(2) %>
+
+  workdir:
+    label: "Working Directory"
+    data-filepicker: true
+    data-target-file-type: dirs  # Valid values are: files, dirs, or both
+    readonly: false
+    help: "Select your project directory; defaults to $HOME"
+    
+  resume:
+    label: resume
+    widget: check_box
+    checked_value: 1
+    unchecked_value: 0
+    help: |
+           Resume previous run if found
+
+  TOWER_ACCESS_TOKEN:
+    widget: "text_field"
+    required: false
+    label: "TOWER_ACCESS_TOKEN (Optional)"
+    help: "Your TOWER_ACCESS_TOKEN used to monitor runs on [Nextflow Tower](https://seqera.io)."
+
+
+  version:
+    label: Version
+    widget: select
+    options:
+      - ['2.5.1', '/cluster/tufts/biocontainers/nf-core/pipelines/nf-core-eager/2.5.1/2_5_1']
+
+  input:
+    label: input
+    widget: text_field
+    help: "Either paths or URLs to FASTQ/BAM data (must be surrounded with quotes). For paired end data, the path must use `{1,2}` notation to specify read pairs. Alternatively, a path to a TSV file (ending .tsv) containing file paths and sequencing/sample metadata. Allows for merging of multiple lanes/libraries/samples. Please see documentation for template."
+
+  udg_type:
+    value: "none"
+    widget: select
+    options:
+      - ['none', 'none']
+      - ['half', 'half']
+      - ['full', 'full']
+    label: udg_type
+    help: "Specifies whether you have UDG treated libraries. Set to `half` for partial treatment, or `full` for UDG. If not set, libraries are assumed to have no UDG treatment (`none`). Not required for TSV input."
+
+  single_stranded:
+    label: single_stranded
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specifies that libraries are single stranded. Always affects MALTExtract but will be ignored by pileupCaller with TSV input. Not required for TSV input."
+
+  single_end:
+    label: single_end
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specifies that the input is single end reads. Not required for TSV input."
+
+  colour_chemistry:
+    value: "4"
+    label: colour_chemistry
+    widget: text_field
+    help: "Specifies which Illumina sequencing chemistry was used. Used to inform whether to poly-G trim if turned on (see below). Not required for TSV input. Options: 2, 4."
+
+  bam:
+    label: bam
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specifies that the input is in BAM format. Not required for TSV input."
+
+  snpcapture_bed:
+    label: snpcapture_bed
+    widget: text_field
+    help: "If library result of SNP capture, path to BED file containing SNPS positions on reference genome. SNP statistics are qualimap results directory only not MultiQC."
+
+  run_convertinputbam:
+    label: run_convertinputbam
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turns on conversion of an input BAM file into FASTQ format to allow re-preprocessing (e.g. AdapterRemoval etc.)."
+
+  fasta:
+    label: fasta
+    widget: text_field
+    help: "Path or URL to a FASTA reference file (required if not iGenome reference). File suffixes can be: `.fa`, `.fn`, `.fna`, `.fasta`."
+
+  genome:
+    label: iGenomes
+    widget: select
+    required: false
+    options:
+      - ['None', ' ']
+      - ['GRCh37', 'GRCh37']
+      - ['GRCh38', 'GRCh38']
+      - ['GRCm38', 'GRCm38']
+      - ['TAIR10', 'TAIR10']
+      - ['EB2', 'EB2']
+      - ['UMD3.1', 'UMD3.1']
+      - ['WBcel235', 'WBcel235']
+      - ['CanFam3.1', 'CanFam3.1']
+      - ['GRCz10', 'GRCz10']
+      - ['BDGP6', 'BDGP6']
+      - ['EquCab2', 'EquCab2']
+      - ['EB1', 'EB1']
+      - ['Galgal4', 'Galgal4']
+      - ['Gm01', 'Gm01']
+      - ['Mmul_1', 'Mmul_1']
+      - ['IRGSP-1.0', 'IRGSP-1.0']
+      - ['CHIMP2.1.4', 'CHIMP2.1.4']
+      - ['Rnor_5.0', 'Rnor_5.0']
+      - ['Rnor_6.0', 'Rnor_6.0']
+      - ['R64-1-1', 'R64-1-1']
+      - ['EF2', 'EF2']
+      - ['Sbi1', 'Sbi1']
+      - ['Sscrofa10.2', 'Sscrofa10.2']
+      - ['AGPv3', 'AGPv3']
+      - ['hg38', 'hg38']
+      - ['hg19', 'hg19']
+      - ['mm10', 'mm10']
+      - ['bosTau8', 'bosTau8']
+      - ['ce10', 'ce10']
+      - ['canFam3', 'canFam3']
+      - ['danRer10', 'danRer10']
+      - ['dm6', 'dm6']
+      - ['equCab2', 'equCab2']
+      - ['galGal4', 'galGal4']
+      - ['panTro4', 'panTro4']
+      - ['rn6', 'rn6']
+      - ['sacCer3', 'sacCer3']
+      - ['susScr3', 'susScr3']
+    help: "Name of iGenomes reference (required if not FASTA reference). Requires argument `--igenomes_ignore false`, as iGenomes is ignored by default in nf-core/eager"
+  bwa_index:
+    label: bwa_index
+    widget: text_field
+    help: "Path to directory containing pre-made BWA indices (i.e. the directory before the files ending in `.amb` `.ann` `.bwt`. Do not include the files themselves. Most likely the same directory of the file provided with --fasta). If not supplied will be made for you."
+
+  bt2_index:
+    label: bt2_index
+    widget: text_field
+    help: "Path to directory containing pre-made Bowtie2 indices (i.e. everything before the endings e.g. `.1.bt2`, `.2.bt2`, `.rev.1.bt2`. Most likely the same value as --fasta). If not supplied will be made for you."
+
+  fasta_index:
+    label: fasta_index
+    widget: text_field
+    help: "Path to samtools FASTA index (typically ending in `.fai`). If not supplied will be made for you."
+
+  seq_dict:
+    label: seq_dict
+    widget: text_field
+    help: "Path to picard sequence dictionary file (typically ending in `.dict`). If not supplied will be made for you."
+
+  large_ref:
+    label: large_ref
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specify to generate more recent `.csi` BAM indices. If your reference genome is larger than 3.5GB, this is recommended due to more efficient data handling with the `.csi` format over the older `.bai`."
+
+  save_reference:
+    label: save_reference
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "If not already supplied by user, turns on saving of generated reference genome indices for later re-usage."
+
+  outdir:
+    value: "./results"
+    label: outdir
+    widget: text_field
+    help: "The output directory where the results will be saved."
+
+  skip_fastqc:
+    label: skip_fastqc
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+
+  skip_adapterremoval:
+    label: skip_adapterremoval
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+
+  skip_preseq:
+    label: skip_preseq
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+
+  skip_deduplication:
+    label: skip_deduplication
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+
+  skip_damage_calculation:
+    label: skip_damage_calculation
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+
+  skip_qualimap:
+    label: skip_qualimap
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+
+  complexity_filter_poly_g:
+    label: complexity_filter_poly_g
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on running poly-G removal on FASTQ files. Will only be performed on 2 colour chemistry machine sequenced libraries."
+
+  complexity_filter_poly_g_min:
+    value: "10"
+    label: complexity_filter_poly_g_min
+    widget: text_field
+    help: "Specify length of poly-g min for clipping to be performed."
+
+  clip_forward_adaptor:
+    value: "AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC"
+    label: clip_forward_adaptor
+    widget: text_field
+    help: "Specify adapter sequence to be clipped off (forward strand)."
+
+  clip_reverse_adaptor:
+    value: "AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGTA"
+    label: clip_reverse_adaptor
+    widget: text_field
+    help: "Specify adapter sequence to be clipped off (reverse strand)."
+
+  clip_adapters_list:
+    label: clip_adapters_list
+    widget: text_field
+    help: "Path to AdapterRemoval adapter list file. Overrides `--clip_*_adaptor` parameters"
+
+  clip_readlength:
+    value: "30"
+    label: clip_readlength
+    widget: text_field
+    help: "Specify read minimum length to be kept for downstream analysis."
+
+  clip_min_read_quality:
+    value: "20"
+    label: clip_min_read_quality
+    widget: text_field
+    help: "Specify minimum base quality for trimming off bases."
+
+  min_adap_overlap:
+    value: "1"
+    label: min_adap_overlap
+    widget: text_field
+    help: "Specify minimum adapter overlap required for clipping."
+
+  skip_collapse:
+    label: skip_collapse
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip of merging forward and reverse reads together and turns on paired-end alignment for downstream mapping. Only applicable for paired-end libraries."
+
+  skip_trim:
+    label: skip_trim
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip adapter and quality trimming."
+
+  preserve5p:
+    label: preserve5p
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip quality base trimming (n, score, window) of 5 prime end."
+
+  mergedonly:
+    label: mergedonly
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Only use merged reads downstream (un-merged reads and singletons are discarded)."
+
+  qualitymax:
+    value: "41"
+    label: qualitymax
+    widget: text_field
+    help: "Specify the maximum Phred score used in input FASTQ files"
+
+  run_post_ar_trimming:
+    label: run_post_ar_trimming
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on trimming of inline barcodes (i.e. internal barcodes after adapter removal)"
+
+  post_ar_trim_front:
+    value: "7"
+    label: post_ar_trim_front
+    widget: text_field
+    help: "Specify the number of bases to trim off the front of a merged read or R1"
+
+  post_ar_trim_tail:
+    value: "7"
+    label: post_ar_trim_tail
+    widget: text_field
+    help: "Specify the number of bases to trim off the tail of of a merged read or R1"
+
+  post_ar_trim_front2:
+    value: "7"
+    label: post_ar_trim_front2
+    widget: text_field
+    help: "Specify the number of bases to trim off the front of R2"
+
+  post_ar_trim_tail2:
+    value: "7"
+    label: post_ar_trim_tail2
+    widget: text_field
+    help: "Specify the number of bases to trim off the tail of R2"
+
+  mapper:
+    value: "bwaaln"
+    widget: select
+    options:
+      - ['bwaaln', 'bwaaln']
+      - ['bwamem', 'bwamem']
+      - ['circularmapper', 'circularmapper']
+      - ['bowtie2', 'bowtie2']
+    label: mapper
+    help: "Specify which mapper to use. Options: `bwaaln`, `bwamem`, `circularmapper`, `bowtie2`."
+
+  bwaalnn:
+    value: "0.01"
+    label: bwaalnn
+    widget: text_field
+    help: "Specify the -n parameter for BWA aln, i.e. amount of allowed mismatches in the alignment."
+
+  bwaalnk:
+    value: "2"
+    label: bwaalnk
+    widget: text_field
+    help: "Specify the -k parameter for BWA aln, i.e. maximum edit distance allowed in a seed."
+
+  bwaalnl:
+    value: "1024"
+    label: bwaalnl
+    widget: text_field
+    help: "Specify the -l parameter for BWA aln i.e. the length of seeds to be used."
+
+  bwaalno:
+    value: "2"
+    label: bwaalno
+    widget: text_field
+    help: "Specify the -o parameter for BWA aln i.e. the number of gaps allowed."
+
+  circularextension:
+    value: "500"
+    label: circularextension
+    widget: text_field
+    help: "Specify the number of bases to extend reference by (circularmapper only)."
+
+  circulartarget:
+    value: "MT"
+    label: circulartarget
+    widget: text_field
+    help: "Specify the FASTA header of the target chromosome to extend (circularmapper only)."
+
+  circularfilter:
+    label: circularfilter
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on to remove reads that did not map to the circularised genome (circularmapper only)."
+
+  bt2_alignmode:
+    value: "local"
+    widget: select
+    options:
+      - ['local', 'local']
+      - ['end-to-end', 'end-to-end']
+    label: bt2_alignmode
+    help: "Specify the bowtie2 alignment mode. Options:  `local`, `end-to-end`."
+
+  bt2_sensitivity:
+    value: "sensitive"
+    widget: select
+    options:
+      - ['no-preset', 'no-preset']
+      - ['very-fast', 'very-fast']
+      - ['fast', 'fast']
+      - ['sensitive', 'sensitive']
+      - ['very-sensitive', 'very-sensitive']
+    label: bt2_sensitivity
+    help: "Specify the level of sensitivity for the bowtie2 alignment mode. Options: `no-preset`, `very-fast`, `fast`, `sensitive`, `very-sensitive`."
+
+  bt2n:
+    value: "0"
+    label: bt2n
+    widget: text_field
+    help: "Specify the -N parameter for bowtie2 (mismatches in seed). This will override defaults from alignmode/sensitivity."
+
+  bt2l:
+    value: "0"
+    label: bt2l
+    widget: text_field
+    help: "Specify the -L parameter for bowtie2 (length of seed substrings). This will override defaults from alignmode/sensitivity."
+
+  bt2_trim5:
+    value: "0"
+    label: bt2_trim5
+    widget: text_field
+    help: "Specify number of bases to trim off from 5` (left) end of read before alignment."
+
+  bt2_trim3:
+    value: "0"
+    label: bt2_trim3
+    widget: text_field
+    help: "Specify number of bases to trim off from 3` (right) end of read before alignment."
+
+  bt2_maxins:
+    value: "500"
+    label: bt2_maxins
+    widget: text_field
+    help: "Specify the maximum fragment length for Bowtie2 paired-end mapping mode only."
+
+  hostremoval_input_fastq:
+    label: hostremoval_input_fastq
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on per-library creation pre-Adapter Removal FASTQ files without reads that mapped to reference (e.g. for public upload of privacy sensitive non-host data)"
+
+  hostremoval_mode:
+    value: "remove"
+    widget: select
+    options:
+      - ['strip', 'strip']
+      - ['replace', 'replace']
+      - ['remove', 'remove']
+    label: hostremoval_mode
+    help: "Host removal mode. Remove mapped reads completely from FASTQ (remove) or just mask mapped reads sequence by N (replace)."
+
+  run_bam_filtering:
+    label: run_bam_filtering
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on filtering of mapping quality, read lengths, or unmapped reads of BAM files."
+
+  bam_mapping_quality_threshold:
+    value: "0"
+    label: bam_mapping_quality_threshold
+    widget: text_field
+    help: "Minimum mapping quality for reads filter."
+
+  bam_filter_minreadlength:
+    value: "0"
+    label: bam_filter_minreadlength
+    widget: text_field
+    help: "Specify minimum read length to be kept after mapping."
+
+  bam_unmapped_type:
+    value: "discard"
+    widget: select
+    options:
+      - ['discard', 'discard']
+      - ['keep', 'keep']
+      - ['bam', 'bam']
+      - ['fastq', 'fastq']
+      - ['both', 'both']
+    label: bam_unmapped_type
+    help: "Defines whether to discard all unmapped reads, keep only bam and/or keep only fastq format Options: `discard`, `bam`, `fastq`, `both`."
+
+  dedupper:
+    value: "markduplicates"
+    widget: select
+    options:
+      - ['markduplicates', 'markduplicates']
+      - ['dedup', 'dedup']
+    label: dedupper
+    help: "Deduplication method to use. Options: `markduplicates`,  `dedup`."
+
+  dedup_all_merged:
+    label: dedup_all_merged
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on treating all reads as merged reads."
+
+  preseq_mode:
+    value: "c_curve"
+    widget: select
+    options:
+      - ['c_curve', 'c_curve']
+      - ['lc_extrap', 'lc_extrap']
+    label: preseq_mode
+    help: "Specify which mode of preseq to run."
+
+  preseq_step_size:
+    value: "1000"
+    label: preseq_step_size
+    widget: text_field
+    help: "Specify the step size of Preseq."
+
+  preseq_maxextrap:
+    value: "10000000000"
+    label: preseq_maxextrap
+    widget: text_field
+    help: "Specify the maximum extrapolation (lc_extrap mode only)"
+
+  preseq_terms:
+    value: "100"
+    label: preseq_terms
+    widget: text_field
+    help: "Specify the maximum number of terms for extrapolation (lc_extrap mode only)"
+
+  preseq_bootstrap:
+    value: "100"
+    label: preseq_bootstrap
+    widget: text_field
+    help: "Specify number of bootstraps to perform (lc_extrap mode only)"
+
+  preseq_cval:
+    value: "0.95"
+    label: preseq_cval
+    widget: text_field
+    help: "Specify confidence interval level (lc_extrap mode only)"
+
+  damage_calculation_tool:
+    value: "damageprofiler"
+    widget: select
+    options:
+      - ['damageprofiler', 'damageprofiler']
+      - ['mapdamage', 'mapdamage']
+    label: damage_calculation_tool
+    help: "Specify the tool to use for damage calculation."
+
+  damageprofiler_length:
+    value: "100"
+    label: damageprofiler_length
+    widget: text_field
+    help: "Specify length filter for DamageProfiler."
+
+  damageprofiler_threshold:
+    value: "15"
+    label: damageprofiler_threshold
+    widget: text_field
+    help: "Specify number of bases of each read to consider for DamageProfiler calculations."
+
+  damageprofiler_yaxis:
+    value: "0.3"
+    label: damageprofiler_yaxis
+    widget: text_field
+    help: "Specify the maximum misincorporation frequency that should be displayed on the damage plot. Set to 0 to `autoscale`."
+
+  mapdamage_downsample:
+    value: "0"
+    label: mapdamage_downsample
+    widget: text_field
+    help: "Specify the maximum number of reads to consider for damage calculation. Defaults value is `0` (i.e. no downsampling is performed)."
+
+  mapdamage_yaxis:
+    value: "0.3"
+    label: mapdamage_yaxis
+    widget: text_field
+    help: "Specify the maximum misincorporation frequency that should be displayed on the damage plot."
+
+  run_pmdtools:
+    label: run_pmdtools
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on PMDtools"
+
+  pmdtools_range:
+    value: "10"
+    label: pmdtools_range
+    widget: text_field
+    help: "Specify range of bases for PMDTools to scan for damage."
+
+  pmdtools_threshold:
+    value: "3"
+    label: pmdtools_threshold
+    widget: text_field
+    help: "Specify PMDScore threshold for PMDTools."
+
+  pmdtools_reference_mask:
+    label: pmdtools_reference_mask
+    widget: text_field
+    help: "Specify a bedfile to be used to mask the reference fasta prior to running pmdtools."
+
+  pmdtools_max_reads:
+    value: "10000"
+    label: pmdtools_max_reads
+    widget: text_field
+    help: "Specify the maximum number of reads to consider for metrics generation."
+
+  pmdtools_platypus:
+    label: pmdtools_platypus
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Append big list of base frequencies for platypus to output."
+
+  run_mapdamage_rescaling:
+    label: run_mapdamage_rescaling
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on damage rescaling of BAM files using mapDamage2 to probabilistically remove damage."
+
+  rescale_seqlength:
+    value: "12"
+    label: rescale_seqlength
+    widget: text_field
+    help: "Length of read sequence to use from each side for rescaling. Can be overridden by --rescale_length_*p."
+
+  rescale_length_5p:
+    value: "0"
+    label: rescale_length_5p
+    widget: text_field
+    help: "Length of read for mapDamage2 to rescale from 5p end.  Only used if not 0 otherwise --rescale_seqlength used."
+
+  rescale_length_3p:
+    value: "0"
+    label: rescale_length_3p
+    widget: text_field
+    help: "Length of read for mapDamage2 to rescale from 3p end. Only used if not 0 otherwise --rescale_seqlength used.."
+
+  run_bedtools_coverage:
+    label: run_bedtools_coverage
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on ability to calculate no. reads, depth and breadth coverage of features in reference."
+
+  anno_file:
+    label: anno_file
+    widget: text_field
+    help: "Path to GFF or BED file containing positions of features in reference file (--fasta). Path should be enclosed in quotes."
+
+  anno_file_is_unsorted:
+    label: anno_file_is_unsorted
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specify if the annotation file provided to --anno_file is not sorted in the same way as the reference fasta file."
+
+  run_trim_bam:
+    label: run_trim_bam
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on BAM trimming. Will only run on non-UDG or half-UDG libraries"
+
+  bamutils_clip_double_stranded_half_udg_left:
+    value: "0"
+    label: bamutils_clip_double_stranded_half_udg_left
+    widget: text_field
+    help: "Specify the number of bases to clip off reads from `left` end of read for double-stranded half-UDG libraries."
+
+  bamutils_clip_double_stranded_half_udg_right:
+    value: "0"
+    label: bamutils_clip_double_stranded_half_udg_right
+    widget: text_field
+    help: "Specify the number of bases to clip off reads from `right` end of read for double-stranded half-UDG libraries."
+
+  bamutils_clip_double_stranded_none_udg_left:
+    value: "0"
+    label: bamutils_clip_double_stranded_none_udg_left
+    widget: text_field
+    help: "Specify the number of bases to clip off reads from `left` end of read for double-stranded non-UDG libraries."
+
+  bamutils_clip_double_stranded_none_udg_right:
+    value: "0"
+    label: bamutils_clip_double_stranded_none_udg_right
+    widget: text_field
+    help: "Specify the number of bases to clip off reads from `right` end of read for double-stranded non-UDG libraries."
+
+  bamutils_clip_single_stranded_half_udg_left:
+    value: "0"
+    label: bamutils_clip_single_stranded_half_udg_left
+    widget: text_field
+    help: "Specify the number of bases to clip off reads from `left` end of read for single-stranded half-UDG libraries."
+
+  bamutils_clip_single_stranded_half_udg_right:
+    value: "0"
+    label: bamutils_clip_single_stranded_half_udg_right
+    widget: text_field
+    help: "Specify the number of bases to clip off reads from `right` end of read for single-stranded half-UDG libraries."
+
+  bamutils_clip_single_stranded_none_udg_left:
+    value: "0"
+    label: bamutils_clip_single_stranded_none_udg_left
+    widget: text_field
+    help: "Specify the number of bases to clip off reads from `left` end of read for single-stranded non-UDG libraries."
+
+  bamutils_clip_single_stranded_none_udg_right:
+    value: "0"
+    label: bamutils_clip_single_stranded_none_udg_right
+    widget: text_field
+    help: "Specify the number of bases to clip off reads from `right` end of read for single-stranded non-UDG libraries."
+
+  bamutils_softclip:
+    label: bamutils_softclip
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on using softclip instead of hard masking."
+
+  run_genotyping:
+    label: run_genotyping
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on genotyping of BAM files."
+
+  genotyping_tool:
+    widget: select
+    options:
+      - ['None', ' ']
+      - ['ug', 'ug']
+      - ['hc', 'hc']
+      - ['freebayes', 'freebayes']
+      - ['pileupcaller', 'pileupcaller']
+      - ['angsd', 'angsd']
+    label: genotyping_tool
+    help: "Specify which genotyper to use either GATK UnifiedGenotyper, GATK HaplotypeCaller, Freebayes, or pileupCaller. Options: `ug`, `hc`, `freebayes`, `pileupcaller`, `angsd`."
+
+  genotyping_source:
+    value: "raw"
+    widget: select
+    options:
+      - ['raw', 'raw']
+      - ['pmd', 'pmd']
+      - ['trimmed', 'trimmed']
+      - ['rescaled', 'rescaled']
+    label: genotyping_source
+    help: "Specify which input BAM to use for genotyping. Options: `raw`, `trimmed`, `pmd` or `rescaled`."
+
+  gatk_call_conf:
+    value: "30"
+    label: gatk_call_conf
+    widget: text_field
+    help: "Specify GATK phred-scaled confidence threshold."
+
+  gatk_ploidy:
+    value: "2"
+    label: gatk_ploidy
+    widget: text_field
+    help: "Specify GATK organism ploidy."
+
+  gatk_downsample:
+    value: "250"
+    label: gatk_downsample
+    widget: text_field
+    help: "Maximum depth coverage allowed for genotyping before down-sampling is turned on."
+
+  gatk_dbsnp:
+    label: gatk_dbsnp
+    widget: text_field
+    help: "Specify VCF file for SNP annotation of output VCF files. Optional. Gzip not accepted."
+
+  gatk_hc_out_mode:
+    value: "EMIT_VARIANTS_ONLY"
+    widget: select
+    options:
+      - ['EMIT_ALL_ACTIVE_SITES', 'EMIT_ALL_ACTIVE_SITES']
+      - ['EMIT_ALL_CONFIDENT_SITES', 'EMIT_ALL_CONFIDENT_SITES']
+      - ['EMIT_VARIANTS_ONLY', 'EMIT_VARIANTS_ONLY']
+    label: gatk_hc_out_mode
+    help: "Specify GATK output mode. Options: `EMIT_VARIANTS_ONLY`, `EMIT_ALL_CONFIDENT_SITES`, `EMIT_ALL_ACTIVE_SITES`."
+
+  gatk_hc_emitrefconf:
+    value: "GVCF"
+    widget: select
+    options:
+      - ['NONE', 'NONE']
+      - ['GVCF', 'GVCF']
+      - ['BP_RESOLUTION', 'BP_RESOLUTION']
+    label: gatk_hc_emitrefconf
+    help: "Specify HaplotypeCaller mode for emitting reference confidence calls . Options: `NONE`, `BP_RESOLUTION`, `GVCF`."
+
+  gatk_ug_out_mode:
+    value: "EMIT_VARIANTS_ONLY"
+    widget: select
+    options:
+      - ['EMIT_ALL_SITES', 'EMIT_ALL_SITES']
+      - ['EMIT_ALL_CONFIDENT_SITES', 'EMIT_ALL_CONFIDENT_SITES']
+      - ['EMIT_VARIANTS_ONLY', 'EMIT_VARIANTS_ONLY']
+    label: gatk_ug_out_mode
+    help: "Specify GATK output mode. Options: `EMIT_VARIANTS_ONLY`, `EMIT_ALL_CONFIDENT_SITES`, `EMIT_ALL_SITES`."
+
+  gatk_ug_genotype_model:
+    value: "SNP"
+    widget: select
+    options:
+      - ['SNP', 'SNP']
+      - ['INDEL', 'INDEL']
+      - ['BOTH', 'BOTH']
+      - ['GENERALPLOIDYSNP', 'GENERALPLOIDYSNP']
+      - ['GENERALPLOIDYINDEL', 'GENERALPLOIDYINDEL']
+    label: gatk_ug_genotype_model
+    help: "Specify UnifiedGenotyper likelihood model. Options: `SNP`, `INDEL`, `BOTH`, `GENERALPLOIDYSNP`, `GENERALPLOIDYINDEL`."
+
+  gatk_ug_keep_realign_bam:
+    label: gatk_ug_keep_realign_bam
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specify to keep the BAM output of re-alignment around variants from GATK UnifiedGenotyper."
+
+  gatk_ug_defaultbasequalities:
+    label: gatk_ug_defaultbasequalities
+    widget: text_field
+    help: "Supply a default base quality if a read is missing a base quality score. Setting to -1 turns this off."
+
+  freebayes_C:
+    value: "1"
+    label: freebayes_C
+    widget: text_field
+    help: "Specify minimum required supporting observations to consider a variant."
+
+  freebayes_g:
+    value: "0"
+    label: freebayes_g
+    widget: text_field
+    help: "Specify to skip over regions of high depth by discarding alignments overlapping positions where total read depth is greater than specified in --freebayes_C."
+
+  freebayes_p:
+    value: "2"
+    label: freebayes_p
+    widget: text_field
+    help: "Specify ploidy of sample in FreeBayes."
+
+  pileupcaller_bedfile:
+    label: pileupcaller_bedfile
+    widget: text_field
+    help: "Specify path to SNP panel in bed format for pileupCaller."
+
+  pileupcaller_snpfile:
+    label: pileupcaller_snpfile
+    widget: text_field
+    help: "Specify path to SNP panel in EIGENSTRAT format for pileupCaller."
+
+  pileupcaller_method:
+    value: "randomHaploid"
+    widget: select
+    options:
+      - ['randomHaploid', 'randomHaploid']
+      - ['randomDiploid', 'randomDiploid']
+      - ['majorityCall', 'majorityCall']
+    label: pileupcaller_method
+    help: "Specify calling method to use. Options: `randomHaploid`, `randomDiploid`, `majorityCall`."
+
+  pileupcaller_transitions_mode:
+    value: "AllSites"
+    widget: select
+    options:
+      - ['AllSites', 'AllSites']
+      - ['TransitionsMissing', 'TransitionsMissing']
+      - ['SkipTransitions', 'SkipTransitions']
+    label: pileupcaller_transitions_mode
+    help: "Specify the calling mode for transitions. Options: `AllSites`, `TransitionsMissing`, `SkipTransitions`."
+
+  pileupcaller_min_map_quality:
+    value: "30"
+    label: pileupcaller_min_map_quality
+    widget: text_field
+    help: "The minimum mapping quality to be used for genotyping."
+
+  pileupcaller_min_base_quality:
+    value: "30"
+    label: pileupcaller_min_base_quality
+    widget: text_field
+    help: "The minimum base quality to be used for genotyping."
+
+  angsd_glmodel:
+    value: "samtools"
+    widget: select
+    options:
+      - ['samtools', 'samtools']
+      - ['gatk', 'gatk']
+      - ['soapsnp', 'soapsnp']
+      - ['syk', 'syk']
+    label: angsd_glmodel
+    help: "Specify which ANGSD genotyping likelihood model to use. Options: `samtools`, `gatk`, `soapsnp`, `syk`."
+
+  angsd_glformat:
+    value: "binary"
+    widget: select
+    options:
+      - ['text', 'text']
+      - ['binary', 'binary']
+      - ['binary_three', 'binary_three']
+      - ['beagle', 'beagle']
+    label: angsd_glformat
+    help: "Specify which output type to output ANGSD genotyping likelihood results: Options: `text`, `binary`, `binary_three`, `beagle`."
+
+  angsd_createfasta:
+    label: angsd_createfasta
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on creation of FASTA from ANGSD genotyping likelihood."
+
+  angsd_fastamethod:
+    value: "random"
+    widget: select
+    options:
+      - ['random', 'random']
+      - ['common', 'common']
+    label: angsd_fastamethod
+    help: "Specify which genotype type of `base calling` to use for ANGSD FASTA generation. Options: `random`, `common`."
+
+  run_bcftools_stats:
+    value: "True"
+    label: run_bcftools_stats
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on bcftools stats generation for VCF based variant calling statistics"
+
+  run_vcf2genome:
+    label: run_vcf2genome
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turns on ability to create a consensus sequence FASTA file based on a UnifiedGenotyper VCF file and the original reference (only considers SNPs)."
+
+  vcf2genome_outfile:
+    label: vcf2genome_outfile
+    widget: text_field
+    help: "Specify the name of the output FASTA file containing the consensus sequence."
+
+  vcf2genome_header:
+    label: vcf2genome_header
+    widget: text_field
+    help: "Specify the header name of the consensus sequence entry within the FASTA file."
+
+  vcf2genome_minc:
+    value: "5"
+    label: vcf2genome_minc
+    widget: text_field
+    help: "Minimum depth coverage required for a call to be included (else N will be called)."
+
+  vcf2genome_minq:
+    value: "30"
+    label: vcf2genome_minq
+    widget: text_field
+    help: "Minimum genotyping quality of a call to be called. Else N will be called."
+
+  vcf2genome_minfreq:
+    value: "0.8"
+    label: vcf2genome_minfreq
+    widget: text_field
+    help: "Minimum fraction of reads supporting a call to be included. Else N will be called."
+
+  run_multivcfanalyzer:
+    label: run_multivcfanalyzer
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on MultiVCFAnalyzer. Note: This currently only supports diploid GATK UnifiedGenotyper input."
+
+  write_allele_frequencies:
+    label: write_allele_frequencies
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on writing write allele frequencies in the SNP table."
+
+  min_genotype_quality:
+    value: "30"
+    label: min_genotype_quality
+    widget: text_field
+    help: "Specify the minimum genotyping quality threshold for a SNP to be called."
+
+  min_base_coverage:
+    value: "5"
+    label: min_base_coverage
+    widget: text_field
+    help: "Specify the minimum number of reads a position needs to be covered to be considered for base calling."
+
+  min_allele_freq_hom:
+    value: "0.9"
+    label: min_allele_freq_hom
+    widget: text_field
+    help: "Specify the minimum allele frequency that a base requires to be considered a `homozygous` call."
+
+  min_allele_freq_het:
+    value: "0.9"
+    label: min_allele_freq_het
+    widget: text_field
+    help: "Specify the minimum allele frequency that a base requires to be considered a `heterozygous` call."
+
+  additional_vcf_files:
+    label: additional_vcf_files
+    widget: text_field
+    help: "Specify paths to additional pre-made VCF files to be included in the SNP table generation. Use wildcard(s) for multiple files."
+
+  reference_gff_annotations:
+    value: "NA"
+    label: reference_gff_annotations
+    widget: text_field
+    help: "Specify path to the reference genome annotations in `.gff` format. Optional."
+
+  reference_gff_exclude:
+    value: "NA"
+    label: reference_gff_exclude
+    widget: text_field
+    help: "Specify path to the positions to be excluded in `.gff` format. Optional."
+
+  snp_eff_results:
+    value: "NA"
+    label: snp_eff_results
+    widget: text_field
+    help: "Specify path to the output file from SNP effect analysis in `.txt` format. Optional."
+
+  run_mtnucratio:
+    label: run_mtnucratio
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on mitochondrial to nuclear ratio calculation."
+
+  mtnucratio_header:
+    value: "MT"
+    label: mtnucratio_header
+    widget: text_field
+    help: "Specify the name of the reference FASTA entry corresponding to the mitochondrial genome (up to the first space)."
+
+  run_sexdeterrmine:
+    label: run_sexdeterrmine
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on sex determination for human reference genomes. This will run on single- and double-stranded variants of a library separately."
+
+  sexdeterrmine_bedfile:
+    label: sexdeterrmine_bedfile
+    widget: text_field
+    help: "Specify path to SNP panel in bed format for error bar calculation. Optional (see documentation)."
+
+  run_nuclear_contamination:
+    label: run_nuclear_contamination
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on nuclear contamination estimation for human reference genomes."
+
+  contamination_chrom_name:
+    value: "X"
+    label: contamination_chrom_name
+    widget: text_field
+    help: "The name of the X chromosome in your bam/FASTA header. `X` for hs37d5, `chrX` for HG19."
+
+  metagenomic_complexity_filter:
+    label: metagenomic_complexity_filter
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on removal of low-sequence complexity reads for metagenomic screening with bbduk"
+
+  metagenomic_complexity_entropy:
+    value: "0.3"
+    label: metagenomic_complexity_entropy
+    widget: text_field
+    help: "Specify the entropy threshold that under which a sequencing read will be complexity filtered out. This should be between 0-1."
+
+  run_metagenomic_screening:
+    label: run_metagenomic_screening
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on metagenomic screening module for reference-unmapped reads."
+
+  metagenomic_tool:
+    label: metagenomic_tool
+    widget: text_field
+    help: "Specify which classifier to use. Options: `malt`, `kraken`."
+
+  database:
+    label: database
+    widget: text_field
+    help: "Specify path to classifier database directory. For Kraken2 this can also be a `.tar.gz` of the directory."
+
+  metagenomic_min_support_reads:
+    value: "1"
+    label: metagenomic_min_support_reads
+    widget: text_field
+    help: "Specify a minimum number of reads a taxon of sample total is required to have to be retained. Not compatible with --malt_min_support_mode `percent`."
+
+  percent_identity:
+    value: "85"
+    label: percent_identity
+    widget: text_field
+    help: "Percent identity value threshold for MALT."
+
+  malt_mode:
+    value: "BlastN"
+    widget: select
+    options:
+      - ['BlastN', 'BlastN']
+      - ['BlastP', 'BlastP']
+      - ['BlastX', 'BlastX']
+    label: malt_mode
+    help: "Specify which alignment mode to use for MALT. Options: `Unknown`, `BlastN`, `BlastP`, `BlastX`, `Classifier`."
+
+  malt_alignment_mode:
+    value: "SemiGlobal"
+    widget: select
+    options:
+      - ['Local', 'Local']
+      - ['SemiGlobal', 'SemiGlobal']
+    label: malt_alignment_mode
+    help: "Specify alignment method for MALT. Options: `Local`, `SemiGlobal`."
+
+  malt_top_percent:
+    value: "1"
+    label: malt_top_percent
+    widget: text_field
+    help: "Specify the percent for LCA algorithm for MALT (see MEGAN6 CE manual)."
+
+  malt_min_support_mode:
+    value: "percent"
+    widget: select
+    options:
+      - ['percent', 'percent']
+      - ['reads', 'reads']
+    label: malt_min_support_mode
+    help: "Specify whether to use percent or raw number of reads for minimum support required for taxon to be retained for MALT. Options: `percent`, `reads`."
+
+  malt_min_support_percent:
+    value: "0.01"
+    label: malt_min_support_percent
+    widget: text_field
+    help: "Specify the minimum percentage of reads a taxon of sample total is required to have to be retained for MALT."
+
+  malt_max_queries:
+    value: "100"
+    label: malt_max_queries
+    widget: text_field
+    help: "Specify the maximum number of queries a read can have for MALT."
+
+  malt_memory_mode:
+    value: "load"
+    widget: select
+    options:
+      - ['load', 'load']
+      - ['page', 'page']
+      - ['map', 'map']
+    label: malt_memory_mode
+    help: "Specify the memory load method. Do not use `map` with GPFS file systems for MALT as can be very slow. Options: `load`, `page`, `map`."
+
+  malt_sam_output:
+    label: malt_sam_output
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specify to also produce SAM alignment files. Note this includes both aligned and unaligned reads, and are gzipped. Note this will result in very large file sizes."
+
+  run_maltextract:
+    label: run_maltextract
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on MaltExtract for MALT aDNA characteristics authentication."
+
+  maltextract_taxon_list:
+    label: maltextract_taxon_list
+    widget: text_field
+    help: "Path to a text file with taxa of interest (one taxon per row, NCBI taxonomy name format)"
+
+  maltextract_ncbifiles:
+    label: maltextract_ncbifiles
+    widget: text_field
+    help: "Path to directory containing containing NCBI resource files (ncbi.tre and ncbi.map; available: https://github.com/rhuebler/HOPS/)"
+
+  maltextract_filter:
+    value: "def_anc"
+    widget: select
+    options:
+      - ['def_anc', 'def_anc']
+      - ['default', 'default']
+      - ['ancient', 'ancient']
+      - ['scan', 'scan']
+      - ['crawl', 'crawl']
+      - ['srna', 'srna']
+    label: maltextract_filter
+    help: "Specify which MaltExtract filter to use. Options: `def_anc`, `ancient`, `default`, `crawl`, `scan`, `srna`, `assignment`."
+
+  maltextract_toppercent:
+    value: "0.01"
+    label: maltextract_toppercent
+    widget: text_field
+    help: "Specify percent of top alignments to use."
+
+  maltextract_destackingoff:
+    label: maltextract_destackingoff
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn off destacking."
+
+  maltextract_downsamplingoff:
+    label: maltextract_downsamplingoff
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn off downsampling."
+
+  maltextract_duplicateremovaloff:
+    label: maltextract_duplicateremovaloff
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn off duplicate removal."
+
+  maltextract_matches:
+    label: maltextract_matches
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on exporting alignments of hits in BLAST format."
+
+  maltextract_megansummary:
+    label: maltextract_megansummary
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on export of MEGAN summary files."
+
+  maltextract_percentidentity:
+    value: "85"
+    label: maltextract_percentidentity
+    widget: text_field
+    help: "Minimum percent identity alignments are required to have to be reported. Recommended to set same as MALT parameter."
+
+  maltextract_topalignment:
+    label: maltextract_topalignment
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on using top alignments per read after filtering."
+
+
+form:
+  - bc_num_hours
+  - cpu_partition
+  - reservation
+  - version
+  - workdir
+  - outdir
+  - input
+  - udg_type
+  - single_stranded
+  - single_end
+  - colour_chemistry
+  - bam
+  - snpcapture_bed
+  - run_convertinputbam
+  - fasta
+  - genome
+  - igenomes_ignore
+  - bwa_index
+  - bt2_index
+  - fasta_index
+  - seq_dict
+  - large_ref
+  - save_reference
+  - skip_fastqc
+  - skip_adapterremoval
+  - skip_preseq
+  - skip_deduplication
+  - skip_damage_calculation
+  - skip_qualimap
+  - complexity_filter_poly_g
+  - complexity_filter_poly_g_min
+  - clip_forward_adaptor
+  - clip_reverse_adaptor
+  - clip_adapters_list
+  - clip_readlength
+  - clip_min_read_quality
+  - min_adap_overlap
+  - skip_collapse
+  - skip_trim
+  - preserve5p
+  - mergedonly
+  - qualitymax
+  - run_post_ar_trimming
+  - post_ar_trim_front
+  - post_ar_trim_tail
+  - post_ar_trim_front2
+  - post_ar_trim_tail2
+  - mapper
+  - bwaalnn
+  - bwaalnk
+  - bwaalnl
+  - bwaalno
+  - circularextension
+  - circulartarget
+  - circularfilter
+  - bt2_alignmode
+  - bt2_sensitivity
+  - bt2n
+  - bt2l
+  - bt2_trim5
+  - bt2_trim3
+  - bt2_maxins
+  - hostremoval_input_fastq
+  - hostremoval_mode
+  - run_bam_filtering
+  - bam_mapping_quality_threshold
+  - bam_filter_minreadlength
+  - bam_unmapped_type
+  - dedupper
+  - dedup_all_merged
+  - preseq_mode
+  - preseq_step_size
+  - preseq_maxextrap
+  - preseq_terms
+  - preseq_bootstrap
+  - preseq_cval
+  - damage_calculation_tool
+  - damageprofiler_length
+  - damageprofiler_threshold
+  - damageprofiler_yaxis
+  - mapdamage_downsample
+  - mapdamage_yaxis
+  - run_pmdtools
+  - pmdtools_range
+  - pmdtools_threshold
+  - pmdtools_reference_mask
+  - pmdtools_max_reads
+  - pmdtools_platypus
+  - run_mapdamage_rescaling
+  - rescale_seqlength
+  - rescale_length_5p
+  - rescale_length_3p
+  - run_bedtools_coverage
+  - anno_file
+  - anno_file_is_unsorted
+  - run_trim_bam
+  - bamutils_clip_double_stranded_half_udg_left
+  - bamutils_clip_double_stranded_half_udg_right
+  - bamutils_clip_double_stranded_none_udg_left
+  - bamutils_clip_double_stranded_none_udg_right
+  - bamutils_clip_single_stranded_half_udg_left
+  - bamutils_clip_single_stranded_half_udg_right
+  - bamutils_clip_single_stranded_none_udg_left
+  - bamutils_clip_single_stranded_none_udg_right
+  - bamutils_softclip
+  - run_genotyping
+  - genotyping_tool
+  - genotyping_source
+  - gatk_call_conf
+  - gatk_ploidy
+  - gatk_downsample
+  - gatk_dbsnp
+  - gatk_hc_out_mode
+  - gatk_hc_emitrefconf
+  - gatk_ug_out_mode
+  - gatk_ug_genotype_model
+  - gatk_ug_keep_realign_bam
+  - gatk_ug_defaultbasequalities
+  - freebayes_C
+  - freebayes_g
+  - freebayes_p
+  - pileupcaller_bedfile
+  - pileupcaller_snpfile
+  - pileupcaller_method
+  - pileupcaller_transitions_mode
+  - pileupcaller_min_map_quality
+  - pileupcaller_min_base_quality
+  - angsd_glmodel
+  - angsd_glformat
+  - angsd_createfasta
+  - angsd_fastamethod
+  - run_bcftools_stats
+  - run_vcf2genome
+  - vcf2genome_outfile
+  - vcf2genome_header
+  - vcf2genome_minc
+  - vcf2genome_minq
+  - vcf2genome_minfreq
+  - run_multivcfanalyzer
+  - write_allele_frequencies
+  - min_genotype_quality
+  - min_base_coverage
+  - min_allele_freq_hom
+  - min_allele_freq_het
+  - additional_vcf_files
+  - reference_gff_annotations
+  - reference_gff_exclude
+  - snp_eff_results
+  - run_mtnucratio
+  - mtnucratio_header
+  - run_sexdeterrmine
+  - sexdeterrmine_bedfile
+  - run_nuclear_contamination
+  - contamination_chrom_name
+  - metagenomic_complexity_filter
+  - metagenomic_complexity_entropy
+  - run_metagenomic_screening
+  - metagenomic_tool
+  - database
+  - metagenomic_min_support_reads
+  - percent_identity
+  - malt_mode
+  - malt_alignment_mode
+  - malt_top_percent
+  - malt_min_support_mode
+  - malt_min_support_percent
+  - malt_max_queries
+  - malt_memory_mode
+  - malt_sam_output
+  - run_maltextract
+  - maltextract_taxon_list
+  - maltextract_ncbifiles
+  - maltextract_filter
+  - maltextract_toppercent
+  - maltextract_destackingoff
+  - maltextract_downsamplingoff
+  - maltextract_duplicateremovaloff
+  - maltextract_matches
+  - maltextract_megansummary
+  - maltextract_percentidentity
+  - maltextract_topalignment
+  - TOWER_ACCESS_TOKEN
+  - resume
