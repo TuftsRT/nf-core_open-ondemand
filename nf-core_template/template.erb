@@ -3,37 +3,38 @@ cluster: "tuftshpc"
 
 attributes:
 
-profile:
-label: Whether to use Tufts profile
-widget: check_box
-checked_value: 1
-unchecked_value: 0
-help: |
- With [Tufts]([https://nf-co.re/configs/tufts]) profile (recommended), tasks will be distributed to different nodes; otherwise, all tasks will run on a single node. 
+  profile:
+    label: Whether to use Tufts profile
+    widget: check_box
+    checked_value: 1
+    unchecked_value: 0
+    help: |
+      With [Tufts]([https://nf-co.re/configs/tufts]) profile (recommended), tasks will be distributed to different nodes; otherwise, all tasks will run on a single node. 
 
-cpu_partition:
-widget: "select"
-label: "Select cpu partition"
-help: "NOTE: Please do not choose specific lab partitions if you are not a member of that lab."
-value: "batch"
-options:
-  - ["batch","batch"]
-  - ["largemem", "largemem"]
-  - ["preempt", "preempt"]
+  cpu_partition:
+    widget: "select"
+    label: "Select cpu partition"
+    help: "NOTE: Please do not choose specific lab partitions if you are not a member of that lab."
+    value: "batch"
+    options:
+    - ["batch","batch"]
+    - ["largemem", "largemem"]
+    - ["preempt", "preempt"]
 
-core_count:
-label: Cores
-min: 1
-max: 128
-value: 1
-help: |
-  Number of cores (up to 128) for a shared job.  Non-shared jobs will have exclusive nodes and be charged at 128 cores per node requested
-  widget: number_field
+  core_count:
+    label: Cores
+    widget: number_field
+    min: 1
+    max: 128
+    value: 1
+    help: |
+    Number of cores (up to 128) for a shared job.  Non-shared jobs will have exclusive nodes and be charged at 128 cores per node requested
 
-num_memory:
-  widget: "select"
-  label: "Amount of memory"
-  options:
+
+  num_memory:
+    widget: "select"
+    label: "Amount of memory"
+    options:
     - ["1GB", "1GB"]
     - ["2GB", "2GB"]
     - ["4GB", "4GB"]
@@ -47,7 +48,7 @@ num_memory:
     - ["128GB", "128GB"]
     - ["160GB", "160GB"]
     - ["256GB", "256GB"]
-  id: 'num_memory'
+    id: 'num_memory'
 
   workdir:
     label: "Working Directory"
