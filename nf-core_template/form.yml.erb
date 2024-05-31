@@ -25,13 +25,14 @@ attributes:
       - ["preempt", "preempt"]
 
   num_core:
+    widget: number_field
     label: Cores
     min: 1
     max: 128
     value: 1
     help: |
       Number of cores (up to 128) for a shared job.  Non-shared jobs will have exclusive nodes and be charged at 128 cores per node requested
-      widget: number_field
+
 
   num_memory:
       widget: "select"
