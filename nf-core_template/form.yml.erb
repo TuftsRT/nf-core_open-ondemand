@@ -5,6 +5,14 @@ attributes:
 
 <%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/reservation.yml").indent(2) %>
 
+  profile:
+    label: Whether to use Tufts profile
+    widget: check_box
+    checked_value: 1
+    unchecked_value: 0
+    help: |
+     With [Tufts]([https://nf-co.re/configs/tufts]) profile (recommended), tasks will be distributed to different nodes; otherwise, all tasks will run on a single node. 
+
   cpu_partition:
     widget: "select"
     label: "Select cpu partition"
@@ -14,7 +22,34 @@ attributes:
       - ["batch","batch"]
       - ["largemem", "largemem"]
       - ["preempt", "preempt"]
-      - ["patralab", "patralab"]
+
+  core_count:
+    label: Cores
+    min: 1
+    max: 128
+    value: 1
+    help: |
+      Number of cores (up to 128) for a shared job.  Non-shared jobs will have exclusive nodes and be charged at 128 cores per node requested
+      widget: number_field
+
+  num_memory:
+      widget: "select"
+      label: "Amount of memory"
+      options:
+        - ["1GB", "1GB"]
+        - ["2GB", "2GB"]
+        - ["4GB", "4GB"]
+        - ["8GB", "8GB"]
+        - ["16GB", "16GB"]
+        - ["32GB", "32GB"]
+        - ["64GB", "64GB"]
+        - ["72GB", "72GB"]
+        - ["80GB", "80GB"]
+        - ["96GB", "96GB"]
+        - ["128GB", "128GB"]
+        - ["160GB", "160GB"]
+        - ["256GB", "256GB"]
+      id: 'num_memory'
 
   version:
     label: Version
@@ -104,7 +139,10 @@ attributes:
 
 form:
   - bc_num_hours
+  - profile
   - cpu_partition
+  - core_count
+  - num_memory
   - reservation
   - version
   - input
