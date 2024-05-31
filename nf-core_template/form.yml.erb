@@ -5,13 +5,14 @@ attributes:
 
 <%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/reservation.yml").indent(2) %>
 
-  profile:
-    label: Whether to use Tufts profile
-    widget: check_box
-    checked_value: 1
-    unchecked_value: 0
+  executor:
+    label: Which nextflow executor to use?
+    widget: select
+    options:
+    - ["slurm", "slurm"]
+    - ["local", "local"]
     help: |
-     With [Tufts]([https://nf-co.re/configs/tufts]) profile (recommended), tasks will be distributed to different nodes; otherwise, all tasks will run on a single node. 
+      With slurm, tasks will be distributed to different nodes, local means all tasks will run on a single node.
 
   cpu_partition:
     widget: "select"
@@ -23,7 +24,7 @@ attributes:
       - ["largemem", "largemem"]
       - ["preempt", "preempt"]
 
-  core_count:
+  num_core:
     label: Cores
     min: 1
     max: 128
@@ -139,9 +140,9 @@ attributes:
 
 form:
   - bc_num_hours
-  - profile
+  - executor
   - cpu_partition
-  - core_count
+  - num_core
   - num_memory
   - reservation
   - version

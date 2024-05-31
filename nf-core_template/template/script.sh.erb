@@ -58,7 +58,7 @@ sed -i 's/"None"/null/g' nf-params.json
 # Test whether tufts profile is checked
 
 num_memory="<%= context.num_memory %>"
-core_count="<%= context.core_count %>"
+num_core="<%= context.num_core %>"
 
 if [ <%= context.profile %> -eq 1 ]
 then
@@ -68,7 +68,7 @@ then
         eval $command
 else
         echo "This is the local mode, which means all tasks will run on a single node!!!"
-        command="nextflow run <%= context.version %> -params-file nf-params.json -profile singularity --partition <%= context.cpu_partition %>  $resume $with_tower --max_cpus $core_count  --max_memory $num_memory"
+        command="nextflow run <%= context.version %> -params-file nf-params.json -profile singularity --partition <%= context.cpu_partition %>  $resume $with_tower --max_cpus $num_core  --max_memory $num_memory"
         echo $command
         eval $command
 fi

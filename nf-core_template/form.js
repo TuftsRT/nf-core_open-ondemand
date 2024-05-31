@@ -2,16 +2,15 @@
 
 
 function toggle_profile() {
-  let cpu_partition = $('#batch_connect_session_context_cpu_partition');
   let cores = $('#batch_connect_session_context_core_count');
   let num_memory = $('#batch_connect_session_context_num_memory');
-  let profile_checkbox = document.getElementById("batch_connect_session_context_profile_checkbox");
-if(profile_checkbox.checked === false)  {
-   cpu_partition.parent().show();
+  let profile_checkbox = document.getElementById("batch_connect_session_context_profile");
+  let executor = document.getElementById("batch_connect_session_context_executor");
+  let selected_executor = executor.options[executor.selectedIndex].value;
+if(selected_executor === "local")  {
    cores.parent().show();
    num_memory.parent().show();
   } else {
-    cpu_partition.parent().hide();
     cores.parent().hide();
     num_memory.parent().hide();
   }
@@ -20,5 +19,5 @@ if(profile_checkbox.checked === false)  {
 
 toggle_profile()
 
-let checkbox_trigger = $('#batch_connect_session_context_profile_checkbox');
-checkbox_trigger.change(toggle_profile);
+let select_trigger = $('#batch_connect_session_context_executor');
+select_trigger.change(toggle_profile);
