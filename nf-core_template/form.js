@@ -2,7 +2,7 @@
 
 
 function toggle_profile() {
-  let cores = $('#batch_connect_session_context_core_count');
+  let cores = $('#batch_connect_session_context_num_core');
   let num_memory = $('#batch_connect_session_context_num_memory');
   let profile_checkbox = document.getElementById("batch_connect_session_context_profile");
   let executor = document.getElementById("batch_connect_session_context_executor");
