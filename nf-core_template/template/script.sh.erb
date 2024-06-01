@@ -60,7 +60,7 @@ sed -i 's/"None"/null/g' nf-params.json
 num_memory="<%= context.num_memory %>"
 num_core="<%= context.num_core %>"
 
-if [ <%= context.profile %> -eq 1 ]
+if [ <%= context.executor %> == "slurm" ]
 then
         echo "Tufts profile will be used, and tasks will run on different nodes!!!"
         command="nextflow run <%= context.version %> -params-file nf-params.json -profile tufts --partition <%= context.cpu_partition %>  $resume $with_tower"
