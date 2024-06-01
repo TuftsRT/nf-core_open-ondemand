@@ -2,7 +2,7 @@
 cluster: "tuftshpc"
 
 attributes:
-
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/reservation.yml").indent(2) %>
   executor:
     label: Which nextflow executor to use?
     widget: select
