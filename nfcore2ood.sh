@@ -2,9 +2,6 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-# Load Anaconda module
-module load anaconda/2021.11
-
 parentfolder=$(git rev-parse --show-toplevel)
 input=""
 output=""
