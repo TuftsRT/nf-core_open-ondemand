@@ -2,10 +2,19 @@
 cluster: "tuftshpc"
 
 attributes:
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/reservation.yml").indent(2) %>
+  executor:
+    label: Which nextflow executor to use?
+    widget: select
+    options:
+    - ["slurm", "slurm"]
+    - ["local", "local"]
+    help: |
+      With slurm, tasks will be distributed to different nodes, local means all tasks will run on a single node.
 
   cpu_partition:
     widget: "select"
-    label: "Select cpu partition"
+    label: "Partition"
     help: "NOTE: Please do not choose specific lab partitions if you are not a member of that lab."
     value: "batch"
     options:
@@ -14,7 +23,32 @@ attributes:
       - ["preempt", "preempt"]
       - ["patralab", "patralab"]
 
-<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/reservation.yml").indent(2) %>
+  num_core:
+    widget: number_field
+    label: Cores
+    min: 1
+    max: 128
+    value: 1
+    help: |
+      Number of cores (up to 128) for a shared job.  Non-shared jobs will have exclusive nodes and be charged at 128 cores per node requested
+
+  num_memory:
+    widget: "select"
+    label: "Amount of memory"
+    options:
+    - ["1GB", "1GB"]
+    - ["2GB", "2GB"]
+    - ["4GB", "4GB"]
+    - ["8GB", "8GB"]
+    - ["16GB", "16GB"]
+    - ["32GB", "32GB"]
+    - ["64GB", "64GB"]
+    - ["72GB", "72GB"]
+    - ["80GB", "80GB"]
+    - ["96GB", "96GB"]
+    - ["128GB", "128GB"]
+    - ["160GB", "160GB"]
+    - ["256GB", "256GB"]
 
   workdir:
     label: "Working Directory"
@@ -42,6 +76,7 @@ attributes:
     label: Version
     widget: select
     options:
+      - ['2.3.1', '/cluster/tufts/biocontainers/nf-core/pipelines/nf-core-smrnaseq/2.3.1/2_3_1']
       - ['2.3.0', '/cluster/tufts/biocontainers/nf-core/pipelines/nf-core-smrnaseq/2.3.0/2_3_0']
 
   input:
@@ -92,12 +127,11 @@ attributes:
     help: "UMI grouping method"
 
   skip_umi_extract_before_dedup:
-    value: "True"
-    label: skip_umi_extract_before_dedup
     widget: select
     options:
-      - ['false', 'false']
       - ['true', 'true']
+      - ['false', 'false']
+    label: skip_umi_extract_before_dedup
     help: "Skip the UMI extraction from the reads before deduplication. Please note, if this parameter is set to false, the reads will be deduplicated solely on insert sequence. UMIs might be extracted after deduplication depending on the set umitools_bc_pattern nevertheless if with_umi is set to True."
 
   umitools_bc_pattern:
@@ -240,12 +274,11 @@ attributes:
     help: "Save aligned reads of initial mapping in bam format."
 
   save_aligned_mirna_quant:
-    value: "True"
-    label: save_aligned_mirna_quant
     widget: select
     options:
-      - ['false', 'false']
       - ['true', 'true']
+      - ['false', 'false']
+    label: save_aligned_mirna_quant
     help: "Save aligned reads of miRNA quant subworkflow in bam format."
 
   clip_r1:
@@ -265,12 +298,11 @@ attributes:
     help: "Sequencing adapter sequence to use for trimming."
 
   trim_fastq:
-    value: "True"
-    label: trim_fastq
     widget: select
     options:
-      - ['false', 'false']
       - ['true', 'true']
+      - ['false', 'false']
+    label: trim_fastq
     help: "Trim FastQ files"
 
   fastp_min_length:
@@ -306,13 +338,18 @@ attributes:
     help: "Minimum number of reads required in input file to use it"
 
   save_merged:
-    value: "True"
-    label: save_merged
     widget: select
     options:
-      - ['false', 'false']
       - ['true', 'true']
+      - ['false', 'false']
+    label: save_merged
     help: "Save merged reads."
+
+  phred_offset:
+    value: "33"
+    label: phred_offset
+    widget: text_field
+    help: "The PHRED quality offset to be used for any input fastq files. Default is 33, standard Illumina 1.8+ format."
 
   filter_contamination:
     label: filter_contamination
@@ -387,7 +424,10 @@ attributes:
 
 form:
   - bc_num_hours
+  - executor
   - cpu_partition
+  - num_core
+  - num_memory
   - reservation
   - version
   - workdir
@@ -427,6 +467,7 @@ form:
   - fastp_known_mirna_adapters
   - min_trimmed_reads
   - save_merged
+  - phred_offset
   - filter_contamination
   - rrna
   - trna

@@ -2,10 +2,19 @@
 cluster: "tuftshpc"
 
 attributes:
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/reservation.yml").indent(2) %>
+  executor:
+    label: Which nextflow executor to use?
+    widget: select
+    options:
+    - ["slurm", "slurm"]
+    - ["local", "local"]
+    help: |
+      With slurm, tasks will be distributed to different nodes, local means all tasks will run on a single node.
 
   cpu_partition:
     widget: "select"
-    label: "Select cpu partition"
+    label: "Partition"
     help: "NOTE: Please do not choose specific lab partitions if you are not a member of that lab."
     value: "batch"
     options:
@@ -14,7 +23,32 @@ attributes:
       - ["preempt", "preempt"]
       - ["patralab", "patralab"]
 
-<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/reservation.yml").indent(2) %>
+  num_core:
+    widget: number_field
+    label: Cores
+    min: 1
+    max: 128
+    value: 1
+    help: |
+      Number of cores (up to 128) for a shared job.  Non-shared jobs will have exclusive nodes and be charged at 128 cores per node requested
+
+  num_memory:
+    widget: "select"
+    label: "Amount of memory"
+    options:
+    - ["1GB", "1GB"]
+    - ["2GB", "2GB"]
+    - ["4GB", "4GB"]
+    - ["8GB", "8GB"]
+    - ["16GB", "16GB"]
+    - ["32GB", "32GB"]
+    - ["64GB", "64GB"]
+    - ["72GB", "72GB"]
+    - ["80GB", "80GB"]
+    - ["96GB", "96GB"]
+    - ["128GB", "128GB"]
+    - ["160GB", "160GB"]
+    - ["256GB", "256GB"]
 
   workdir:
     label: "Working Directory"
@@ -42,6 +76,7 @@ attributes:
     label: Version
     widget: select
     options:
+      - ['1.0.4', '/cluster/tufts/biocontainers/nf-core/pipelines/nf-core-rnasplice/1.0.4/1_0_4']
       - ['1.0.3', '/cluster/tufts/biocontainers/nf-core/pipelines/nf-core-rnasplice/1.0.3/1_0_3']
       - ['1.0.2', '/cluster/tufts/biocontainers/nf-core/pipelines/nf-core-rnasplice/1.0.2/1_0_2']
 
@@ -251,12 +286,11 @@ attributes:
     help: "Skip FastQC."
 
   skip_bigwig:
-    value: "True"
-    label: skip_bigwig
     widget: select
     options:
-      - ['false', 'false']
       - ['true', 'true']
+      - ['false', 'false']
+    label: skip_bigwig
     help: "Skip bigWig file creation."
 
   aligner:
@@ -338,12 +372,11 @@ attributes:
     help: "The cutoff used in the null hypothesis test for differential splicing."
 
   rmats_paired_stats:
-    value: "True"
-    label: rmats_paired_stats
     widget: select
     options:
-      - ['false', 'false']
       - ['true', 'true']
+      - ['false', 'false']
+    label: rmats_paired_stats
     help: "Use paired statistical model."
 
   rmats_read_len:
@@ -400,21 +433,19 @@ attributes:
     help: "Minimum alignment quality required for reads to be counted."
 
   aggregation:
-    value: "True"
-    label: aggregation
     widget: select
     options:
-      - ['false', 'false']
       - ['true', 'true']
+      - ['false', 'false']
+    label: aggregation
     help: "Combine overlapping genes into a single aggregate gene."
 
   save_dexseq_plot:
-    value: "True"
-    label: save_dexseq_plot
     widget: select
     options:
-      - ['false', 'false']
       - ['true', 'true']
+      - ['false', 'false']
+    label: save_dexseq_plot
     help: "Save plots of the per gene DEXSeq results."
 
   n_dexseq_plot:
@@ -432,12 +463,11 @@ attributes:
     help: "Run edgeR workflow."
 
   save_edger_plot:
-    value: "True"
-    label: save_edger_plot
     widget: select
     options:
-      - ['false', 'false']
       - ['true', 'true']
+      - ['false', 'false']
+    label: save_edger_plot
     help: "Save plots of the per gene edgeR results."
 
   n_edger_plot:
@@ -538,30 +568,27 @@ attributes:
     help: "Sashimi figure width (inches)."
 
   suppa:
-    value: "True"
-    label: suppa
     widget: select
     options:
-      - ['false', 'false']
       - ['true', 'true']
+      - ['false', 'false']
+    label: suppa
     help: "Run SUPPA workflow."
 
   suppa_per_local_event:
-    value: "True"
-    label: suppa_per_local_event
     widget: select
     options:
-      - ['false', 'false']
       - ['true', 'true']
+      - ['false', 'false']
+    label: suppa_per_local_event
     help: "Quantify event inclusion levels (PSIs) from multiple samples."
 
   suppa_per_isoform:
-    value: "True"
-    label: suppa_per_isoform
     widget: select
     options:
-      - ['false', 'false']
       - ['true', 'true']
+      - ['false', 'false']
+    label: suppa_per_isoform
     help: "Quantify isoform inclusion levels (PSIs) from multiple samples."
 
   suppa_tpm:
@@ -570,12 +597,11 @@ attributes:
     help: "Expression file containing the abundances of all transcripts (ideally in TPM units)."
 
   generateevents_pool_genes:
-    value: "True"
-    label: generateevents_pool_genes
     widget: select
     options:
-      - ['false', 'false']
       - ['true', 'true']
+      - ['false', 'false']
+    label: generateevents_pool_genes
     help: "Redefine genes by clustering together transcripts by genomic stranded overlap and sharing at least one exon."
 
   generateevents_event_type:
@@ -612,21 +638,19 @@ attributes:
     help: "Minimum total expression of the transcripts involved in the event."
 
   diffsplice_local_event:
-    value: "True"
-    label: diffsplice_local_event
     widget: select
     options:
-      - ['false', 'false']
       - ['true', 'true']
+      - ['false', 'false']
+    label: diffsplice_local_event
     help: "Calculate differential splicing for AS events across multiple conditions with replicates."
 
   diffsplice_isoform:
-    value: "True"
-    label: diffsplice_isoform
     widget: select
     options:
-      - ['false', 'false']
       - ['true', 'true']
+      - ['false', 'false']
+    label: diffsplice_isoform
     help: "Calculate differential splicing for differential transcript usage across multiple conditions with replicates"
 
   diffsplice_method:
@@ -651,21 +675,19 @@ attributes:
     help: "Lower-bound for the absolute delta PSI value to test for significance."
 
   diffsplice_gene_correction:
-    value: "True"
-    label: diffsplice_gene_correction
     widget: select
     options:
-      - ['false', 'false']
       - ['true', 'true']
+      - ['false', 'false']
+    label: diffsplice_gene_correction
     help: "Correct the p-values by gene."
 
   diffsplice_paired:
-    value: "True"
-    label: diffsplice_paired
     widget: select
     options:
-      - ['false', 'false']
       - ['true', 'true']
+      - ['false', 'false']
+    label: diffsplice_paired
     help: "Indicates if replicates across conditions are paired."
 
   diffsplice_alpha:
@@ -695,21 +717,19 @@ attributes:
     help: "Proportion of samples with nan values allowed per condition to calculate a DeltaPSI ."
 
   clusterevents_local_event:
-    value: "True"
-    label: clusterevents_local_event
     widget: select
     options:
-      - ['false', 'false']
       - ['true', 'true']
+      - ['false', 'false']
+    label: clusterevents_local_event
     help: "Cluster events according to PSI values across conditions"
 
   clusterevents_isoform:
-    value: "True"
-    label: clusterevents_isoform
     widget: select
     options:
-      - ['false', 'false']
       - ['true', 'true']
+      - ['false', 'false']
+    label: clusterevents_isoform
     help: "Cluster transcripts according to PSI values across conditions"
 
   clusterevents_sigthreshold:
@@ -762,7 +782,10 @@ attributes:
 
 form:
   - bc_num_hours
+  - executor
   - cpu_partition
+  - num_core
+  - num_memory
   - reservation
   - version
   - workdir

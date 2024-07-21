@@ -1,0 +1,701 @@
+---
+cluster: "tuftshpc"
+
+attributes:
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/reservation.yml").indent(2) %>
+  executor:
+    label: Which nextflow executor to use?
+    widget: select
+    options:
+    - ["slurm", "slurm"]
+    - ["local", "local"]
+    help: |
+      With slurm, tasks will be distributed to different nodes, local means all tasks will run on a single node.
+
+  cpu_partition:
+    widget: "select"
+    label: "Partition"
+    help: "NOTE: Please do not choose specific lab partitions if you are not a member of that lab."
+    value: "batch"
+    options:
+      - ["batch","batch"]
+      - ["largemem", "largemem"]
+      - ["preempt", "preempt"]
+      - ["patralab", "patralab"]
+
+  num_core:
+    widget: number_field
+    label: Cores
+    min: 1
+    max: 128
+    value: 1
+    help: |
+      Number of cores (up to 128) for a shared job.  Non-shared jobs will have exclusive nodes and be charged at 128 cores per node requested
+
+  num_memory:
+    widget: "select"
+    label: "Amount of memory"
+    options:
+    - ["1GB", "1GB"]
+    - ["2GB", "2GB"]
+    - ["4GB", "4GB"]
+    - ["8GB", "8GB"]
+    - ["16GB", "16GB"]
+    - ["32GB", "32GB"]
+    - ["64GB", "64GB"]
+    - ["72GB", "72GB"]
+    - ["80GB", "80GB"]
+    - ["96GB", "96GB"]
+    - ["128GB", "128GB"]
+    - ["160GB", "160GB"]
+    - ["256GB", "256GB"]
+
+  workdir:
+    label: "Working Directory"
+    data-filepicker: true
+    data-target-file-type: dirs  # Valid values are: files, dirs, or both
+    readonly: false
+    help: "Select your project directory; defaults to $HOME"
+    
+  resume:
+    label: resume
+    widget: check_box
+    checked_value: 1
+    unchecked_value: 0
+    help: |
+           Resume previous run if found
+
+  TOWER_ACCESS_TOKEN:
+    widget: "text_field"
+    required: false
+    label: "TOWER_ACCESS_TOKEN (Optional)"
+    help: "Your TOWER_ACCESS_TOKEN used to monitor runs on [Nextflow Tower](https://seqera.io)."
+
+
+  version:
+    label: Version
+    widget: select
+    options:
+      - ['2.0.1', '/cluster/tufts/biocontainers/nf-core/pipelines/nf-core-raredisease/2.0.1/2_0_1']
+
+  input:
+    label: input
+    widget: text_field
+    help: "Path to comma-separated file containing information about the samples in the experiment."
+
+  outdir:
+    value: "results"
+    label: outdir
+    widget: text_field
+    help: "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure."
+
+  bait_padding:
+    value: "100"
+    label: bait_padding
+    widget: text_field
+    help: "The amount to pad each end of the target intervals to create bait intervals."
+
+  bwa:
+    label: bwa
+    widget: text_field
+    help: "Directory for pre-built bwa index."
+
+  bwamem2:
+    label: bwamem2
+    widget: text_field
+    help: "Directory for pre-built bwamem2 index."
+
+  cadd_resources:
+    label: cadd_resources
+    widget: text_field
+    help: "Path to the directory containing cadd annotations."
+
+  fai:
+    label: fai
+    widget: text_field
+    help: "Path to FASTA genome index file."
+
+  fasta:
+    label: fasta
+    widget: text_field
+    help: "Path to FASTA genome file."
+
+  gcnvcaller_model:
+    label: gcnvcaller_model
+    widget: text_field
+    help: "A file containing the path to models produced by GATK4 GermlineCNVCaller cohort."
+
+  genome:
+    label: iGenomes
+    widget: select
+    required: false
+    options:
+      - ['None', ' ']
+      - ['GRCh37', 'GRCh37']
+      - ['GRCh38', 'GRCh38']
+      - ['GRCm38', 'GRCm38']
+      - ['TAIR10', 'TAIR10']
+      - ['EB2', 'EB2']
+      - ['UMD3.1', 'UMD3.1']
+      - ['WBcel235', 'WBcel235']
+      - ['CanFam3.1', 'CanFam3.1']
+      - ['GRCz10', 'GRCz10']
+      - ['BDGP6', 'BDGP6']
+      - ['EquCab2', 'EquCab2']
+      - ['EB1', 'EB1']
+      - ['Galgal4', 'Galgal4']
+      - ['Gm01', 'Gm01']
+      - ['Mmul_1', 'Mmul_1']
+      - ['IRGSP-1.0', 'IRGSP-1.0']
+      - ['CHIMP2.1.4', 'CHIMP2.1.4']
+      - ['Rnor_5.0', 'Rnor_5.0']
+      - ['Rnor_6.0', 'Rnor_6.0']
+      - ['R64-1-1', 'R64-1-1']
+      - ['EF2', 'EF2']
+      - ['Sbi1', 'Sbi1']
+      - ['Sscrofa10.2', 'Sscrofa10.2']
+      - ['AGPv3', 'AGPv3']
+      - ['hg38', 'hg38']
+      - ['hg19', 'hg19']
+      - ['mm10', 'mm10']
+      - ['bosTau8', 'bosTau8']
+      - ['ce10', 'ce10']
+      - ['canFam3', 'canFam3']
+      - ['danRer10', 'danRer10']
+      - ['dm6', 'dm6']
+      - ['equCab2', 'equCab2']
+      - ['galGal4', 'galGal4']
+      - ['panTro4', 'panTro4']
+      - ['rn6', 'rn6']
+      - ['sacCer3', 'sacCer3']
+      - ['susScr3', 'susScr3']
+    help: "Name of iGenomes reference."
+  gnomad_af:
+    label: gnomad_af
+    widget: text_field
+    help: "Path to the gnomad tab file with allele frequencies."
+
+  gnomad_af_idx:
+    label: gnomad_af_idx
+    widget: text_field
+    help: "Path to the index file for the gnomad tab file with allele frequencies."
+
+  intervals_wgs:
+    label: intervals_wgs
+    widget: text_field
+    help: "Path to the interval list of the genome (autosomes, sex chromosomes, and mitochondria)."
+
+  intervals_y:
+    label: intervals_y
+    widget: text_field
+    help: "Path to the interval list of the Y chromosome."
+
+  known_dbsnp:
+    label: known_dbsnp
+    widget: text_field
+    help: "Path to known dbSNP file."
+
+  known_dbsnp_tbi:
+    label: known_dbsnp_tbi
+    widget: text_field
+    help: "Path to known dbSNP file index."
+
+  local_genomes:
+    label: local_genomes
+    widget: text_field
+    help: "Local directory base for genome references that map to the config."
+
+  mito_name:
+    value: "chrM"
+    label: mito_name
+    widget: text_field
+    help: "Name of the mitochondrial contig in the reference fasta file"
+
+  mobile_element_references:
+    label: mobile_element_references
+    widget: text_field
+    help: "File with mobile element references"
+
+  mobile_element_svdb_annotations:
+    label: mobile_element_svdb_annotations
+    widget: text_field
+    help: "File with mobile element allele frequency references"
+
+  ml_model:
+    label: ml_model
+    widget: text_field
+    help: "Path to sentieon machine learning model file."
+
+  mt_fasta:
+    label: mt_fasta
+    widget: text_field
+    help: "Path to mitochondrial FASTA genome file."
+
+  ploidy_model:
+    label: ploidy_model
+    widget: text_field
+    help: "Directory containing the ploidy model files"
+
+  readcount_intervals:
+    label: readcount_intervals
+    widget: text_field
+    help: "Interval list file containing the intervals over which read counts are tabulated for CNV calling"
+
+  reduced_penetrance:
+    label: reduced_penetrance
+    widget: text_field
+    help: "File with gene ids that have reduced penetrance. For use with genmod"
+
+  rtg_truthvcfs:
+    label: rtg_truthvcfs
+    widget: text_field
+    help: "Vcf used for evaluating variant calls."
+
+  save_reference:
+    label: save_reference
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "If generated by the pipeline save the required indices/references in the results directory."
+
+  score_config_mt:
+    label: score_config_mt
+    widget: text_field
+    help: "MT rank model config file for genmod."
+
+  score_config_snv:
+    label: score_config_snv
+    widget: text_field
+    help: "SNV rank model config file for genmod."
+
+  score_config_sv:
+    label: score_config_sv
+    widget: text_field
+    help: "SV rank model config file for genmod."
+
+  sdf:
+    label: sdf
+    widget: text_field
+    help: "Directory for pre-built sdf index. Used by rtg/vcfeval"
+
+  sequence_dictionary:
+    label: sequence_dictionary
+    widget: text_field
+    help: "Path to the genome dictionary file"
+
+  svdb_query_bedpedbs:
+    label: svdb_query_bedpedbs
+    widget: text_field
+    help: "Databases used for structural variant annotation in chrA-posA-chrB-posB-type-count-frequency format."
+
+  svdb_query_dbs:
+    label: svdb_query_dbs
+    widget: text_field
+    help: "Databases used for structural variant annotation in vcf format."
+
+  target_bed:
+    label: target_bed
+    widget: text_field
+    help: "Path to directory for target bed file."
+
+  variant_catalog:
+    label: variant_catalog
+    widget: text_field
+    help: "Path to variant catalog file"
+
+  sample_id_map:
+    label: sample_id_map
+    widget: text_field
+    help: "Path to a file containing internal ids and customer ids in csv format."
+
+  vcf2cytosure_blacklist:
+    label: vcf2cytosure_blacklist
+    widget: text_field
+    help: "Path to vcf2cytosure blacklist file"
+
+  vcfanno_resources:
+    label: vcfanno_resources
+    widget: text_field
+    help: "Path to a file containing the absolute paths to resources defined within the vcfanno toml file. One line per resource."
+
+  vcfanno_toml:
+    label: vcfanno_toml
+    widget: text_field
+    help: "Path to the vcfanno toml file."
+
+  vcfanno_lua:
+    label: vcfanno_lua
+    widget: text_field
+    help: "Path to the vcfanno lua file."
+
+  vep_cache:
+    label: vep_cache
+    widget: text_field
+    help: "Path to vep's cache directory."
+
+  vep_plugin_files:
+    label: vep_plugin_files
+    widget: text_field
+    help: "Databases used by both named and custom plugins to annotate variants."
+
+  vep_filters:
+    label: vep_filters
+    widget: text_field
+    help: "Path to the file containing HGNC_IDs of interest on separate lines."
+
+  vep_filters_scout_fmt:
+    label: vep_filters_scout_fmt
+    widget: text_field
+    help: "Path to a bed-like file exported by scout, which contains HGNC_IDs to be used in filter_vep."
+
+  analysis_type:
+    value: "wgs"
+    widget: select
+    options:
+      - ['wgs', 'wgs']
+      - ['wes', 'wes']
+      - ['mito', 'mito']
+    label: analysis_type
+    help: "Specifies which analysis type for the pipeline- either `wgs`,`wes`,`mito`. This changes resources consumed and tools used."
+
+  platform:
+    value: "illumina"
+    widget: select
+    options:
+      - ['illumina', 'illumina']
+    label: platform
+    help: "Specifies which analysis type for the pipeline- either `wgs`,`wes`,`mito`. This changes resources consumed and tools used."
+
+  ngsbits_samplegender_method:
+    value: "xy"
+    widget: select
+    options:
+      - ['xy', 'xy']
+      - ['hetx', 'hetx']
+      - ['sry', 'sry']
+    label: ngsbits_samplegender_method
+    help: "Method selection for ngs-bits samplegender"
+
+  run_rtgvcfeval:
+    label: run_rtgvcfeval
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specifies whether to run rtgtools` vcfeval"
+
+  save_mapped_as_cram:
+    label: save_mapped_as_cram
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specifies whether to generate and publish alignment files as cram instead of bam"
+
+  skip_fastqc:
+    label: skip_fastqc
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specifies whether or not to skip FASTQC."
+
+  skip_fastp:
+    label: skip_fastp
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specifies whether or not to skip trimming with fastp."
+
+  skip_haplocheck:
+    label: skip_haplocheck
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specifies whether or not to skip haplocheck."
+
+  skip_gens:
+    label: skip_gens
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specifies whether or not to skip gens preprocessing subworkflow."
+
+  skip_germlinecnvcaller:
+    label: skip_germlinecnvcaller
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specifies whether or not to skip CNV calling using GATK's GermlineCNVCaller"
+
+  skip_eklipse:
+    label: skip_eklipse
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specifies whether or not to skip eKLIPse."
+
+  skip_peddy:
+    label: skip_peddy
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specifies whether or not to skip peddy."
+
+  skip_qualimap:
+    label: skip_qualimap
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specifies whether or not to skip Qualimap."
+
+  skip_me_annotation:
+    label: skip_me_annotation
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specifies whether or not to skip annotation of mobile_elements."
+
+  skip_mt_annotation:
+    label: skip_mt_annotation
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specifies whether or not to skip annotation of mitochondrial variants."
+
+  skip_mt_subsample:
+    label: skip_mt_subsample
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specifies whether or not to subsample mt alignment."
+
+  skip_snv_annotation:
+    label: skip_snv_annotation
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specifies whether or not to skip annotate SNV subworkflow."
+
+  skip_sv_annotation:
+    label: skip_sv_annotation
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specifies whether or not to skip annotate structural variant subworkflow."
+
+  skip_vcf2cytosure:
+    widget: select
+    options:
+      - ['true', 'true']
+      - ['false', 'false']
+    label: skip_vcf2cytosure
+    help: "Specifies whether or not to skip the vcf2cytosure subworkflow"
+
+  skip_vep_filter:
+    label: skip_vep_filter
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specifies whether or not to filter results based on a list of candidate genes specified in `vep_filters`."
+
+  aligner:
+    value: "bwamem2"
+    widget: select
+    options:
+      - ['bwa', 'bwa']
+      - ['bwamem2', 'bwamem2']
+      - ['sentieon', 'sentieon']
+    label: aligner
+    help: "Specifies the alignment algorithm to use - available options are `bwamem2` and `sentieon`."
+
+  min_trimmed_length:
+    value: "40"
+    label: min_trimmed_length
+    widget: text_field
+    help: "Discard trimmed reads shorter than the given value"
+
+  mt_subsample_rd:
+    value: "150"
+    label: mt_subsample_rd
+    widget: text_field
+    help: "Expected coverage to subsample mt alignment to."
+
+  mt_subsample_seed:
+    value: "30"
+    label: mt_subsample_seed
+    widget: text_field
+    help: "Subsampling seed used to influence which subset of mitochondrial reads is kept. "
+
+  rmdup:
+    label: rmdup
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specifies whether duplicates reads should be removed prior to variant calling."
+
+  call_interval:
+    label: call_interval
+    widget: text_field
+    help: "Interval in the reference that will be used in the software"
+
+  cnvnator_binsize:
+    value: "1000"
+    label: cnvnator_binsize
+    widget: text_field
+    help: "Bin size for CNVnator"
+
+  sentieon_dnascope_pcr_indel_model:
+    value: "CONSERVATIVE"
+    widget: select
+    options:
+      - ['NONE', 'NONE']
+      - ['HOSTILE', 'HOSTILE']
+      - ['AGGRESSIVE', 'AGGRESSIVE']
+      - ['CONSERVATIVE', 'CONSERVATIVE']
+    label: sentieon_dnascope_pcr_indel_model
+    help: "Option for selecting the PCR indel model used by Sentieon Dnascope."
+
+  variant_caller:
+    value: "deepvariant"
+    widget: select
+    options:
+      - ['deepvariant', 'deepvariant']
+      - ['sentieon', 'sentieon']
+    label: variant_caller
+    help: "Specifies the variant caller to use - available options are `deepvariant` and `sentieon`."
+
+  variant_type:
+    value: "snp,indel"
+    widget: select
+    options:
+      - ['snp', 'snp']
+      - ['indel', 'indel']
+      - ['snp,indel', 'snp,indel']
+    label: variant_type
+    help: "Specifies the variant types for sentieon variant caller."
+
+  variant_consequences_snv:
+    label: variant_consequences_snv
+    widget: text_field
+    help: "File containing list of SO terms listed in the order of severity from most severe to lease severe for annotating genomic and mitochondrial SNVs."
+
+  variant_consequences_sv:
+    label: variant_consequences_sv
+    widget: text_field
+    help: "File containing list of SO terms listed in the order of severity from most severe to lease severe for annotating genomic SVs."
+
+  vep_cache_version:
+    value: "110"
+    widget: select
+    options:
+      - ['107', '107']
+      - ['110', '110']
+    label: vep_cache_version
+    help: "Specify the version of the VEP cache provided to the `--vep_cache` option."
+
+
+form:
+  - bc_num_hours
+  - executor
+  - cpu_partition
+  - num_core
+  - num_memory
+  - reservation
+  - version
+  - workdir
+  - outdir
+  - input
+  - bait_padding
+  - bwa
+  - bwamem2
+  - cadd_resources
+  - fai
+  - fasta
+  - gcnvcaller_model
+  - genome
+  - gnomad_af
+  - gnomad_af_idx
+  - intervals_wgs
+  - intervals_y
+  - known_dbsnp
+  - known_dbsnp_tbi
+  - local_genomes
+  - mito_name
+  - mobile_element_references
+  - mobile_element_svdb_annotations
+  - ml_model
+  - mt_fasta
+  - ploidy_model
+  - readcount_intervals
+  - reduced_penetrance
+  - rtg_truthvcfs
+  - save_reference
+  - score_config_mt
+  - score_config_snv
+  - score_config_sv
+  - sdf
+  - sequence_dictionary
+  - svdb_query_bedpedbs
+  - svdb_query_dbs
+  - target_bed
+  - variant_catalog
+  - sample_id_map
+  - vcf2cytosure_blacklist
+  - vcfanno_resources
+  - vcfanno_toml
+  - vcfanno_lua
+  - vep_cache
+  - vep_plugin_files
+  - vep_filters
+  - vep_filters_scout_fmt
+  - analysis_type
+  - platform
+  - ngsbits_samplegender_method
+  - run_rtgvcfeval
+  - save_mapped_as_cram
+  - skip_fastqc
+  - skip_fastp
+  - skip_haplocheck
+  - skip_gens
+  - skip_germlinecnvcaller
+  - skip_eklipse
+  - skip_peddy
+  - skip_qualimap
+  - skip_me_annotation
+  - skip_mt_annotation
+  - skip_mt_subsample
+  - skip_snv_annotation
+  - skip_sv_annotation
+  - skip_vcf2cytosure
+  - skip_vep_filter
+  - aligner
+  - min_trimmed_length
+  - mt_subsample_rd
+  - mt_subsample_seed
+  - rmdup
+  - call_interval
+  - cnvnator_binsize
+  - sentieon_dnascope_pcr_indel_model
+  - variant_caller
+  - variant_type
+  - variant_consequences_snv
+  - variant_consequences_sv
+  - vep_cache_version
+  - TOWER_ACCESS_TOKEN
+  - resume

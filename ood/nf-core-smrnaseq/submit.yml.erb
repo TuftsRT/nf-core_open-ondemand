@@ -14,7 +14,16 @@ script:
     - "<%= bc_num_hours %>:0:0"
     - "--nodes"
     - "1"
+    <%- if executor == "slurm" -%>
     - "-n"
     - "2"
     - "--reservation"
-    - "<%= reservation %>"              
+    - "<%= reservation %>"
+    <%- elsif executor == "local" -%>
+    - "-n"
+    - "<%= num_core %>"
+    - "--mem"
+    - "<%= num_memory %>"
+    - "-p"
+    - <%= cpu_partition %>
+    <%- end -%>                         

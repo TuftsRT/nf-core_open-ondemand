@@ -2,10 +2,19 @@
 cluster: "tuftshpc"
 
 attributes:
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/reservation.yml").indent(2) %>
+  executor:
+    label: Which nextflow executor to use?
+    widget: select
+    options:
+    - ["slurm", "slurm"]
+    - ["local", "local"]
+    help: |
+      With slurm, tasks will be distributed to different nodes, local means all tasks will run on a single node.
 
   cpu_partition:
     widget: "select"
-    label: "Select cpu partition"
+    label: "Partition"
     help: "NOTE: Please do not choose specific lab partitions if you are not a member of that lab."
     value: "batch"
     options:
@@ -14,7 +23,32 @@ attributes:
       - ["preempt", "preempt"]
       - ["patralab", "patralab"]
 
-<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/reservation.yml").indent(2) %>
+  num_core:
+    widget: number_field
+    label: Cores
+    min: 1
+    max: 128
+    value: 1
+    help: |
+      Number of cores (up to 128) for a shared job.  Non-shared jobs will have exclusive nodes and be charged at 128 cores per node requested
+
+  num_memory:
+    widget: "select"
+    label: "Amount of memory"
+    options:
+    - ["1GB", "1GB"]
+    - ["2GB", "2GB"]
+    - ["4GB", "4GB"]
+    - ["8GB", "8GB"]
+    - ["16GB", "16GB"]
+    - ["32GB", "32GB"]
+    - ["64GB", "64GB"]
+    - ["72GB", "72GB"]
+    - ["80GB", "80GB"]
+    - ["96GB", "96GB"]
+    - ["128GB", "128GB"]
+    - ["160GB", "160GB"]
+    - ["256GB", "256GB"]
 
   workdir:
     label: "Working Directory"
@@ -42,6 +76,7 @@ attributes:
     label: Version
     widget: select
     options:
+      - ['3.4.1', '/cluster/tufts/biocontainers/nf-core/pipelines/nf-core-sarek/3.4.1/3_4_1']
       - ['3.4.0', '/cluster/tufts/biocontainers/nf-core/pipelines/nf-core-sarek/3.4.0/3_4_0']
 
   input:
@@ -194,7 +229,7 @@ attributes:
     help: "Add an extra custom argument to VEP."
 
   vep_version:
-    value: "110.0-0"
+    value: "111.0-0"
     label: vep_version
     widget: text_field
     help: "Should reflect the VEP version used in the container."
@@ -202,14 +237,17 @@ attributes:
   bcftools_annotations:
     label: bcftools_annotations
     widget: text_field
+    help: "A vcf file containing custom annotations to be used with bcftools annotate. Needs to be bgzipped."
 
-  bcftools_annotations_index:
-    label: bcftools_annotations_index
+  bcftools_annotations_tbi:
+    label: bcftools_annotations_tbi
     widget: text_field
+    help: "Index file for `bcftools_annotations`"
 
   bcftools_header_lines:
     label: bcftools_header_lines
     widget: text_field
+    help: "Text file with the header lines of `bcftools_annotations`"
 
   genome:
     label: iGenomes
@@ -372,7 +410,10 @@ label string for VariantRecalibration (haplotypecaller joint variant calling)"
 
 form:
   - bc_num_hours
+  - executor
   - cpu_partition
+  - num_core
+  - num_memory
   - reservation
   - version
   - workdir
@@ -399,7 +440,7 @@ form:
   - vep_custom_args
   - vep_version
   - bcftools_annotations
-  - bcftools_annotations_index
+  - bcftools_annotations_tbi
   - bcftools_header_lines
   - genome
   - dbsnp_vqsr

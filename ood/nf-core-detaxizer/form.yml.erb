@@ -1,0 +1,324 @@
+---
+cluster: "tuftshpc"
+
+attributes:
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/reservation.yml").indent(2) %>
+  executor:
+    label: Which nextflow executor to use?
+    widget: select
+    options:
+    - ["slurm", "slurm"]
+    - ["local", "local"]
+    help: |
+      With slurm, tasks will be distributed to different nodes, local means all tasks will run on a single node.
+
+  cpu_partition:
+    widget: "select"
+    label: "Partition"
+    help: "NOTE: Please do not choose specific lab partitions if you are not a member of that lab."
+    value: "batch"
+    options:
+      - ["batch","batch"]
+      - ["largemem", "largemem"]
+      - ["preempt", "preempt"]
+      - ["patralab", "patralab"]
+
+  num_core:
+    widget: number_field
+    label: Cores
+    min: 1
+    max: 128
+    value: 1
+    help: |
+      Number of cores (up to 128) for a shared job.  Non-shared jobs will have exclusive nodes and be charged at 128 cores per node requested
+
+  num_memory:
+    widget: "select"
+    label: "Amount of memory"
+    options:
+    - ["1GB", "1GB"]
+    - ["2GB", "2GB"]
+    - ["4GB", "4GB"]
+    - ["8GB", "8GB"]
+    - ["16GB", "16GB"]
+    - ["32GB", "32GB"]
+    - ["64GB", "64GB"]
+    - ["72GB", "72GB"]
+    - ["80GB", "80GB"]
+    - ["96GB", "96GB"]
+    - ["128GB", "128GB"]
+    - ["160GB", "160GB"]
+    - ["256GB", "256GB"]
+
+  workdir:
+    label: "Working Directory"
+    data-filepicker: true
+    data-target-file-type: dirs  # Valid values are: files, dirs, or both
+    readonly: false
+    help: "Select your project directory; defaults to $HOME"
+    
+  resume:
+    label: resume
+    widget: check_box
+    checked_value: 1
+    unchecked_value: 0
+    help: |
+           Resume previous run if found
+
+  TOWER_ACCESS_TOKEN:
+    widget: "text_field"
+    required: false
+    label: "TOWER_ACCESS_TOKEN (Optional)"
+    help: "Your TOWER_ACCESS_TOKEN used to monitor runs on [Nextflow Tower](https://seqera.io)."
+
+
+  version:
+    label: Version
+    widget: select
+    options:
+      - ['1.0.0', '/cluster/tufts/biocontainers/nf-core/pipelines/nf-core-detaxizer/1.0.0/1_0_0']
+
+  input:
+    label: input
+    widget: text_field
+    help: "Path to comma-separated file containing information about the samples in the experiment."
+
+  outdir:
+    value: "results"
+    label: outdir
+    widget: text_field
+    help: "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure."
+
+  multiqc_title:
+    label: multiqc_title
+    widget: text_field
+    help: "MultiQC report title. Printed as page header, used for filename if not otherwise specified."
+
+  enable_filter:
+    label: enable_filter
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "If the filtering step should be carried out."
+
+  filter_trimmed:
+    label: filter_trimmed
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "If the pre-processed reads should be used by the filter."
+
+  filter_with_kraken2:
+    label: filter_with_kraken2
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "If the output of kraken2 should be used for filtering."
+
+  skip_blastn:
+    label: skip_blastn
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "If blastn should be skipped."
+
+  save_intermediates:
+    label: save_intermediates
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save intermediates to the results folder."
+
+  kraken2db:
+    value: "https://genome-idx.s3.amazonaws.com/kraken/k2_standard_08gb_20231009.tar.gz"
+    label: kraken2db
+    widget: text_field
+    help: "The database which is used in the classification step."
+
+  kraken2confidence:
+    value: "0.05"
+    label: kraken2confidence
+    widget: text_field
+    help: "Confidence in the classification of a read as a certain taxon."
+
+  cutoff_tax2filter:
+    value: "2"
+    label: cutoff_tax2filter
+    widget: text_field
+    help: "If a read has less k-mers assigned to the taxon/taxa to be assessed/to be filtered the read is ignored by the pipeline."
+
+  cutoff_tax2keep:
+    value: "0.5"
+    label: cutoff_tax2keep
+    widget: text_field
+    help: "Ratio per read of assigned to tax2filter k-mers to k-mers assigned to any other taxon (except unclassified)."
+
+  cutoff_unclassified:
+    value: "0"
+    label: cutoff_unclassified
+    widget: text_field
+    help: "Ratio per read of assigned to tax2filter k-mers to unclassified k-mers."
+
+  tax2filter:
+    value: "Homo"
+    label: tax2filter
+    widget: text_field
+    help: "The taxon or taxonomic group to be assessed or filtered by the pipeline."
+
+  blast_coverage:
+    value: "40"
+    label: blast_coverage
+    widget: text_field
+    help: "Coverage is the percentage of the query sequence which can be found in the alignments of the sequence match. It can be used to fine-tune the validation step."
+
+  blast_evalue:
+    value: "0.01"
+    label: blast_evalue
+    widget: text_field
+    help: "The expected(e)-value contains information on how many hits of the same score can be found in a database of the size used in the query by chance. The parameter can be used to fine-tune the validation step."
+
+  blast_identity:
+    value: "40"
+    label: blast_identity
+    widget: text_field
+    help: "Identity is the percentage of the exact matches in the query and the sequence found in the database. The parameter can be used to fine-tune the validation step."
+
+  reads_minlength:
+    value: "0"
+    label: reads_minlength
+    widget: text_field
+    help: "fastp option defining the minimum readlength of a read"
+
+  fastp_save_trimmed_fail:
+    label: fastp_save_trimmed_fail
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "fastp option defining if the reads which failed to be trimmed should be saved"
+
+  fastp_qualified_quality:
+    value: "0"
+    label: fastp_qualified_quality
+    widget: text_field
+    help: "fastp option to define the threshold of quality of an individual base"
+
+  fastp_cut_mean_quality:
+    value: "15"
+    label: fastp_cut_mean_quality
+    widget: text_field
+    help: "fastp option to define the mean quality for trimming"
+
+  save_clipped_reads:
+    label: save_clipped_reads
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "fastp option to define if the clipped reads should be saved"
+
+  genome:
+    label: iGenomes
+    widget: select
+    required: false
+    options:
+      - ['None', ' ']
+      - ['GRCh37', 'GRCh37']
+      - ['GRCh38', 'GRCh38']
+      - ['GRCm38', 'GRCm38']
+      - ['TAIR10', 'TAIR10']
+      - ['EB2', 'EB2']
+      - ['UMD3.1', 'UMD3.1']
+      - ['WBcel235', 'WBcel235']
+      - ['CanFam3.1', 'CanFam3.1']
+      - ['GRCz10', 'GRCz10']
+      - ['BDGP6', 'BDGP6']
+      - ['EquCab2', 'EquCab2']
+      - ['EB1', 'EB1']
+      - ['Galgal4', 'Galgal4']
+      - ['Gm01', 'Gm01']
+      - ['Mmul_1', 'Mmul_1']
+      - ['IRGSP-1.0', 'IRGSP-1.0']
+      - ['CHIMP2.1.4', 'CHIMP2.1.4']
+      - ['Rnor_5.0', 'Rnor_5.0']
+      - ['Rnor_6.0', 'Rnor_6.0']
+      - ['R64-1-1', 'R64-1-1']
+      - ['EF2', 'EF2']
+      - ['Sbi1', 'Sbi1']
+      - ['Sscrofa10.2', 'Sscrofa10.2']
+      - ['AGPv3', 'AGPv3']
+      - ['hg38', 'hg38']
+      - ['hg19', 'hg19']
+      - ['mm10', 'mm10']
+      - ['bosTau8', 'bosTau8']
+      - ['ce10', 'ce10']
+      - ['canFam3', 'canFam3']
+      - ['danRer10', 'danRer10']
+      - ['dm6', 'dm6']
+      - ['equCab2', 'equCab2']
+      - ['galGal4', 'galGal4']
+      - ['panTro4', 'panTro4']
+      - ['rn6', 'rn6']
+      - ['sacCer3', 'sacCer3']
+      - ['susScr3', 'susScr3']
+    help: "Name of iGenomes reference."
+  fasta:
+    label: fasta
+    widget: text_field
+    help: "Path to FASTA genome file."
+
+  saveReference:
+    widget: select
+    options:
+      - ['true', 'true']
+      - ['false', 'false']
+    label: saveReference
+
+  igenomes_base:
+    value: "s3://ngi-igenomes/igenomes/"
+    label: igenomes_base
+    widget: text_field
+    help: "Directory / URL base for iGenomes references."
+
+
+form:
+  - bc_num_hours
+  - executor
+  - cpu_partition
+  - num_core
+  - num_memory
+  - reservation
+  - version
+  - workdir
+  - outdir
+  - input
+  - multiqc_title
+  - enable_filter
+  - filter_trimmed
+  - filter_with_kraken2
+  - skip_blastn
+  - save_intermediates
+  - kraken2db
+  - kraken2confidence
+  - cutoff_tax2filter
+  - cutoff_tax2keep
+  - cutoff_unclassified
+  - tax2filter
+  - blast_coverage
+  - blast_evalue
+  - blast_identity
+  - reads_minlength
+  - fastp_save_trimmed_fail
+  - fastp_qualified_quality
+  - fastp_cut_mean_quality
+  - save_clipped_reads
+  - genome
+  - fasta
+  - saveReference
+  - TOWER_ACCESS_TOKEN
+  - resume

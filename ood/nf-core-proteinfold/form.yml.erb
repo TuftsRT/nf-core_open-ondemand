@@ -1,0 +1,502 @@
+---
+cluster: "tuftshpc"
+
+attributes:
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/reservation.yml").indent(2) %>
+  executor:
+    label: Which nextflow executor to use?
+    widget: select
+    options:
+    - ["slurm", "slurm"]
+    - ["local", "local"]
+    help: |
+      With slurm, tasks will be distributed to different nodes, local means all tasks will run on a single node.
+
+  cpu_partition:
+    widget: "select"
+    label: "Partition"
+    help: "NOTE: Please do not choose specific lab partitions if you are not a member of that lab."
+    value: "batch"
+    options:
+      - ["batch","batch"]
+      - ["largemem", "largemem"]
+      - ["preempt", "preempt"]
+      - ["patralab", "patralab"]
+
+  num_core:
+    widget: number_field
+    label: Cores
+    min: 1
+    max: 128
+    value: 1
+    help: |
+      Number of cores (up to 128) for a shared job.  Non-shared jobs will have exclusive nodes and be charged at 128 cores per node requested
+
+  num_memory:
+    widget: "select"
+    label: "Amount of memory"
+    options:
+    - ["1GB", "1GB"]
+    - ["2GB", "2GB"]
+    - ["4GB", "4GB"]
+    - ["8GB", "8GB"]
+    - ["16GB", "16GB"]
+    - ["32GB", "32GB"]
+    - ["64GB", "64GB"]
+    - ["72GB", "72GB"]
+    - ["80GB", "80GB"]
+    - ["96GB", "96GB"]
+    - ["128GB", "128GB"]
+    - ["160GB", "160GB"]
+    - ["256GB", "256GB"]
+
+  workdir:
+    label: "Working Directory"
+    data-filepicker: true
+    data-target-file-type: dirs  # Valid values are: files, dirs, or both
+    readonly: false
+    help: "Select your project directory; defaults to $HOME"
+    
+  resume:
+    label: resume
+    widget: check_box
+    checked_value: 1
+    unchecked_value: 0
+    help: |
+           Resume previous run if found
+
+  TOWER_ACCESS_TOKEN:
+    widget: "text_field"
+    required: false
+    label: "TOWER_ACCESS_TOKEN (Optional)"
+    help: "Your TOWER_ACCESS_TOKEN used to monitor runs on [Nextflow Tower](https://seqera.io)."
+
+
+  version:
+    label: Version
+    widget: select
+    options:
+      - ['1.1.0', '/cluster/tufts/biocontainers/nf-core/pipelines/nf-core-proteinfold/1.1.0/1_1_0']
+
+  input:
+    label: input
+    widget: text_field
+    help: "Path to comma-separated file containing information about the samples in the experiment."
+
+  outdir:
+    label: outdir
+    widget: text_field
+    help: "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure."
+
+  mode:
+    value: "alphafold2"
+    widget: select
+    options:
+      - ['alphafold2', 'alphafold2']
+      - ['colabfold', 'colabfold']
+      - ['esmfold', 'esmfold']
+    label: mode
+    help: "Specifies the mode in which the pipeline will be run"
+
+  use_gpu:
+    label: use_gpu
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Run on CPUs (default) or GPUs"
+
+  multiqc_title:
+    label: multiqc_title
+    widget: text_field
+    help: "MultiQC report title. Printed as page header, used for filename if not otherwise specified."
+
+  max_template_date:
+    value: "2020-05-14"
+    label: max_template_date
+    widget: text_field
+    help: "Maximum date of the PDB templates used by `AlphaFold2` mode"
+
+  alphafold2_db:
+    label: alphafold2_db
+    widget: text_field
+    help: "Specifies the DB and PARAMS path used by `AlphaFold2` mode"
+
+  full_dbs:
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    label: full_dbs
+    help: "If true uses the full version of the BFD database otherwise, otherwise it uses its reduced version, small bfd"
+
+  alphafold2_mode:
+    value: "standard"
+    widget: select
+    options:
+      - ['standard', 'standard']
+      - ['split_msa_prediction', 'split_msa_prediction']
+    label: alphafold2_mode
+    help: "Specifies the mode in which Alphafold2 will be run"
+
+  alphafold2_model_preset:
+    value: "monomer"
+    widget: select
+    options:
+      - ['monomer', 'monomer']
+      - ['monomer_casp14', 'monomer_casp14']
+      - ['monomer_ptm', 'monomer_ptm']
+      - ['multimer', 'multimer']
+    label: alphafold2_model_preset
+    help: "Model preset for `AlphaFold2` mode"
+
+  colabfold_db:
+    label: colabfold_db
+    widget: text_field
+    help: "Specifies the PARAMS and DB path used by `colabfold`  mode"
+
+  colabfold_server:
+    value: "webserver"
+    widget: select
+    options:
+      - ['webserver', 'webserver']
+      - ['local', 'local']
+    label: colabfold_server
+    help: "Specifies the MSA server used by Colabfold"
+
+  colabfold_model_preset:
+    value: "alphafold2_ptm"
+    widget: select
+    options:
+      - ['auto', 'auto']
+      - ['alphafold2', 'alphafold2']
+      - ['alphafold2_ptm', 'alphafold2_ptm']
+      - ['alphafold2_multimer_v1', 'alphafold2_multimer_v1']
+      - ['alphafold2_multimer_v2', 'alphafold2_multimer_v2']
+      - ['alphafold2_multimer_v3', 'alphafold2_multimer_v3']
+    label: colabfold_model_preset
+    help: "Model preset for `colabfold` mode"
+
+  num_recycles_colabfold:
+    value: "3"
+    label: num_recycles_colabfold
+    widget: text_field
+    help: "Number of recycles for Colabfold"
+
+  use_amber:
+    widget: select
+    options:
+      - ['true', 'true']
+      - ['false', 'false']
+    label: use_amber
+    help: "Use Amber minimization to refine the predicted structures"
+
+  db_load_mode:
+    value: "0"
+    widget: select
+    options:
+      - ['1', '1']
+      - ['2', '2']
+      - ['3', '3']
+    label: db_load_mode
+    help: "Specify the way that MMSeqs2 will load the required databases in memory"
+
+  host_url:
+    label: host_url
+    widget: text_field
+    help: "Specify your custom MMSeqs2 API server url"
+
+  use_templates:
+    widget: select
+    options:
+      - ['true', 'true']
+      - ['false', 'false']
+    label: use_templates
+    help: "Use PDB templates"
+
+  create_colabfold_index:
+    label: create_colabfold_index
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Create databases indexes when running colabfold_local mode"
+
+  esmfold_db:
+    label: esmfold_db
+    widget: text_field
+    help: "Specifies the PARAMS path used by `esmfold` mode"
+
+  num_recycles_esmfold:
+    value: "4"
+    label: num_recycles_esmfold
+    widget: text_field
+    help: "Specifies the number of recycles used by Esmfold"
+
+  esmfold_model_preset:
+    widget: select
+    options:
+      - ['None', ' ']
+      - ['monomer', 'monomer']
+      - ['multimer', 'multimer']
+    label: esmfold_model_preset
+    help: "Specifies whether is a `monomer` or `multimer` prediction"
+
+  skip_multiqc:
+    label: skip_multiqc
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip MultiQC."
+
+  bfd_link:
+    value: "https://storage.googleapis.com/alphafold-databases/casp14_versions/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt.tar.gz"
+    label: bfd_link
+    widget: text_field
+    help: "Link to BFD dababase"
+
+  small_bfd_link:
+    value: "https://storage.googleapis.com/alphafold-databases/reduced_dbs/bfd-first_non_consensus_sequences.fasta.gz"
+    label: small_bfd_link
+    widget: text_field
+    help: "Link to a reduced version of the BFD dababase"
+
+  alphafold2_params_link:
+    value: "https://storage.googleapis.com/alphafold/alphafold_params_2022-12-06.tar"
+    label: alphafold2_params_link
+    widget: text_field
+    help: "Link to the Alphafold2 parameters"
+
+  mgnify_link:
+    value: "https://storage.googleapis.com/alphafold-databases/v2.3/mgy_clusters_2022_05.fa.gz"
+    label: mgnify_link
+    widget: text_field
+    help: "Link to the MGnify database"
+
+  pdb70_link:
+    value: "http://wwwuser.gwdg.de/~compbiol/data/hhsuite/databases/hhsuite_dbs/old-releases/pdb70_from_mmcif_200916.tar.gz"
+    label: pdb70_link
+    widget: text_field
+    help: "Link to the PDB70 database"
+
+  pdb_mmcif_link:
+    value: "rsync.rcsb.org::ftp_data/structures/divided/mmCIF/"
+    label: pdb_mmcif_link
+    widget: text_field
+    help: "Link to the PDB mmCIF database"
+
+  pdb_obsolete_link:
+    value: "https://files.wwpdb.org/pub/pdb/data/status/obsolete.dat"
+    label: pdb_obsolete_link
+    widget: text_field
+    help: "Link to the PDB obsolete database"
+
+  uniref30_alphafold2_link:
+    value: "https://storage.googleapis.com/alphafold-databases/v2.3/UniRef30_2021_03.tar.gz"
+    label: uniref30_alphafold2_link
+    widget: text_field
+    help: "Link to the Uniclust30 database"
+
+  uniref90_link:
+    value: "https://ftp.ebi.ac.uk/pub/databases/uniprot/uniref/uniref90/uniref90.fasta.gz"
+    label: uniref90_link
+    widget: text_field
+    help: "Link to the UniRef90 database"
+
+  pdb_seqres_link:
+    value: "https://files.wwpdb.org/pub/pdb/derived_data/pdb_seqres.txt"
+    label: pdb_seqres_link
+    widget: text_field
+    help: "Link to the PDB SEQRES database"
+
+  uniprot_sprot_link:
+    value: "https://ftp.ebi.ac.uk/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.fasta.gz"
+    label: uniprot_sprot_link
+    widget: text_field
+    help: "Link to the SwissProt UniProt database"
+
+  uniprot_trembl_link:
+    value: "https://ftp.ebi.ac.uk/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_trembl.fasta.gz"
+    label: uniprot_trembl_link
+    widget: text_field
+    help: "Link to the TrEMBL UniProt database"
+
+  bfd_path:
+    label: bfd_path
+    widget: text_field
+    help: "Path to BFD dababase"
+
+  small_bfd_path:
+    label: small_bfd_path
+    widget: text_field
+    help: "Path to a reduced version of the BFD database"
+
+  alphafold2_params_path:
+    label: alphafold2_params_path
+    widget: text_field
+    help: "Path to the Alphafold2 parameters"
+
+  mgnify_path:
+    label: mgnify_path
+    widget: text_field
+    help: "Path to the MGnify database"
+
+  pdb70_path:
+    label: pdb70_path
+    widget: text_field
+    help: "Path to the PDB70 database"
+
+  pdb_mmcif_path:
+    label: pdb_mmcif_path
+    widget: text_field
+    help: "Path to the PDB mmCIF database"
+
+  uniref30_alphafold2_path:
+    label: uniref30_alphafold2_path
+    widget: text_field
+    help: "Path to the Uniref30 database"
+
+  uniref90_path:
+    label: uniref90_path
+    widget: text_field
+    help: "Path to the UniRef90 database"
+
+  pdb_seqres_path:
+    label: pdb_seqres_path
+    widget: text_field
+    help: "Path to the PDB SEQRES database"
+
+  uniprot_path:
+    label: uniprot_path
+    widget: text_field
+    help: "Path to UniProt database containing the SwissProt and the TrEMBL databases"
+
+  colabfold_db_link:
+    value: "http://wwwuser.gwdg.de/~compbiol/colabfold/colabfold_envdb_202108.tar.gz"
+    label: colabfold_db_link
+    widget: text_field
+    help: "Link to the Colabfold database"
+
+  uniref30_colabfold_link:
+    value: "https://wwwuser.gwdg.de/~compbiol/colabfold/uniref30_2302.tar.gz"
+    label: uniref30_colabfold_link
+    widget: text_field
+    help: "Link to the UniRef30 database"
+
+  colabfold_alphafold2_params_link:
+    label: colabfold_alphafold2_params_link
+    widget: text_field
+    help: "Link to the Alphafold2 parameters for Colabfold"
+
+  colabfold_db_path:
+    label: colabfold_db_path
+    widget: text_field
+    help: "Link to the Colabfold database"
+
+  uniref30_colabfold_path:
+    label: uniref30_colabfold_path
+    widget: text_field
+    help: "Link to the UniRef30 database"
+
+  colabfold_alphafold2_params_path:
+    label: colabfold_alphafold2_params_path
+    widget: text_field
+    help: "Link to the Alphafold2 parameters for Colabfold"
+
+  colabfold_alphafold2_params_tags:
+    label: colabfold_alphafold2_params_tags
+    widget: text_field
+    help: "Dictionary with Alphafold2 parameters tags"
+
+  esmfold_3B_v1:
+    value: "https://dl.fbaipublicfiles.com/fair-esm/models/esmfold_3B_v1.pt"
+    label: esmfold_3B_v1
+    widget: text_field
+    help: "Link to the Esmfold 3B-v1 model"
+
+  esm2_t36_3B_UR50D:
+    value: "https://dl.fbaipublicfiles.com/fair-esm/models/esm2_t36_3B_UR50D.pt"
+    label: esm2_t36_3B_UR50D
+    widget: text_field
+    help: "Link to the Esmfold t36-3B-UR50D model"
+
+  esm2_t36_3B_UR50D_contact_regression:
+    value: "https://dl.fbaipublicfiles.com/fair-esm/regression/esm2_t36_3B_UR50D-contact-regression.pt"
+    label: esm2_t36_3B_UR50D_contact_regression
+    widget: text_field
+    help: "Link to the Esmfold t36-3B-UR50D-contact-regression model"
+
+  esmfold_params_path:
+    label: esmfold_params_path
+    widget: text_field
+    help: "Link to the Esmfold parameters"
+
+
+form:
+  - bc_num_hours
+  - executor
+  - cpu_partition
+  - num_core
+  - num_memory
+  - reservation
+  - version
+  - workdir
+  - outdir
+  - input
+  - mode
+  - use_gpu
+  - multiqc_title
+  - max_template_date
+  - alphafold2_db
+  - full_dbs
+  - alphafold2_mode
+  - alphafold2_model_preset
+  - colabfold_db
+  - colabfold_server
+  - colabfold_model_preset
+  - num_recycles_colabfold
+  - use_amber
+  - db_load_mode
+  - host_url
+  - use_templates
+  - create_colabfold_index
+  - esmfold_db
+  - num_recycles_esmfold
+  - esmfold_model_preset
+  - skip_multiqc
+  - bfd_link
+  - small_bfd_link
+  - alphafold2_params_link
+  - mgnify_link
+  - pdb70_link
+  - pdb_mmcif_link
+  - pdb_obsolete_link
+  - uniref30_alphafold2_link
+  - uniref90_link
+  - pdb_seqres_link
+  - uniprot_sprot_link
+  - uniprot_trembl_link
+  - bfd_path
+  - small_bfd_path
+  - alphafold2_params_path
+  - mgnify_path
+  - pdb70_path
+  - pdb_mmcif_path
+  - uniref30_alphafold2_path
+  - uniref90_path
+  - pdb_seqres_path
+  - uniprot_path
+  - colabfold_db_link
+  - uniref30_colabfold_link
+  - colabfold_alphafold2_params_link
+  - colabfold_db_path
+  - uniref30_colabfold_path
+  - colabfold_alphafold2_params_path
+  - colabfold_alphafold2_params_tags
+  - esmfold_3B_v1
+  - esm2_t36_3B_UR50D
+  - esm2_t36_3B_UR50D_contact_regression
+  - esmfold_params_path
+  - TOWER_ACCESS_TOKEN
+  - resume

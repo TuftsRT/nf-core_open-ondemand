@@ -2,10 +2,19 @@
 cluster: "tuftshpc"
 
 attributes:
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/reservation.yml").indent(2) %>
+  executor:
+    label: Which nextflow executor to use?
+    widget: select
+    options:
+    - ["slurm", "slurm"]
+    - ["local", "local"]
+    help: |
+      With slurm, tasks will be distributed to different nodes, local means all tasks will run on a single node.
 
   cpu_partition:
     widget: "select"
-    label: "Select cpu partition"
+    label: "Partition"
     help: "NOTE: Please do not choose specific lab partitions if you are not a member of that lab."
     value: "batch"
     options:
@@ -14,7 +23,32 @@ attributes:
       - ["preempt", "preempt"]
       - ["patralab", "patralab"]
 
-<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/reservation.yml").indent(2) %>
+  num_core:
+    widget: number_field
+    label: Cores
+    min: 1
+    max: 128
+    value: 1
+    help: |
+      Number of cores (up to 128) for a shared job.  Non-shared jobs will have exclusive nodes and be charged at 128 cores per node requested
+
+  num_memory:
+    widget: "select"
+    label: "Amount of memory"
+    options:
+    - ["1GB", "1GB"]
+    - ["2GB", "2GB"]
+    - ["4GB", "4GB"]
+    - ["8GB", "8GB"]
+    - ["16GB", "16GB"]
+    - ["32GB", "32GB"]
+    - ["64GB", "64GB"]
+    - ["72GB", "72GB"]
+    - ["80GB", "80GB"]
+    - ["96GB", "96GB"]
+    - ["128GB", "128GB"]
+    - ["160GB", "160GB"]
+    - ["256GB", "256GB"]
 
   workdir:
     label: "Working Directory"
@@ -42,6 +76,7 @@ attributes:
     label: Version
     widget: select
     options:
+      - ['1.5.0', '/cluster/tufts/biocontainers/nf-core/pipelines/nf-core-differentialabundance/1.5.0/1_5_0']
       - ['1.4.0', '/cluster/tufts/biocontainers/nf-core/pipelines/nf-core-differentialabundance/1.4.0/1_4_0']
 
   study_name:
@@ -93,13 +128,13 @@ attributes:
     help: "(RNA-seq only): optional transcript length matrix with samples and genes as the abundance matrix"
 
   affy_cel_files_archive:
-    value: "None"
+    value: "null"
     label: affy_cel_files_archive
     widget: text_field
     help: "Alternative to matrix: a compressed CEL files archive such as often found in GEO"
 
   querygse:
-    value: "None"
+    value: "null"
     label: querygse
     widget: text_field
     help: "Use SOFT files from GEO by providing the GSE study identifier"
@@ -117,22 +152,21 @@ attributes:
     help: "Type of observation"
 
   observations_name_col:
-    value: "sample"
     label: observations_name_col
     widget: text_field
-    help: "Column in the sample sheet to be used as the display identifier for observations"
+    help: "Column in the sample sheet to be used as the display identifier for observations. If unset, will use value of --observations_id_col."
 
   features_id_col:
     value: "gene_id"
     label: features_id_col
     widget: text_field
-    help: "Feature ID attribute in the GTF file (e.g. the gene_id field)"
+    help: "Feature ID attribute in the abundance table as well as in the GTF file (e.g. the gene_id field)"
 
   features_name_col:
     value: "gene_name"
     label: features_name_col
     widget: text_field
-    help: "Feature name attribute in the GTF file (e.g. the gene symbol field)"
+    help: "Feature name attribute in the abundance table as well as in the GTF file (e.g. the gene symbol field)"
 
   features_type:
     value: "gene"
@@ -176,11 +210,6 @@ attributes:
     widget: text_field
     help: "Where a GTF file is supplied, which field should go first in the converted output table"
 
-  features_log2_assays:
-    label: features_log2_assays
-    widget: text_field
-    help: "Of which assays to compute the log2. Not necessary for maxquant data as this is controlled by the pipeline."
-
   affy_file_name_col:
     value: "file"
     label: affy_file_name_col
@@ -188,12 +217,11 @@ attributes:
     help: "Column of the sample sheet containing the Affymetrix CEL file name"
 
   affy_background:
-    value: "True"
-    label: affy_background
     widget: select
     options:
-      - ['false', 'false']
       - ['true', 'true']
+      - ['false', 'false']
+    label: affy_background
     help: "logical value. If TRUE, then background correct using RMA background correction."
 
   affy_bgversion:
@@ -211,18 +239,17 @@ attributes:
     help: "logical value. If TRUE, then works on the PM matrix in place as much as possible, good for large datasets."
 
   affy_cdfname:
-    value: "None"
+    value: "null"
     label: affy_cdfname
     widget: text_field
     help: "Used to specify the name of an alternative cdf package. If set to NULL, then the usual cdf package based on Affymetrix` mappings will be used."
 
   affy_build_annotation:
-    value: "True"
-    label: affy_build_annotation
     widget: select
     options:
-      - ['false', 'false']
       - ['true', 'true']
+      - ['false', 'false']
+    label: affy_build_annotation
     help: "logical value. If TRUE, a matrix of probe annotations will be derived."
 
   affy_rm_mask:
@@ -250,10 +277,10 @@ attributes:
     help: "if TRUE, then overrides what is in rm.mask and rm.oultiers."
 
   proteus_measurecol_prefix:
-    value: "LFQ intensity "
+    value: "LFQ intensity"
     label: proteus_measurecol_prefix
     widget: text_field
-    help: "Prefix of the column names of the MaxQuant proteingroups table in which the intensity values are saved; the prefix has to be followed by the sample names that are also found in the samplesheet. Default: `LFQ intensity `; take care to also consider trailing whitespace between prefix and samplenames."
+    help: "Prefix of the column names of the MaxQuant proteingroups table in which the intensity values are saved; the prefix has to be followed by the sample names that are also found in the samplesheet. Default: `LFQ intensity`; will search for both the prefix as entered and the prefix followed by one whitespace."
 
   proteus_norm_function:
     value: "normalizeMedian"
@@ -275,12 +302,11 @@ attributes:
     help: "Which method to use for plotting sample distributions of the MaxQuant intensities; one of `violin`, `dist`, `box`."
 
   proteus_plotmv_loess:
-    value: "True"
-    label: proteus_plotmv_loess
     widget: select
     options:
-      - ['false', 'false']
       - ['true', 'true']
+      - ['false', 'false']
+    label: proteus_plotmv_loess
     help: "Should a loess line be added to the plot of mean-variance relationship of the conditions? Default: true."
 
   proteus_palette_name:
@@ -288,12 +314,6 @@ attributes:
     label: proteus_palette_name
     widget: text_field
     help: "Valid R palette name"
-
-  proteus_round_digits:
-    value: "-1.0"
-    label: proteus_round_digits
-    widget: text_field
-    help: "Number of decimals to round the MaxQuant intensities to; default: -1 (will not round)."
 
   filtering_min_abundance:
     value: "1.0"
@@ -316,6 +336,17 @@ attributes:
     label: filtering_grouping_var
     widget: text_field
     help: "An optional grouping variable to be used to calculate a min_samples value"
+
+  filtering_min_proportion_not_na:
+    value: "0.5"
+    label: filtering_min_proportion_not_na
+    widget: text_field
+    help: "A minimum proportion of observations, given as a number between 0 and 1, that must have a value (not NA) to retain the row/ feature (e.g. gene)."
+
+  filtering_min_samples_not_na:
+    label: filtering_min_samples_not_na
+    widget: text_field
+    help: "Minimum observations that must have a value (not NA) to retain the row/ feature (e.g. gene). Overrides filtering_min_proportion_not_na."
 
   exploratory_clustering_method:
     value: "ward.D2"
@@ -353,6 +384,11 @@ attributes:
     widget: text_field
     help: "How should the main grouping variable be selected? `auto_pca`, `contrasts`, or a valid column name from the observations table."
 
+  exploratory_log2_assays:
+    label: exploratory_log2_assays
+    widget: text_field
+    help: "Of which assays to compute the log2 during exploratory analysis. Not necessary for maxquant data as this is controlled by the pipeline."
+
   exploratory_palette_name:
     value: "Set1"
     label: exploratory_palette_name
@@ -360,10 +396,9 @@ attributes:
     help: "Valid R palette name"
 
   differential_file_suffix:
-    value: ".deseq2.results.tsv"
     label: differential_file_suffix
     widget: text_field
-    help: "The suffix associated tabular differential results tables"
+    help: "Advanced option: the suffix associated tabular differential results tables. Will by default use the appropriate suffix according to the study_type."
 
   differential_feature_id_column:
     value: "gene_id"
@@ -414,12 +449,11 @@ attributes:
     help: "Where a features file (GTF) has been provided, what attributed to use to name features"
 
   differential_foldchanges_logged:
-    value: "True"
-    label: differential_foldchanges_logged
     widget: select
     options:
-      - ['false', 'false']
       - ['true', 'true']
+      - ['false', 'false']
+    label: differential_foldchanges_logged
     help: "Indicate whether or not fold changes are on the log scale (default is to assume they are)"
 
   differential_palette_name:
@@ -481,12 +515,11 @@ attributes:
     help: "`useT` parameter passed to DESeq2"
 
   deseq2_independent_filtering:
-    value: "True"
-    label: deseq2_independent_filtering
     widget: select
     options:
-      - ['false', 'false']
       - ['true', 'true']
+      - ['false', 'false']
+    label: deseq2_independent_filtering
     help: "`independentFiltering` parameter passed to results()"
 
   deseq2_lfc_threshold:
@@ -530,12 +563,11 @@ attributes:
     help: "variance stabilisation method to use when making a variance stabilised matrix"
 
   deseq2_shrink_lfc:
-    value: "True"
-    label: deseq2_shrink_lfc
     widget: select
     options:
-      - ['false', 'false']
       - ['true', 'true']
+      - ['false', 'false']
+    label: deseq2_shrink_lfc
     help: "Shink fold changes in results?"
 
   deseq2_cores:
@@ -545,12 +577,11 @@ attributes:
     help: "Number of cores"
 
   deseq2_vs_blind:
-    value: "True"
-    label: deseq2_vs_blind
     widget: select
     options:
-      - ['false', 'false']
       - ['true', 'true']
+      - ['false', 'false']
+    label: deseq2_vs_blind
     help: "`blind` parameter for rlog() and/ or vst()"
 
   deseq2_vst_nsub:
@@ -565,19 +596,19 @@ attributes:
     help: "passed to lmFit(), positive integer giving the number of times each distinct probe is printed on each array."
 
   limma_spacing:
-    value: "None"
+    value: "null"
     label: limma_spacing
     widget: text_field
     help: "passed to lmFit(), positive integer giving the spacing between duplicate occurrences of the same probe, spacing=1 for consecutive rows."
 
   limma_block:
-    value: "None"
+    value: "null"
     label: limma_block
     widget: text_field
     help: "Sample sheet column to be used to derive a vector or factor specifying a blocking variable on the arrays"
 
   limma_correlation:
-    value: "None"
+    value: "null"
     label: limma_correlation
     widget: text_field
     help: "passed to lmFit(), the inter-duplicate or inter-technical replicate correlation"
@@ -650,7 +681,7 @@ attributes:
       - ['BH', 'BH']
       - ['BY', 'BY']
       - ['fdr', 'fdr']
-      - ['none', 'none']
+      - ['null', 'null']
     label: limma_adjust_method
     help: "passed to topTable(), method used to adjust the p-values for multiple testing."
 
@@ -741,7 +772,7 @@ attributes:
     widget: select
     options:
       - ['meandiv', 'meandiv']
-      - ['none', 'none']
+      - ['null', 'null']
     label: gsea_norm
     help: "Normalisation mode"
 
@@ -755,12 +786,11 @@ attributes:
     help: "Randomization mode"
 
   gsea_make_sets:
-    value: "True"
-    label: gsea_make_sets
     widget: select
     options:
-      - ['false', 'false']
       - ['true', 'true']
+      - ['false', 'false']
+    label: gsea_make_sets
     help: "Make detailed geneset report?"
 
   gsea_median:
@@ -805,19 +835,111 @@ attributes:
       - ['true', 'true']
     help: "Make a zipped file with all reports"
 
-  gsea_gene_sets:
-    value: "None"
-    label: gsea_gene_sets
-    widget: text_field
-    help: "Gene sets in GMT or GMX-format (multiple comma-separated input files are possible)"
-
-  shinyngs_build_app:
-    value: "True"
-    label: shinyngs_build_app
+  gprofiler2_run:
+    label: gprofiler2_run
     widget: select
     options:
       - ['false', 'false']
       - ['true', 'true']
+    help: "Set to run gprofiler2 and do a pathway enrichment analysis."
+
+  gprofiler2_organism:
+    label: gprofiler2_organism
+    widget: text_field
+    help: "Short name of the organism that is analyzed, e.g. hsapiens for homo sapiens."
+
+  gprofiler2_significant:
+    widget: select
+    options:
+      - ['true', 'true']
+      - ['false', 'false']
+    label: gprofiler2_significant
+    help: "Should only significant enrichment results be considered?"
+
+  gprofiler2_measure_underrepresentation:
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    label: gprofiler2_measure_underrepresentation
+    help: "Should underrepresentation be measured instead of overrepresentation?"
+
+  gprofiler2_correction_method:
+    widget: select
+    options:
+      - ['None', ' ']
+      - ['gSCS', 'gSCS']
+      - ['analytical', 'analytical']
+      - ['g_SCS', 'g_SCS']
+      - ['fdr', 'fdr']
+      - ['false_discovery_rate', 'false_discovery_rate']
+      - ['bonferroni', 'bonferroni']
+    label: gprofiler2_correction_method
+    help: "The method that should be used for multiple testing correction."
+
+  gprofiler2_sources:
+    label: gprofiler2_sources
+    widget: text_field
+    help: "On which source databases to run the gprofiler query"
+
+  gprofiler2_evcodes:
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    label: gprofiler2_evcodes
+    help: "Whether to include evcodes in the results."
+
+  gprofiler2_max_qval:
+    value: "0.05"
+    label: gprofiler2_max_qval
+    widget: text_field
+    help: "Maximum q value used for significance testing."
+
+  gprofiler2_token:
+    label: gprofiler2_token
+    widget: text_field
+    help: "Token that should be used as a query."
+
+  gprofiler2_background_file:
+    label: gprofiler2_background_file
+    widget: text_field
+    help: "Path to CSV/TSV/TXT file that should be used as a background for the query; alternatively, `auto` (default) or `false`."
+
+  gprofiler2_background_column:
+    label: gprofiler2_background_column
+    widget: text_field
+    help: "Which column to use as gene IDs in the background matrix."
+
+  gprofiler2_domain_scope:
+    value: "annotated"
+    widget: select
+    options:
+      - ['annotated', 'annotated']
+      - ['known', 'known']
+      - ['custom', 'custom']
+      - ['custom_annotated', 'custom_annotated']
+    label: gprofiler2_domain_scope
+    help: "How to calculate the statistical domain size."
+
+  gprofiler2_min_diff:
+    value: "1"
+    label: gprofiler2_min_diff
+    widget: text_field
+    help: "How many genes must be differentially expressed in a pathway for it to be considered enriched? Default 1."
+
+  gprofiler2_palette_name:
+    value: "Blues"
+    label: gprofiler2_palette_name
+    widget: text_field
+    help: "Valid R palette name"
+
+  shinyngs_build_app:
+    widget: select
+    options:
+      - ['true', 'true']
+      - ['false', 'false']
+    label: shinyngs_build_app
     help: "Should a Shiny app be built?"
 
   shinyngs_deploy_to_shinyapps_io:
@@ -829,75 +951,91 @@ attributes:
     help: "Should the app be deployed to shinyapps.io?"
 
   shinyngs_shinyapps_account:
-    value: "None"
+    value: "null"
     label: shinyngs_shinyapps_account
     widget: text_field
     help: "Your shinyapps.io account name"
 
   shinyngs_shinyapps_app_name:
-    value: "None"
+    value: "null"
     label: shinyngs_shinyapps_app_name
     widget: text_field
     help: "The name of the app to push to in your shinyapps.io account"
 
   shinyngs_guess_unlog_matrices:
-    value: "True"
-    label: shinyngs_guess_unlog_matrices
     widget: select
     options:
-      - ['false', 'false']
       - ['true', 'true']
+      - ['false', 'false']
+    label: shinyngs_guess_unlog_matrices
     help: "Should we guess the log status of matrices and unlog for the app?"
 
+  gene_sets_files:
+    value: "null"
+    label: gene_sets_files
+    widget: text_field
+    help: "Gene sets in GMT or GMX-format; for GSEA: multiple comma-separated input files in either format are possible. For gprofiler2: A single file in GMT format is possible; this has lowest priority and will be overridden by --gprofiler2_token and --gprofiler2_organism."
+
   report_file:
+    value: "${projectDir}/assets/differentialabundance_report.Rmd"
     label: report_file
     widget: text_field
     help: "Rmd report template from which to create the pipeline report"
 
   logo_file:
-    value: "docs/images/nf-core-differentialabundance_logo_light.png"
+    value: "${projectDir}/docs/images/nf-core-differentialabundance_logo_light.png"
     label: logo_file
     widget: text_field
     help: "A logo to display in the report instead of the generic pipeline logo"
 
   css_file:
-    value: "assets/nf-core_style.css"
+    value: "${projectDir}/assets/nf-core_style.css"
     label: css_file
     widget: text_field
     help: "CSS to use to style the output, in lieu of the default nf-core styling"
 
   citations_file:
-    value: "CITATIONS.md"
+    value: "${projectDir}/CITATIONS.md"
     label: citations_file
     widget: text_field
     help: "A markdown file containing citations to include in the fiinal report"
 
   report_title:
-    value: "None"
+    value: "null"
     label: report_title
     widget: text_field
     help: "A title for reporting outputs"
 
   report_author:
-    value: "None"
+    value: "null"
     label: report_author
     widget: text_field
     help: "An author for reporting outputs"
 
+  report_contributors:
+    label: report_contributors
+    widget: text_field
+    help: "Semicolon-separated string of contributor info that should be listed in the report."
+
   report_description:
-    value: "None"
+    value: "null"
     label: report_description
     widget: text_field
     help: "A description for reporting outputs"
 
   report_scree:
-    value: "True"
-    label: report_scree
     widget: select
     options:
-      - ['false', 'false']
       - ['true', 'true']
+      - ['false', 'false']
+    label: report_scree
     help: "Whether to generate a scree plot in the report"
+
+  report_round_digits:
+    value: "4"
+    label: report_round_digits
+    widget: text_field
+    help: "To how many digits should numeric output in different modules be rounded? If -1, will not round."
 
   genome:
     label: iGenomes
@@ -952,7 +1090,10 @@ attributes:
 
 form:
   - bc_num_hours
+  - executor
   - cpu_partition
+  - num_core
+  - num_memory
   - reservation
   - version
   - workdir
@@ -978,7 +1119,6 @@ form:
   - features
   - features_gtf_feature_type
   - features_gtf_table_first_field
-  - features_log2_assays
   - affy_file_name_col
   - affy_background
   - affy_bgversion
@@ -993,17 +1133,19 @@ form:
   - proteus_plotsd_method
   - proteus_plotmv_loess
   - proteus_palette_name
-  - proteus_round_digits
   - filtering_min_abundance
   - filtering_min_samples
   - filtering_min_proportion
   - filtering_grouping_var
+  - filtering_min_proportion_not_na
+  - filtering_min_samples_not_na
   - exploratory_clustering_method
   - exploratory_cor_method
   - exploratory_n_features
   - exploratory_whisker_distance
   - exploratory_mad_threshold
   - exploratory_main_variable
+  - exploratory_log2_assays
   - exploratory_palette_name
   - differential_file_suffix
   - differential_feature_id_column
@@ -1065,16 +1207,32 @@ form:
   - gsea_rnd_seed
   - gsea_save_rnd_lists
   - gsea_zip_report
-  - gsea_gene_sets
+  - gprofiler2_run
+  - gprofiler2_organism
+  - gprofiler2_significant
+  - gprofiler2_measure_underrepresentation
+  - gprofiler2_correction_method
+  - gprofiler2_sources
+  - gprofiler2_evcodes
+  - gprofiler2_max_qval
+  - gprofiler2_token
+  - gprofiler2_background_file
+  - gprofiler2_background_column
+  - gprofiler2_domain_scope
+  - gprofiler2_min_diff
+  - gprofiler2_palette_name
   - shinyngs_build_app
   - shinyngs_deploy_to_shinyapps_io
   - shinyngs_shinyapps_account
   - shinyngs_shinyapps_app_name
   - shinyngs_guess_unlog_matrices
+  - gene_sets_files
   - report_title
   - report_author
+  - report_contributors
   - report_description
   - report_scree
+  - report_round_digits
   - genome
   - gtf
   - TOWER_ACCESS_TOKEN

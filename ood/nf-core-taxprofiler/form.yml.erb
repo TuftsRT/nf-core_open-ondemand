@@ -2,10 +2,19 @@
 cluster: "tuftshpc"
 
 attributes:
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/reservation.yml").indent(2) %>
+  executor:
+    label: Which nextflow executor to use?
+    widget: select
+    options:
+    - ["slurm", "slurm"]
+    - ["local", "local"]
+    help: |
+      With slurm, tasks will be distributed to different nodes, local means all tasks will run on a single node.
 
   cpu_partition:
     widget: "select"
-    label: "Select cpu partition"
+    label: "Partition"
     help: "NOTE: Please do not choose specific lab partitions if you are not a member of that lab."
     value: "batch"
     options:
@@ -14,7 +23,32 @@ attributes:
       - ["preempt", "preempt"]
       - ["patralab", "patralab"]
 
-<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/reservation.yml").indent(2) %>
+  num_core:
+    widget: number_field
+    label: Cores
+    min: 1
+    max: 128
+    value: 1
+    help: |
+      Number of cores (up to 128) for a shared job.  Non-shared jobs will have exclusive nodes and be charged at 128 cores per node requested
+
+  num_memory:
+    widget: "select"
+    label: "Amount of memory"
+    options:
+    - ["1GB", "1GB"]
+    - ["2GB", "2GB"]
+    - ["4GB", "4GB"]
+    - ["8GB", "8GB"]
+    - ["16GB", "16GB"]
+    - ["32GB", "32GB"]
+    - ["64GB", "64GB"]
+    - ["72GB", "72GB"]
+    - ["80GB", "80GB"]
+    - ["96GB", "96GB"]
+    - ["128GB", "128GB"]
+    - ["160GB", "160GB"]
+    - ["256GB", "256GB"]
 
   workdir:
     label: "Working Directory"
@@ -42,6 +76,9 @@ attributes:
     label: Version
     widget: select
     options:
+      - ['1.1.8', '/cluster/tufts/biocontainers/nf-core/pipelines/nf-core-taxprofiler/1.1.8/1_1_8']
+      - ['1.1.7', '/cluster/tufts/biocontainers/nf-core/pipelines/nf-core-taxprofiler/1.1.7/1_1_7']
+      - ['1.1.6', '/cluster/tufts/biocontainers/nf-core/pipelines/nf-core-taxprofiler/1.1.6/1_1_6']
       - ['1.1.5', '/cluster/tufts/biocontainers/nf-core/pipelines/nf-core-taxprofiler/1.1.5/1_1_5']
 
   input:
@@ -53,6 +90,14 @@ attributes:
     label: databases
     widget: text_field
     help: "Path to comma-separated file containing information about databases and profiling parameters for each taxonomic profiler"
+
+  save_untarred_databases:
+    label: save_untarred_databases
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specify to save decompressed user-supplied TAR archives of databases"
 
   outdir:
     label: outdir
@@ -498,6 +543,14 @@ attributes:
       - ['true', 'true']
     help: "Turn on Bracken (and the required Kraken2 prerequisite step)."
 
+  bracken_save_intermediatekraken2:
+    label: bracken_save_intermediatekraken2
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on the saving of the intermediate Kraken2 files used as input to Bracken itself into Kraken2 results folder"
+
   run_malt:
     label: run_malt
     widget: select
@@ -575,12 +628,6 @@ attributes:
       - ['false', 'false']
       - ['true', 'true']
     help: "Turn on classification with KMCP."
-
-  kmcp_mode:
-    value: "3"
-    label: kmcp_mode
-    widget: text_field
-    help: "Specify which KMCP profiling mode to use."
 
   kmcp_save_search:
     label: kmcp_save_search
@@ -738,13 +785,17 @@ attributes:
 
 form:
   - bc_num_hours
+  - executor
   - cpu_partition
+  - num_core
+  - num_memory
   - reservation
   - version
   - workdir
   - outdir
   - input
   - databases
+  - save_untarred_databases
   - multiqc_title
   - skip_preprocessing_qc
   - preprocessing_qc_tool
@@ -803,6 +854,7 @@ form:
   - krakenuniq_save_readclassifications
   - krakenuniq_batch_size
   - run_bracken
+  - bracken_save_intermediatekraken2
   - run_malt
   - malt_mode
   - malt_save_reads
@@ -813,7 +865,6 @@ form:
   - motus_save_mgc_read_counts
   - motus_remove_ncbi_ids
   - run_kmcp
-  - kmcp_mode
   - kmcp_save_search
   - run_ganon
   - ganon_save_readclassifications

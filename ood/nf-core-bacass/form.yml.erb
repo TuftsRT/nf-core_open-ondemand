@@ -1,0 +1,352 @@
+---
+cluster: "tuftshpc"
+
+attributes:
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/reservation.yml").indent(2) %>
+  executor:
+    label: Which nextflow executor to use?
+    widget: select
+    options:
+    - ["slurm", "slurm"]
+    - ["local", "local"]
+    help: |
+      With slurm, tasks will be distributed to different nodes, local means all tasks will run on a single node.
+
+  cpu_partition:
+    widget: "select"
+    label: "Partition"
+    help: "NOTE: Please do not choose specific lab partitions if you are not a member of that lab."
+    value: "batch"
+    options:
+      - ["batch","batch"]
+      - ["largemem", "largemem"]
+      - ["preempt", "preempt"]
+      - ["patralab", "patralab"]
+
+  num_core:
+    widget: number_field
+    label: Cores
+    min: 1
+    max: 128
+    value: 1
+    help: |
+      Number of cores (up to 128) for a shared job.  Non-shared jobs will have exclusive nodes and be charged at 128 cores per node requested
+
+  num_memory:
+    widget: "select"
+    label: "Amount of memory"
+    options:
+    - ["1GB", "1GB"]
+    - ["2GB", "2GB"]
+    - ["4GB", "4GB"]
+    - ["8GB", "8GB"]
+    - ["16GB", "16GB"]
+    - ["32GB", "32GB"]
+    - ["64GB", "64GB"]
+    - ["72GB", "72GB"]
+    - ["80GB", "80GB"]
+    - ["96GB", "96GB"]
+    - ["128GB", "128GB"]
+    - ["160GB", "160GB"]
+    - ["256GB", "256GB"]
+
+  workdir:
+    label: "Working Directory"
+    data-filepicker: true
+    data-target-file-type: dirs  # Valid values are: files, dirs, or both
+    readonly: false
+    help: "Select your project directory; defaults to $HOME"
+    
+  resume:
+    label: resume
+    widget: check_box
+    checked_value: 1
+    unchecked_value: 0
+    help: |
+           Resume previous run if found
+
+  TOWER_ACCESS_TOKEN:
+    widget: "text_field"
+    required: false
+    label: "TOWER_ACCESS_TOKEN (Optional)"
+    help: "Your TOWER_ACCESS_TOKEN used to monitor runs on [Nextflow Tower](https://seqera.io)."
+
+
+  version:
+    label: Version
+    widget: select
+    options:
+      - ['2.3.1', '/cluster/tufts/biocontainers/nf-core/pipelines/nf-core-bacass/2.3.1/2_3_1']
+      - ['2.2.0', '/cluster/tufts/biocontainers/nf-core/pipelines/nf-core-bacass/2.2.0/2_2_0']
+
+  input:
+    label: input
+    widget: text_field
+    help: "Path to tab-separated sample sheet"
+
+  outdir:
+    label: outdir
+    widget: text_field
+    help: "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure."
+
+  fastp_args:
+    label: fastp_args
+    widget: text_field
+    help: "This can be used to pass arguments to [Fastp](https://github.com/OpenGene/fastp)"
+
+  save_trimmed:
+    label: save_trimmed
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "save trimmed files"
+
+  save_trimmed_fail:
+    label: save_trimmed_fail
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "save files that failed to pass trimming thresholds ending in `*.fail.fastq.gz`"
+
+  save_merged:
+    label: save_merged
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "save all merged reads to the a file ending in `*.merged.fastq.gz`"
+
+  skip_fastqc:
+    label: skip_fastqc
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip FastQC"
+
+  skip_fastp:
+    label: skip_fastp
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip FastP"
+
+  kraken2db:
+    label: kraken2db
+    widget: text_field
+    help: "Path to Kraken2 database."
+
+  kmerfinderdb:
+    label: kmerfinderdb
+    widget: text_field
+    help: "Path to the Kmerfinder bacteria database. For more details, see [Kmerfinder Databases](https://bitbucket.org/genomicepidemiology/kmerfinder_db/src/master/). You can also download precomputed Kmerfinder database (dated 2019/01/08) from https://zenodo.org/records/10458361/files/20190108_kmerfinder_stable_dirs.tar.gz "
+
+  reference_fasta:
+    label: reference_fasta
+    widget: text_field
+    help: "Reference FASTA file."
+
+  reference_gff:
+    label: reference_gff
+    widget: text_field
+    help: "Reference GFF file."
+
+  ncbi_assembly_metadata:
+    label: ncbi_assembly_metadata
+    widget: text_field
+    help: "Master file (*.txt) containing a summary of assemblies available in GeneBank or RefSeq. See: https://ftp.ncbi.nlm.nih.gov/genomes/README_assembly_summary.txt"
+
+  assembler:
+    value: "unicycler"
+    widget: select
+    options:
+      - ['unicycler', 'unicycler']
+      - ['canu', 'canu']
+      - ['miniasm', 'miniasm']
+      - ['dragonflye', 'dragonflye']
+    label: assembler
+    help: "The assembler to use for assembly. Use the appropriate assembler according to the chosen assembly_type. Refer to the README.md for further clarification."
+
+  assembly_type:
+    value: "short"
+    widget: select
+    options:
+      - ['short', 'short']
+      - ['long', 'long']
+      - ['hybrid', 'hybrid']
+    label: assembly_type
+    help: "Which type of assembly to perform."
+
+  unicycler_args:
+    label: unicycler_args
+    widget: text_field
+    help: "Extra arguments for Unicycler"
+
+  canu_mode:
+    widget: select
+    options:
+      - ['None', ' ']
+      - ['-pacbio', '-pacbio']
+      - ['-nanopore', '-nanopore']
+      - ['-pacbio-hifi', '-pacbio-hifi']
+      - ['null', 'null']
+    label: canu_mode
+    help: "Allowed technologies for long read assembly."
+
+  canu_args:
+    label: canu_args
+    widget: text_field
+    help: "This can be used to supply [extra options](https://canu.readthedocs.io/en/latest/quick-start.html) to the Canu assembler. Will be ignored when other assemblers are used."
+
+  dragonflye_args:
+    label: dragonflye_args
+    widget: text_field
+    help: "Extra arguments for [Dragonflye](https://github.com/rpetit3/dragonflye#usage)"
+
+  polish_method:
+    value: "medaka"
+    widget: select
+    options:
+      - ['medaka', 'medaka']
+      - ['nanopolish', 'nanopolish']
+    label: polish_method
+    help: "Which assembly polishing method to use."
+
+  annotation_tool:
+    value: "prokka"
+    widget: select
+    options:
+      - ['prokka', 'prokka']
+      - ['bakta', 'bakta']
+      - ['dfast', 'dfast']
+    label: annotation_tool
+    help: "The annotation method to annotate the final assembly."
+
+  prokka_args:
+    label: prokka_args
+    widget: text_field
+    help: "Extra arguments for prokka annotation tool."
+
+  baktadb:
+    label: baktadb
+    widget: text_field
+    help: "Path to Bakta database"
+
+  baktadb_download:
+    label: baktadb_download
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Download Bakta database"
+
+  baktadb_download_args:
+    value: "--type light"
+    widget: select
+    options:
+      - ['--type light', '--type light']
+      - ['--type full', '--type full']
+    label: baktadb_download_args
+    help: "This can be used to supply [extra options](https://github.com/oschwengers/bakta#database-download) to the Bakta download module"
+
+  dfast_config:
+    value: "assets/test_config_dfast.py"
+    label: dfast_config
+    widget: text_field
+    help: "Specifies a configuration file for the [DFAST](https://github.com/nigyta/dfast_core) annotation method."
+
+  skip_kraken2:
+    label: skip_kraken2
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip running Kraken2 classifier on reads."
+
+  skip_kmerfinder:
+    label: skip_kmerfinder
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip contamination analysis with [Kmerfinder](https://bitbucket.org/genomicepidemiology/kmerfinder/src/master/)"
+
+  skip_annotation:
+    label: skip_annotation
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip annotating the assembly with Prokka /DFAST."
+
+  skip_pycoqc:
+    label: skip_pycoqc
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip running `PycoQC` on long read input."
+
+  skip_polish:
+    label: skip_polish
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip polishing the long-read assembly with fast5 input. Will not affect short/hybrid assemblies."
+
+  skip_multiqc:
+    label: skip_multiqc
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip MultiQC"
+
+
+form:
+  - bc_num_hours
+  - executor
+  - cpu_partition
+  - num_core
+  - num_memory
+  - reservation
+  - version
+  - workdir
+  - outdir
+  - input
+  - fastp_args
+  - save_trimmed
+  - save_trimmed_fail
+  - save_merged
+  - skip_fastqc
+  - skip_fastp
+  - kraken2db
+  - kmerfinderdb
+  - reference_fasta
+  - reference_gff
+  - ncbi_assembly_metadata
+  - assembler
+  - assembly_type
+  - unicycler_args
+  - canu_mode
+  - canu_args
+  - dragonflye_args
+  - polish_method
+  - annotation_tool
+  - prokka_args
+  - baktadb
+  - baktadb_download
+  - baktadb_download_args
+  - dfast_config
+  - skip_kraken2
+  - skip_kmerfinder
+  - skip_annotation
+  - skip_pycoqc
+  - skip_polish
+  - skip_multiqc
+  - TOWER_ACCESS_TOKEN
+  - resume

@@ -2,10 +2,19 @@
 cluster: "tuftshpc"
 
 attributes:
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/reservation.yml").indent(2) %>
+  executor:
+    label: Which nextflow executor to use?
+    widget: select
+    options:
+    - ["slurm", "slurm"]
+    - ["local", "local"]
+    help: |
+      With slurm, tasks will be distributed to different nodes, local means all tasks will run on a single node.
 
   cpu_partition:
     widget: "select"
-    label: "Select cpu partition"
+    label: "Partition"
     help: "NOTE: Please do not choose specific lab partitions if you are not a member of that lab."
     value: "batch"
     options:
@@ -14,7 +23,32 @@ attributes:
       - ["preempt", "preempt"]
       - ["patralab", "patralab"]
 
-<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/reservation.yml").indent(2) %>
+  num_core:
+    widget: number_field
+    label: Cores
+    min: 1
+    max: 128
+    value: 1
+    help: |
+      Number of cores (up to 128) for a shared job.  Non-shared jobs will have exclusive nodes and be charged at 128 cores per node requested
+
+  num_memory:
+    widget: "select"
+    label: "Amount of memory"
+    options:
+    - ["1GB", "1GB"]
+    - ["2GB", "2GB"]
+    - ["4GB", "4GB"]
+    - ["8GB", "8GB"]
+    - ["16GB", "16GB"]
+    - ["32GB", "32GB"]
+    - ["64GB", "64GB"]
+    - ["72GB", "72GB"]
+    - ["80GB", "80GB"]
+    - ["96GB", "96GB"]
+    - ["128GB", "128GB"]
+    - ["160GB", "160GB"]
+    - ["256GB", "256GB"]
 
   workdir:
     label: "Working Directory"
@@ -42,7 +76,9 @@ attributes:
     label: Version
     widget: select
     options:
+      - ['2.9.0', '/cluster/tufts/biocontainers/nf-core/pipelines/nf-core-ampliseq/2.9.0/2_9_0']
       - ['2.8.0', '/cluster/tufts/biocontainers/nf-core/pipelines/nf-core-ampliseq/2.8.0/2_8_0']
+      - ['2.10.0', '/cluster/tufts/biocontainers/nf-core/pipelines/nf-core-ampliseq/2.10.0/2_10_0']
 
   input:
     label: input
@@ -74,10 +110,23 @@ attributes:
     widget: text_field
     help: "Path to metadata sheet, when missing most downstream analysis are skipped (barplots, PCoA plots, ...)."
 
+  multiregion:
+    label: multiregion
+    widget: text_field
+    help: "Path to multi-region definition sheet, for multi-region analysis with Sidle"
+
   outdir:
     label: outdir
     widget: text_field
     help: "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure."
+
+  save_intermediates:
+    label: save_intermediates
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save intermediate results such as QIIME2`s qza and qzv files"
 
   illumina_novaseq:
     label: illumina_novaseq
@@ -331,7 +380,6 @@ attributes:
       - ['gtdb=R08-RS214', 'gtdb=R08-RS214']
       - ['midori2-co1', 'midori2-co1']
       - ['midori2-co1=gb250', 'midori2-co1=gb250']
-      - ['phytoref', 'phytoref']
       - ['pr2', 'pr2']
       - ['pr2=4.13.0', 'pr2=4.13.0']
       - ['pr2=4.14.0', 'pr2=4.14.0']
@@ -528,6 +576,28 @@ attributes:
     label: its_partial
     widget: text_field
     help: "Cutoff for partial ITS sequences. Only full sequences by default."
+
+  sidle_ref_taxonomy:
+    widget: select
+    options:
+      - ['None', ' ']
+      - ['silva', 'silva']
+      - ['silva=128', 'silva=128']
+      - ['greengenes', 'greengenes']
+      - ['greengenes=13_8', 'greengenes=13_8']
+      - ['greengenes88', 'greengenes88']
+    label: sidle_ref_taxonomy
+    help: "Name of supported database, and optionally also version number"
+
+  sidle_ref_tax_custom:
+    label: sidle_ref_tax_custom
+    widget: text_field
+    help: "Comma separated paths to three files: reference taxonomy sequences (*.fasta), reference taxonomy strings (*.txt)"
+
+  sidle_ref_tree_custom:
+    label: sidle_ref_tree_custom
+    widget: text_field
+    help: "Path to SIDLE reference taxonomy tree (*.qza)"
 
   exclude_taxa:
     value: "mitochondria,chloroplast"
@@ -762,7 +832,10 @@ attributes:
 
 form:
   - bc_num_hours
+  - executor
   - cpu_partition
+  - num_core
+  - num_memory
   - reservation
   - version
   - workdir
@@ -773,6 +846,8 @@ form:
   - FW_primer
   - RV_primer
   - metadata
+  - multiregion
+  - save_intermediates
   - illumina_novaseq
   - pacbio
   - iontorrent
@@ -829,6 +904,9 @@ form:
   - addsh
   - cut_its
   - its_partial
+  - sidle_ref_taxonomy
+  - sidle_ref_tax_custom
+  - sidle_ref_tree_custom
   - exclude_taxa
   - min_frequency
   - min_samples
