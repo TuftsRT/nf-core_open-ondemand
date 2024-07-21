@@ -76,6 +76,7 @@ for PIPELINE in $pipelines; do
         sed -i -e '/- igenomes_base/d' "$formYmlOut"
         sed -i 's/value: True/value: true/g' "$formYmlOut"
         sed -i 's/value: False/value: false/g' "$formYmlOut"
+# TODO: update igenomes_base
         sed -i -e 's$<%= context.igenomes_base %>$/cluster/tufts/biocontainers/datasets/igenomes$' $paramsJsonOut
 
         if grep -q igenomes_ignore "$formYmlOut"; then

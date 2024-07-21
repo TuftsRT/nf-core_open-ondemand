@@ -177,7 +177,7 @@ for i in data['definitions']:
 
 # Open the second paramsJsonOut in write mode
 paramsJsonOut = open(sys.argv[4], "w")
-
+# TODO: Change the below fields according to your ood's set up.
 # Write the form fields in the formYmlOut
 formYmlOut.write("\nform:\n")
 formYmlOut.write("  - bc_num_hours\n")
