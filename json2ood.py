@@ -164,16 +164,20 @@ schemaJson = open(sys.argv[1])
 data = json.load(schemaJson)
 
 formYmlOut.write("\n\n")
-for i in data['definitions']:
-    if i != 'institutional_config_options' and i != 'generic_options' and i != 'max_job_request_options':
-        name = i
-        for j in data['definitions'][name]:
-            requiredBool = False
-            if j == 'required':
-                requiredBool = True
-                required_properties = data['definitions'][name][j]
-            if j == 'properties':
-                process_properties(formYmlOut, data['definitions'][name][j])
+
+# Check for 'definitions' or '$defs' key
+definitions = data.get('definitions', data.get('$defs'))
+
+if not definitions:
+    print("Error: Neither 'definitions' nor '$defs' found in the JSON file.")
+
+# Gather field data from schema definitions
+field_data = []
+for name, definition in definitions.items():
+    if name not in ['institutional_config_options', 'generic_options', 'max_job_request_options']:
+        required_properties = definition.get('required', [])
+        properties = definition.get('properties', {})
+        process_properties(formYmlOut, properties)
 
 # Open the second paramsJsonOut in write mode
 paramsJsonOut = open(sys.argv[4], "w")
@@ -193,16 +197,15 @@ formYmlOut.write("  - outdir\n")
 # Write the context variables in the second paramsJsonOut
 paramsJsonOut.write("{\n")
 paramsJsonOut.write("""    "outdir":"<%= context.outdir %>\"\n""")
-for i in data['definitions']:
-    if i != 'institutional_config_options' and i != 'generic_options' and i != 'max_job_request_options':
-        name = i
-        for k in data['definitions'][name]['properties']:
-            if k != 'email' and k != 'outdir' and k != 'igenomes_ignore' and k not in hidden_list and k not in number_field_list and k not in boolean_field_list:
-                formYmlOut.write("  - " + k + "\n")
-                paramsJsonOut.write(",\n    \"" + k + "\": \"<%= context." + k + " %>\"")
+for name, definition in definitions.items():
+    if name not in ['institutional_config_options', 'generic_options', 'max_job_request_options']:
+        for k in definition['properties']:
+            if k not in ['email', 'outdir', 'igenomes_ignore'] and k not in hidden_list and k not in number_field_list and k not in boolean_field_list:
+                formYmlOut.write(f"  - {k}\n")
+                paramsJsonOut.write(f",\n    \"{k}\": \"<%= context.{k} %>\"")
             elif k in number_field_list or k in boolean_field_list:
-                formYmlOut.write("  - " + k + "\n")
-                paramsJsonOut.write(",\n    \"" + k + "\": <%= context." + k + " %>")
+                formYmlOut.write(f"  - {k}\n")
+                paramsJsonOut.write(f",\n    \"{k}\": <%= context.{k} %>")
 
 formYmlOut.write("  - TOWER_ACCESS_TOKEN\n")
 formYmlOut.write("  - resume\n")
