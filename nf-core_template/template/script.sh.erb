@@ -3,73 +3,82 @@
 # Clean the environment
 module purge
 
-# Go to workding directory
-workdir=<%= context.workdir %>
-
-if [ ! -d "$workdir" ]
-then
-	echo "$workdir does not exist."
-	mkdir -p $workdir
-
-fi
-cp nf-params.json $workdir/
-cd $workdir
-
-# Test whether resume is set
-if [ <%= context.resume %> -eq 1 ]
-then
-        echo "You job will resume previous run"
-        resume="-resume"
-else
-        echo "This is a fresh run"
-        resume=""
-fi
-
-# Test whether Tower will be used
-TOKEN=<%= context.TOWER_ACCESS_TOKEN %>
-
-if [[ -n "${TOKEN// }" ]]; then
-        echo "Your are using Nextflow Tower"
-        export TOWER_ACCESS_TOKEN=$TOKEN
-        with_tower="-with-tower"
-else
-        echo "You are not using Nextflow Tower"
-        with_tower=""
-fi
-
 # Load the required module
 module load nf-core
 module list
 
-export NXF_SINGULARITY_CACHEDIR=/cluster/tufts/biocontainers/nf-core/singularity-images
+# Set the working directory
+workdir="<%= context.workdir %>"
 
-## Delete lines with empty values
-sed -i '/:[[:space:]]*,/d' nf-params.json
-sed -i '/"[[:space:]]*"/d' nf-params.json
+# Ensure the working directory exists
+if [ ! -d "$workdir" ]; then
+    echo "$workdir does not exist. Creating it now..."
+    mkdir -p "$workdir"
+fi
 
-## Some parameters have $projectDir and $baseDir, replace them with real values
-export projectDir=<%= context.version %>
-export baseDir=<%= context.version %>
+# Copy necessary files and change to the working directory
+cp nf-params.json "$workdir/"
+cd "$workdir"
+
+# Check if resume is set
+if [ "<%= context.resume %>" -eq 1 ]; then
+    echo "Job will resume from the previous run."
+    resume="-resume"
+else
+    echo "This is a fresh run."
+    resume=""
+fi
+
+# Check if Nextflow Tower will be used
+TOKEN="<%= context.TOWER_ACCESS_TOKEN %>"
+
+if [[ -n "${TOKEN// }" ]]; then
+    echo "Using Nextflow Tower."
+    export TOWER_ACCESS_TOKEN="$TOKEN"
+    with_tower="-with-tower"
+else
+    echo "Not using Nextflow Tower."
+    with_tower=""
+fi
+
+# Set the Singularity cache directory
+export NXF_SINGULARITY_CACHEDIR="/cluster/tufts/biocontainers/nf-core/singularity-images"
+
+# Clean up nf-params.json by removing empty values and replacing placeholders
+sed -i '/:[[:space:]]*,/d' nf-params.json  # Delete lines with empty values
+sed -i '/"[[:space:]]*"/d' nf-params.json  # Remove empty string values
+export projectDir="<%= context.version %>"
+export baseDir="<%= context.version %>"
 sed -i "s@\$projectDir@$projectDir@g" nf-params.json
 sed -i "s@\$baseDir@$baseDir@g" nf-params.json
-sed -i 's/"None"/null/g' nf-params.json
+sed -i 's/"None"/null/g' nf-params.json   # Replace "None" with null
 
-
-# Test whether tufts profile is checked
-
+# Define resources based on execution environment
 num_memory="<%= context.num_memory %>"
 num_core="<%= context.num_core %>"
 
-if [ <%= context.executor %> == "slurm" ]
-then
-        echo "Tufts profile will be used, and tasks will run on different nodes!!!"
-        command="nextflow run <%= context.version %> -params-file nf-params.json -profile tufts --partition <%= context.cpu_partition %>  $resume $with_tower"
-        echo $command
-        eval $command
+# Determine execution environment (Slurm or local)
+if [ "<%= context.executor %>" == "slurm" ]; then
+    echo "Tufts profile will be used; tasks will run on different nodes."
+    command="nextflow run <%= context.version %> -params-file nf-params.json -profile tufts --partition <%= context.cpu_partition %> $resume $with_tower"
 else
-        echo "This is the local mode, which means all tasks will run on a single node!!!"
-        command="nextflow run <%= context.version %> -params-file nf-params.json -profile singularity --partition <%= context.cpu_partition %>  $resume $with_tower --max_cpus $num_core  --max_memory $num_memory"
-        echo $command
-        eval $command
+    echo "Running in local mode; all tasks will run on a single node."
+
+    # Create custom.config for local execution
+    cat <<EOF > custom.config
+cleanup = true
+
+process {
+    resourceLimits = [
+        cpus: $num_core,
+        memory: "$num_memory"
+    ]
+}
+EOF
+    echo "custom.config file created with cpus=$num_core and memory=$num_memory."
+    command="nextflow run <%= context.version %> -params-file nf-params.json -profile singularity -c custom.config $resume $with_tower"
 fi
 
+# Output and execute the command
+echo "Executing command: $command"
+eval "$command"
