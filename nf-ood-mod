@@ -1,10 +1,41 @@
 #!/bin/bash
 set -euo pipefail
+set +x
 IFS=$'\n\t'
+
+generate_module() {
+    # generate_module $Pipeline $Version $lmod_out
+
+    local pipeline=$1
+    local ver=$2
+    local output=$3
+    converted_version=$(echo "$ver" | sed 's/\./_/g')
+    # Initialize description and homepage variables
+    local homepage=""
+    local description=""
+
+    # Ensure template file exists
+    local template_file="${TEMPLATE_DIR}/lmod_template.lua"
+    if [[ ! -f "$template_file" ]]; then
+        echo "Error: Template file '$template_file' not found."
+        return 1
+    fi
+
+    # Substitute placeholders in the template
+    local modulefile_content=$(sed -e "s|\${PIPELINE}|$pipeline|g" \
+                                   -e "s|\${VERSION}|$ver|g" \
+                                   -e "s|\${VERSION_}|$converted_version|g" \
+                                   "$template_file")
+
+    # Output the generated modulefile
+    echo "$modulefile_content" > $output
+}
+
 
 parentfolder=$(git rev-parse --show-toplevel)
 input=""
 output=""
+TEMPLATE_DIR="$parentfolder/module_templates"
 
 while [[ $# -gt 0 ]]; do
         case "$1" in
@@ -14,6 +45,10 @@ while [[ $# -gt 0 ]]; do
                         ;;
                 -o|--output)
                         output=$2
+                        shift 2
+                        ;;
+                -m|--module)
+                        module_outdir=$2
                         shift 2
                         ;;
                 -h|--help)
@@ -42,9 +77,21 @@ if [ -d "$output" ]; then
         else
                 echo "Will use the existing output folder."
         fi
-else
-        mkdir -p "$output"
 fi
+
+# Remove existing module output folder if it exists
+if [ -d "$module_outdir" ]; then
+        echo "The module output folder already exists. Do you want to continue and delete it? (y/n)"
+        read answer
+        if [ "$answer" == "y" ]; then
+                echo "Deleting the module output folder..."
+                rm -r "$module_outdir"
+                mkdir -p "$module_outdir"
+        else
+                echo "Will use the existing module output folder."
+        fi
+fi
+
 # Get list of pipelines in the input folder
 pipelines=$(ls "$input")
 
@@ -55,7 +102,7 @@ for PIPELINE in $pipelines; do
 
         # Get the latest version of the pipeline
         latest_version=$(ls "$input/$PIPELINE" | tail -n 1)
-
+        versions=$(ls "$input/$PIPELINE")
         # Set input and output file paths
         inputJson="$input/$PIPELINE/$latest_version/$(echo "$latest_version" | tr '.' '_')/nextflow_schema.json"
         formYmlOut="$output/$PIPELINE/form.yml.erb"
@@ -87,4 +134,25 @@ for PIPELINE in $pipelines; do
 
         # Remove template file
         rm "$templateFile"
+
+        # Generate module file
+        App=${PIPELINE##*-}
+        VersionArray=($(ls -1 "$input/$PIPELINE/"))
+        for version in "${VersionArray[@]}"; do
+            VERSION=$(basename "$version")
+            VERSION=$(echo "$VERSION" | xargs)
+            lmod_out="$module_outdir/$PIPELINE/${VERSION}.lua"
+
+            # Extract the directory part of lmod_out
+            lmod_out_dir=$(dirname "$lmod_out")
+
+            # Create the output directory if it doesn't exist or has just been deleted
+            mkdir -p "$lmod_out_dir"
+
+            # Create or touch the lmod_out file
+            touch "$lmod_out"
+
+            # Call the generate_module function (ensure this function is defined elsewhere)
+            generate_module "$App" "$VERSION" "$lmod_out"
+        done
 done
