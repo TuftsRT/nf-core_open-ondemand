@@ -138,6 +138,7 @@ for PIPELINE in $pipelines; do
         # Generate module file
         App=${PIPELINE##*-}
         VersionArray=($(ls -1 "$input/$PIPELINE/"))
+        echo "Generating module files for $PIPELINE"
         for version in "${VersionArray[@]}"; do
             VERSION=$(basename "$version")
             VERSION=$(echo "$VERSION" | xargs)
