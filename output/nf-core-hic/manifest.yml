@@ -1,0 +1,8 @@
+---
+name: hic
+category: Bioinformatics Apps
+subcategory: nf-core pipelines
+role: batch_connect
+description: |
+  This app will launch the [hic](https://nf-co.re/hic) pipeline developed by nf-core community. 
+

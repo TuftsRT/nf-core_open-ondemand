@@ -1,0 +1,8 @@
+---
+name: fetchngs
+category: Bioinformatics Apps
+subcategory: nf-core pipelines
+role: batch_connect
+description: |
+  This app will launch the [fetchngs](https://nf-co.re/fetchngs) pipeline developed by nf-core community. 
+

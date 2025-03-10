@@ -1,0 +1,8 @@
+---
+name: funcscan
+category: Bioinformatics Apps
+subcategory: nf-core pipelines
+role: batch_connect
+description: |
+  This app will launch the [funcscan](https://nf-co.re/funcscan) pipeline developed by nf-core community. 
+

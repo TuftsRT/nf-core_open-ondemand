@@ -1,0 +1,8 @@
+---
+name: denovotranscript
+category: Bioinformatics Apps
+subcategory: nf-core pipelines
+role: batch_connect
+description: |
+  This app will launch the [denovotranscript](https://nf-co.re/denovotranscript) pipeline developed by nf-core community. 
+

@@ -1,0 +1,8 @@
+---
+name: bamtofastq
+category: Bioinformatics Apps
+subcategory: nf-core pipelines
+role: batch_connect
+description: |
+  This app will launch the [bamtofastq](https://nf-co.re/bamtofastq) pipeline developed by nf-core community. 
+

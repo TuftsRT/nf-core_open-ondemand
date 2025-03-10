@@ -1,0 +1,12 @@
+# Export the module function if it exists
+[[ $(type -t module) == "function" ]] && export -f module
+
+# Export compute node the script is running on
+export host="$(hostname)"
+
+# Hardcode port since the variable is needed but the information isn't.
+export port=1234
+
+WORKING_DIR="<%= context.workdir %>"
+export working_path="$WORKING_DIR"
+

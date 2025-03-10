@@ -1,0 +1,8 @@
+---
+name: eager
+category: Bioinformatics Apps
+subcategory: nf-core pipelines
+role: batch_connect
+description: |
+  This app will launch the [eager](https://nf-co.re/eager) pipeline developed by nf-core community. 
+

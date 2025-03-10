@@ -1,0 +1,8 @@
+---
+name: mag
+category: Bioinformatics Apps
+subcategory: nf-core pipelines
+role: batch_connect
+description: |
+  This app will launch the [mag](https://nf-co.re/mag) pipeline developed by nf-core community. 
+

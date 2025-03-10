@@ -1,0 +1,8 @@
+---
+name: rnafusion
+category: Bioinformatics Apps
+subcategory: nf-core pipelines
+role: batch_connect
+description: |
+  This app will launch the [rnafusion](https://nf-co.re/rnafusion) pipeline developed by nf-core community. 
+
