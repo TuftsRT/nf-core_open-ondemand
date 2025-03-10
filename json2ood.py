@@ -16,16 +16,47 @@ def write_options(outfile, options):
         if option:  # Ensure option is not empty or None
             outfile.write(f"      - ['{option}', '{option}']\n")
 
+# Function to write the layer 1 options in the outfile, these can be used to door-opener for the user to select the options
+def generate_partent_options(name, definition):
+    output_lines = []
+    label = definition.get("title", name.replace("_", " ").title())
+    properties = definition.get("properties", {})
+    help_text = definition.get("description", "")  # Extract top-level description
+
+    output_lines.append(f"  {name}:")
+    output_lines.append(f"    label: {label}")
+    output_lines.append(f"    widget: 'check_box'")
+    output_lines.append(f"    html_options:")
+    output_lines.append(f"      data:")
+
+    for prop in properties:
+        if prop == "email":  # Skip 'email' key
+            continue
+        output_lines.append(f"        hide-{prop}-when-un-checked: true")
+
+    if help_text:
+        output_lines.append(f"    help: \"{help_text}\"")
+
+    output_lines.append("")  # Add a newline for separation
+    return "\n".join(output_lines)
+
+
 # Function to write widget in the outfile
 def write_widget(outfile, widget):
     if widget:
-        if widget != 'check_box' and widget != 'check_box_default':
+        if widget != 'check_box' and widget != 'check_box_default' and widget != 'path_selector':
             outfile.write(f"    widget: {widget}\n")
         if widget == 'check_box':
             outfile.write(f"    widget: select\n")
             outfile.write("    options:\n")
             outfile.write("      - ['false', 'false']\n")
             outfile.write("      - ['true', 'true']\n")
+        if widget == "path_selector":
+            outfile.write("    widget: path_selector\n")
+            outfile.write("    directory: /cluster/tufts\n")
+            outfile.write("    favorites:\n")
+            outfile.write("      - /cluster/tufts\n")
+            outfile.write("      - /cluster/tufts\n")
 
 # Function to replace ' and " in help with `, but exclude ' in words like you're or it's.
 def replace_apostrophes(text):
@@ -85,13 +116,17 @@ def process_properties(outfile, properties):
                     outfile.write("    required: true\n")
                 widget = None
                 for k, v in value.items():
+                    widget_format = value.get("format", "")
                     if k == 'type':
                         widget = str(v)
                         if widget == 'boolean':
                             widget = "check_box"
                             boolean_field_list.append(key)
                         elif widget == 'string':
-                            widget = "text_field"
+                            if widget_format == 'file-path':
+                                widget = "path_selector"
+                            else:    
+                                widget = "text_field"
                         elif widget in ['integer', 'number']:
                             widget = "text_field"
                             number_field_list.append(key)
@@ -171,46 +206,13 @@ if not definitions:
     print("Error: Neither 'definitions' nor '$defs' found in the JSON file.")
 
 
-# Function to generate YAML-like output
-def generate_yaml_format(defs):
-    output_lines = []
-    for key, value in defs.items():
-        label = value.get("title", key.replace("_", " ").title())
-        properties = value.get("properties", {})
-        help_text = value.get("description", "")  # Extract top-level description
-
-        output_lines.append(f"{key}:")
-        output_lines.append(f"  label: {label}")
-        output_lines.append(f"  widget: 'check_box'")
-        output_lines.append(f"  html_options:")
-        output_lines.append(f"    data:")
-
-        for prop in properties:
-            if prop == "email":  # Skip 'email' key
-                continue
-            output_lines.append(f"      hide-{prop}-when-un-checked: true")
-
-        if help_text:
-            output_lines.append(f"  help: \"{help_text}\"")
-
-        output_lines.append("")  # Add a newline for separation
-
-#    return "\n".join(output_lines)
-
-# Generate YAML-formatted string
-#yaml_output = generate_yaml_format(definitions)
-
-# Save output to a file
-#output_path = "formatted_output.yaml"
-#with open(output_path, "w") as outfile:
-#    outfile.write(yaml_output)
-
-
 
 # Gather field data from schema definitions
 field_data = []
 for name, definition in definitions.items():
     if name not in ['institutional_config_options', 'generic_options', 'max_job_request_options']:
+        formYmlOut.write(generate_partent_options(name, definition))
+        formYmlOut.write("\n")
         required_properties = definition.get('required', [])
         properties = definition.get('properties', {})
         process_properties(formYmlOut, properties)
