@@ -57,6 +57,7 @@ while [[ $# -gt 0 ]]; do
                         echo "Arguments:"
                         echo " -i/--input input   - The input directory where nf-core pipelines are stored"
                         echo " -o/--output output  - The output directory where the OOD apps will be generated"
+                        echo " -m/--module module_outdir - The output directory where the module files will be generated"
                         exit 0
                         ;;
                 *)
