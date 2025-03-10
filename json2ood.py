@@ -13,7 +13,7 @@ boolean_field_list=[]
 # Function to write options in the outfile
 def write_options(outfile, options):
     for option in options:
-        if option:
+        if option:  # Ensure option is not empty or None
             outfile.write(f"      - ['{option}', '{option}']\n")
 
 # Function to write widget in the outfile
@@ -52,7 +52,6 @@ def process_genome(outfile):
     outfile.write("      - ['None', ' ']\n")
     genomes = ['GRCh37', 'GRCh38', 'GRCm38', 'TAIR10', 'EB2', 'UMD3.1', 'WBcel235', 'CanFam3.1', 'GRCz10', 'BDGP6', 'EquCab2', 'EB1', 'Galgal4', 'Gm01', 'Mmul_1', 'IRGSP-1.0', 'CHIMP2.1.4', 'Rnor_5.0', 'Rnor_6.0', 'R64-1-1', 'EF2', 'Sbi1', 'Sscrofa10.2', 'AGPv3', 'hg38', 'hg19', 'mm10', 'bosTau8', 'ce10', 'canFam3', 'danRer10', 'dm6', 'equCab2', 'galGal4', 'panTro4', 'rn6', 'sacCer3', 'susScr3']
     write_options(outfile, genomes)
- #   outfile.write("    help: \"If genome is selected (e.g. GRCh37) then the FASTA and GTF files (and existing indices) obtained from [AWS-iGenomes](https://ewels.github.io/AWS-iGenomes/) will be automatically used. However, this method is `not recommended`, because Gene annotations in iGenomes are extremely out of date.\"\n\n")
 
 # Function to process properties
 def process_properties(outfile, properties):
@@ -170,6 +169,43 @@ definitions = data.get('definitions', data.get('$defs'))
 
 if not definitions:
     print("Error: Neither 'definitions' nor '$defs' found in the JSON file.")
+
+
+# Function to generate YAML-like output
+def generate_yaml_format(defs):
+    output_lines = []
+    for key, value in defs.items():
+        label = value.get("title", key.replace("_", " ").title())
+        properties = value.get("properties", {})
+        help_text = value.get("description", "")  # Extract top-level description
+
+        output_lines.append(f"{key}:")
+        output_lines.append(f"  label: {label}")
+        output_lines.append(f"  widget: 'check_box'")
+        output_lines.append(f"  html_options:")
+        output_lines.append(f"    data:")
+
+        for prop in properties:
+            if prop == "email":  # Skip 'email' key
+                continue
+            output_lines.append(f"      hide-{prop}-when-un-checked: true")
+
+        if help_text:
+            output_lines.append(f"  help: \"{help_text}\"")
+
+        output_lines.append("")  # Add a newline for separation
+
+#    return "\n".join(output_lines)
+
+# Generate YAML-formatted string
+#yaml_output = generate_yaml_format(definitions)
+
+# Save output to a file
+#output_path = "formatted_output.yaml"
+#with open(output_path, "w") as outfile:
+#    outfile.write(yaml_output)
+
+
 
 # Gather field data from schema definitions
 field_data = []
