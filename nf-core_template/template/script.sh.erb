@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Exit immediately if a command fails
+set -euo pipefail
+
 # Clean the environment
 module purge
 
@@ -11,60 +14,57 @@ module list
 workdir="<%= context.workdir %>"
 
 # Ensure the working directory exists
-if [ ! -d "$workdir" ]; then
-    echo "$workdir does not exist. Creating it now..."
-    mkdir -p "$workdir"
+if [[ ! -d "$workdir" ]]; then
+    echo "Creating working directory: $workdir"
+    mkdir -p "$workdir" || { echo "Error: Failed to create $workdir"; exit 1; }
 fi
 
 # Copy necessary files and change to the working directory
-cp nf-params.json "$workdir/"
-cd "$workdir"
+cp nf-params.json "$workdir/" || { echo "Error: Failed to copy nf-params.json"; exit 1; }
+cd "$workdir" || { echo "Error: Failed to change to directory $workdir"; exit 1; }
 
-# Check if resume is set
-if [ "<%= context.resume %>" -eq 1 ]; then
-    echo "Job will resume from the previous run."
-    resume="-resume"
+# Determine if the job should resume
+resume_flag=""
+if [[ "<%= context.resume %>" -eq 1 ]]; then
+    echo "Resuming previous run."
+    resume_flag="-resume"
 else
-    echo "This is a fresh run."
-    resume=""
+    echo "Starting a fresh run."
 fi
 
-# Check if Nextflow Tower will be used
-TOKEN="<%= context.TOWER_ACCESS_TOKEN %>"
-
-if [[ -n "${TOKEN// }" ]]; then
+# Check if Nextflow Tower should be used
+with_tower_flag=""
+if [[ -n "${TOWER_ACCESS_TOKEN:="<%= context.TOWER_ACCESS_TOKEN %>"}" && -n "${TOWER_ACCESS_TOKEN// }" ]]; then
     echo "Using Nextflow Tower."
-    export TOWER_ACCESS_TOKEN="$TOKEN"
-    with_tower="-with-tower"
+    export TOWER_ACCESS_TOKEN="$TOWER_ACCESS_TOKEN"
+    with_tower_flag="-with-tower"
 else
     echo "Not using Nextflow Tower."
-    with_tower=""
 fi
 
 # Set the Singularity cache directory
 export NXF_SINGULARITY_CACHEDIR="/cluster/tufts/biocontainers/nf-core/singularity-images"
 
 # Clean up nf-params.json by removing empty values and replacing placeholders
-sed -i '/:[[:space:]]*,/d' nf-params.json  # Delete lines with empty values
-sed -i '/"[[:space:]]*"/d' nf-params.json  # Remove empty string values
+sed -i -E '/:[[:space:]]*,/d; /"[[:space:]]*"/d' nf-params.json
 export projectDir="<%= context.version %>"
 export baseDir="<%= context.version %>"
-sed -i "s@\$projectDir@$projectDir@g" nf-params.json
-sed -i "s@\$baseDir@$baseDir@g" nf-params.json
-sed -i 's/"None"/null/g' nf-params.json   # Replace "None" with null
+sed -i -E "s@\$(projectDir)@$projectDir@g; s@\$(baseDir)@$baseDir@g; s/\"None\"/null/g" nf-params.json
 
 # Define resources based on execution environment
 num_memory="<%= context.num_memory %>"
 num_core="<%= context.num_core %>"
 
-# Determine execution environment (Slurm or local)
-if [ "<%= context.executor %>" == "slurm" ]; then
-    echo "Tufts profile will be used; tasks will run on different nodes."
-    command="nextflow run <%= context.version %> -params-file nf-params.json -profile tufts --partition <%= context.cpu_partition %> $resume $with_tower"
-else
-    echo "Running in local mode; all tasks will run on a single node."
+# Build Nextflow command
+nextflow_command=("nextflow run <%= context.version %> -params-file nf-params.json")
 
-    # Create custom.config for local execution
+if [[ "<%= context.executor %>" == "slurm" ]]; then
+    echo "Using Tufts profile (Slurm execution)."
+    nextflow_command+=("-profile tufts" "--partition <%= context.cpu_partition %>")
+else
+    echo "Running in local mode (single-node execution)."
+
+    # Generate custom.config for local execution
     cat <<EOF > custom.config
 cleanup = true
 
@@ -75,10 +75,15 @@ process {
     ]
 }
 EOF
+
     echo "custom.config file created with cpus=$num_core and memory=$num_memory."
-    command="nextflow run <%= context.version %> -params-file nf-params.json -profile singularity -c custom.config $resume $with_tower"
+    nextflow_command+=("-profile singularity" "-c custom.config")
 fi
 
+# Append optional flags
+[[ -n "$resume_flag" ]] && nextflow_command+=("$resume_flag")
+[[ -n "$with_tower_flag" ]] && nextflow_command+=("$with_tower_flag")
+
 # Output and execute the command
-echo "Executing command: $command"
-eval "$command"
+echo "Executing command: ${nextflow_command[*]}"
+eval "${nextflow_command[*]}"
