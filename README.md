@@ -36,7 +36,7 @@ nf-core download scrnaseq -r 2.5.1 --outdir 2.5.1 -d  -s singularity -u amend -x
 At Tufts HPC, all nf-core pipelines are stored in `/cluster/tufts/biocontainers/nf-core/pipelines`. Below is the organization of all pipelines in the folder.
 
 ```
-[yzhang85@login-prod-01 pipelines]$ tree -L 2 .
+$ tree -L 2 .
 .
 ├── nf-core-ampliseq
 │   └── 2.8.0
@@ -92,8 +92,10 @@ At Tufts HPC, all nf-core pipelines are stored in `/cluster/tufts/biocontainers/
 
 ### Converting nf-core pipelines to OOD apps
 
+We provided two nf-core pipelines in the folder `testpipes`. You can use the below command to convert them into ood apps. `nf-ood-mod` also has another function, it can convert 
+
 ```
-bash nfcore2ood.sh -i /cluster/tufts/biocontainers/nf-core/pipelines -o ood
+bash nf-ood-mod -i /cluster/tufts/biocontainers/nf-core/pipelines -o ood
 Generating OOD app for nf-core-ampliseq
 Generating OOD app for nf-core-atacseq
 Generating OOD app for nf-core-chipseq
