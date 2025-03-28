@@ -8,12 +8,18 @@ As the demand for reproducibility in bioinformatics analysis increases, workflow
 3. Tufts HPC uses **SingularityCE** to run these pipelines. **Apptainer** is also supported and works equally well.
 
 ## Usage
-The scripts are very straightforward to use. The master script `nf-ood-mod` only requires two parameters, namely `-i/--input input` and `-o/--output output`. Input is the directory where nf-core pipelines are stored, and output is the directory where the generated Open OnDemand apps will be saved.
+The scripts are straightforward to use. The master script, `nf-ood-mod`, requires three parameters:
+
+- `-i` / `--input <input>`: Path to the directory where nf-core pipelines are stored.
+- `-o` / `--output <output>`: Path to the directory where the generated Open OnDemand (OOD) apps will be saved.
+- `-m` / `--module <module_outdir>`: Path to the directory where the generated environment modules will be saved.
+
+This setup allows you to organize and deploy nf-core pipelines as both OOD apps and standard environment modules.
 
 ### Help message
 ```
 bash nf-ood-mod -h/--help
-Usage: nf-ood-mod -i/--input input -o/--output output
+Usage: nf-ood-mod -i/--input input -o/--output output -m/--module module_outdir
 This script will convert nf-core pipelines into OOD apps.
 Arguments:
  -i/--input input   - The input directory where nf-core pipelines are stored
