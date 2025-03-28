@@ -1,0 +1,8 @@
+---
+name: nanoseq
+category: Bioinformatics Apps
+subcategory: nf-core pipelines
+role: batch_connect
+description: |
+  This app will launch the [nanoseq](https://nf-co.re/nanoseq) pipeline developed by nf-core community. 
+

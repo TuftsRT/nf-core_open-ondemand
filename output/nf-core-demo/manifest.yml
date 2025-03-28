@@ -1,0 +1,8 @@
+---
+name: demo
+category: Bioinformatics Apps
+subcategory: nf-core pipelines
+role: batch_connect
+description: |
+  This app will launch the [demo](https://nf-co.re/demo) pipeline developed by nf-core community. 
+

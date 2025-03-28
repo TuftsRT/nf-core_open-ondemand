@@ -1,0 +1,8 @@
+---
+name: rnaseq
+category: Bioinformatics Apps
+subcategory: nf-core pipelines
+role: batch_connect
+description: |
+  This app will launch the [rnaseq](https://nf-co.re/rnaseq) pipeline developed by nf-core community. 
+

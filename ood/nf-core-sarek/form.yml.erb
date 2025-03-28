@@ -36,19 +36,19 @@ attributes:
     widget: "select"
     label: "Amount of memory"
     options:
-    - ["1GB", "1GB"]
-    - ["2GB", "2GB"]
-    - ["4GB", "4GB"]
-    - ["8GB", "8GB"]
-    - ["16GB", "16GB"]
-    - ["32GB", "32GB"]
-    - ["64GB", "64GB"]
-    - ["72GB", "72GB"]
-    - ["80GB", "80GB"]
-    - ["96GB", "96GB"]
-    - ["128GB", "128GB"]
-    - ["160GB", "160GB"]
-    - ["256GB", "256GB"]
+    - ["1GB", 1GB]
+    - ["2GB", 2GB]
+    - ["4GB", 4GB]
+    - ["8GB", 8GB]
+    - ["16GB", 16GB]
+    - ["32GB", 32GB]
+    - ["64GB", 64GB]
+    - ["72GB", 72GB]
+    - ["80GB", 80GB]
+    - ["96GB", 96GB]
+    - ["128GB", 128GB]
+    - ["160GB", 160GB]
+    - ["256GB", 256GB]
 
   workdir:
     label: "Working Directory"
@@ -76,6 +76,10 @@ attributes:
     label: Version
     widget: select
     options:
+      - ['3.5.1', '/cluster/tufts/biocontainers/nf-core/pipelines/nf-core-sarek/3.5.1/3_5_1']
+      - ['3.5.0', '/cluster/tufts/biocontainers/nf-core/pipelines/nf-core-sarek/3.5.0/3_5_0']
+      - ['3.4.4', '/cluster/tufts/biocontainers/nf-core/pipelines/nf-core-sarek/3.4.4/3_4_4']
+      - ['3.4.3', '/cluster/tufts/biocontainers/nf-core/pipelines/nf-core-sarek/3.4.3/3_4_3']
       - ['3.4.1', '/cluster/tufts/biocontainers/nf-core/pipelines/nf-core-sarek/3.4.1/3_4_1']
       - ['3.4.0', '/cluster/tufts/biocontainers/nf-core/pipelines/nf-core-sarek/3.4.0/3_4_0']
 
@@ -108,24 +112,16 @@ attributes:
     widget: text_field
     help: "Specify how many reads each split of a FastQ file contains. Set 0 to turn off splitting at all."
 
-  wes:
-    label: wes
-    widget: select
-    options:
-      - ['false', 'false']
-      - ['true', 'true']
-    help: "Enable when exome or panel data is provided."
-
-  intervals:
-    label: intervals
-    widget: text_field
-    help: "Path to target bed file in case of whole exome or targeted sequencing or intervals file."
-
   nucleotides_per_second:
     value: "200000"
     label: nucleotides_per_second
     widget: text_field
     help: "Estimate interval size."
+
+  intervals:
+    label: intervals
+    widget: text_field
+    help: "Path to target bed file in case of whole exome or targeted sequencing or intervals file."
 
   no_intervals:
     label: no_intervals
@@ -134,6 +130,14 @@ attributes:
       - ['false', 'false']
       - ['true', 'true']
     help: "Disable usage of intervals."
+
+  wes:
+    label: wes
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Enable when exome or panel data is provided."
 
   tools:
     label: tools
@@ -153,10 +157,68 @@ attributes:
       - ['true', 'true']
     help: "Run FastP for read trimming"
 
+  clip_r1:
+    value: "0"
+    label: clip_r1
+    widget: text_field
+    help: "Remove bp from the 5` end of read 1"
+
+  clip_r2:
+    value: "0"
+    label: clip_r2
+    widget: text_field
+    help: "Remove bp from the 5` end of read 2"
+
+  three_prime_clip_r1:
+    value: "0"
+    label: three_prime_clip_r1
+    widget: text_field
+    help: "Remove bp from the 3` end of read 1"
+
+  three_prime_clip_r2:
+    value: "0"
+    label: three_prime_clip_r2
+    widget: text_field
+    help: "Remove bp from the 3` end of read 2"
+
+  trim_nextseq:
+    value: "0"
+    label: trim_nextseq
+    widget: text_field
+    help: "Removing poly-G tails."
+
+  length_required:
+    value: "15"
+    label: length_required
+    widget: text_field
+    help: "Minimum length of reads to keep"
+
+  save_trimmed:
+    label: save_trimmed
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save trimmed FastQ file intermediates."
+
   umi_read_structure:
     label: umi_read_structure
     widget: text_field
     help: "Specify UMI read structure"
+
+  group_by_umi_strategy:
+    value: "Adjacency"
+    label: group_by_umi_strategy
+    widget: text_field
+    help: "Default strategy with UMI"
+
+  save_split_fastqs:
+    label: save_split_fastqs
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "If set, publishes split FASTQ files. Intended for testing purposes."
 
   aligner:
     value: "bwa-mem"
@@ -190,14 +252,6 @@ attributes:
     widget: text_field
     help: "Enable usage of GATK Spark implementation for duplicate marking and/or base quality score recalibration"
 
-  concatenate_vcfs:
-    label: concatenate_vcfs
-    widget: select
-    options:
-      - ['false', 'false']
-      - ['true', 'true']
-    help: "Option for concatenating germline vcf-files."
-
   only_paired_variant_calling:
     label: only_paired_variant_calling
     widget: select
@@ -205,6 +259,87 @@ attributes:
       - ['false', 'false']
       - ['true', 'true']
     help: "If true, skips germline variant calling for matched normal to tumor sample. Normal samples without matched tumor will still be processed through germline variant calling tools."
+
+  ascat_min_base_qual:
+    value: "20"
+    label: ascat_min_base_qual
+    widget: text_field
+    help: "Overwrite Ascat min base quality required for a read to be counted."
+
+  ascat_min_counts:
+    value: "10"
+    label: ascat_min_counts
+    widget: text_field
+    help: "Overwrite Ascat minimum depth required in the normal for a SNP to be considered."
+
+  ascat_min_map_qual:
+    value: "35"
+    label: ascat_min_map_qual
+    widget: text_field
+    help: "Overwrite Ascat min mapping quality required for a read to be counted."
+
+  ascat_ploidy:
+    label: ascat_ploidy
+    widget: text_field
+    help: "Overwrite ASCAT ploidy."
+
+  ascat_purity:
+    label: ascat_purity
+    widget: text_field
+    help: "Overwrite ASCAT purity."
+
+  cf_chrom_len:
+    label: cf_chrom_len
+    widget: text_field
+    help: "Specify a custom chromosome length file."
+
+  cf_coeff:
+    value: "0.05"
+    label: cf_coeff
+    widget: text_field
+    help: "Overwrite Control-FREEC coefficientOfVariation"
+
+  cf_contamination_adjustment:
+    label: cf_contamination_adjustment
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Overwrite Control-FREEC contaminationAdjustement"
+
+  cf_contamination:
+    value: "0"
+    label: cf_contamination
+    widget: text_field
+    help: "Design known contamination value for Control-FREEC"
+
+  cf_minqual:
+    value: "0"
+    label: cf_minqual
+    widget: text_field
+    help: "Minimal sequencing quality for a position to be considered in BAF analysis."
+
+  cf_mincov:
+    value: "0"
+    label: cf_mincov
+    widget: text_field
+    help: "Minimal read coverage for a position to be considered in BAF analysis."
+
+  cf_ploidy:
+    value: "2"
+    label: cf_ploidy
+    widget: text_field
+    help: "Genome ploidy used by ControlFREEC"
+
+  cf_window:
+    label: cf_window
+    widget: text_field
+    help: "Overwrite Control-FREEC window size."
+
+  cnvkit_reference:
+    label: cnvkit_reference
+    widget: text_field
+    help: "Copy-number reference for CNVkit"
 
   joint_germline:
     label: joint_germline
@@ -222,6 +357,131 @@ attributes:
       - ['true', 'true']
     help: "Runs Mutect2 in joint (multi-sample) mode for better concordance among variant calls of tumor samples from the same patient. Mutect2 outputs will be stored in a subfolder named with patient ID under `variant_calling/mutect2/` folder. Only a single normal sample per patient is allowed. Tumor-only mode is also supported."
 
+  ignore_soft_clipped_bases:
+    label: ignore_soft_clipped_bases
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Do not analyze soft clipped bases in the reads for GATK Mutect2."
+
+  pon:
+    label: pon
+    widget: text_field
+    help: "Panel-of-normals VCF (bgzipped) for GATK Mutect2"
+
+  pon_tbi:
+    label: pon_tbi
+    widget: text_field
+    help: "Index of PON panel-of-normals VCF."
+
+  sentieon_haplotyper_emit_mode:
+    value: "variant"
+    label: sentieon_haplotyper_emit_mode
+    widget: text_field
+    help: "Option for selecting output and emit-mode of Sentieon's Haplotyper."
+
+  sentieon_dnascope_emit_mode:
+    value: "variant"
+    label: sentieon_dnascope_emit_mode
+    widget: text_field
+    help: "Option for selecting output and emit-mode of Sentieon's Dnascope."
+
+  sentieon_dnascope_pcr_indel_model:
+    value: "CONSERVATIVE"
+    label: sentieon_dnascope_pcr_indel_model
+    widget: text_field
+    help: "Option for selecting the PCR indel model used by Sentieon Dnascope."
+
+  concatenate_vcfs:
+    label: concatenate_vcfs
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Option for concatenating germline vcf-files."
+
+  vep_include_fasta:
+    label: vep_include_fasta
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Allow usage of fasta file for annotation with VEP"
+
+  vep_dbnsfp:
+    label: vep_dbnsfp
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Enable the use of the VEP dbNSFP plugin."
+
+  dbnsfp:
+    label: dbnsfp
+    widget: text_field
+    help: "Path to dbNSFP processed file."
+
+  dbnsfp_tbi:
+    label: dbnsfp_tbi
+    widget: text_field
+    help: "Path to dbNSFP tabix indexed file."
+
+  dbnsfp_consequence:
+    label: dbnsfp_consequence
+    widget: text_field
+    help: "Consequence to annotate with"
+
+  dbnsfp_fields:
+    value: "rs_dbSNP,HGVSc_VEP,HGVSp_VEP,1000Gp3_EAS_AF,1000Gp3_AMR_AF,LRT_score,GERP++_RS,gnomAD_exomes_AF"
+    label: dbnsfp_fields
+    widget: text_field
+    help: "Fields to annotate with"
+
+  vep_loftee:
+    label: vep_loftee
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Enable the use of the VEP LOFTEE plugin."
+
+  vep_spliceai:
+    label: vep_spliceai
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Enable the use of the VEP SpliceAI plugin."
+
+  spliceai_snv:
+    label: spliceai_snv
+    widget: text_field
+    help: "Path to spliceai raw scores snv file."
+
+  spliceai_snv_tbi:
+    label: spliceai_snv_tbi
+    widget: text_field
+    help: "Path to spliceai raw scores snv tabix indexed file."
+
+  spliceai_indel:
+    label: spliceai_indel
+    widget: text_field
+    help: "Path to spliceai raw scores indel file."
+
+  spliceai_indel_tbi:
+    label: spliceai_indel_tbi
+    widget: text_field
+    help: "Path to spliceai raw scores indel tabix indexed file."
+
+  vep_spliceregion:
+    label: vep_spliceregion
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Enable the use of the VEP SpliceRegion plugin."
+
   vep_custom_args:
     value: "--everything --filter_common --per_gene --total_length --offline --format vcf"
     label: vep_custom_args
@@ -233,6 +493,21 @@ attributes:
     label: vep_version
     widget: text_field
     help: "Should reflect the VEP version used in the container."
+
+  outdir_cache:
+    label: outdir_cache
+    widget: text_field
+    help: "The output directory where the cache will be saved. You have to use absolute paths to storage on Cloud infrastructure."
+
+  vep_out_format:
+    value: "vcf"
+    widget: select
+    options:
+      - ['json', 'json']
+      - ['tab', 'tab']
+      - ['vcf', 'vcf']
+    label: vep_out_format
+    help: "VEP output-file format."
 
   bcftools_annotations:
     label: bcftools_annotations
@@ -248,6 +523,36 @@ attributes:
     label: bcftools_header_lines
     widget: text_field
     help: "Text file with the header lines of `bcftools_annotations`"
+
+  igenomes_base:
+    value: "s3://ngi-igenomes/igenomes/"
+    label: igenomes_base
+    widget: text_field
+    help: "The base path to the igenomes reference files"
+
+  save_reference:
+    label: save_reference
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save built references."
+
+  build_only_index:
+    label: build_only_index
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Only built references."
+
+  download_cache:
+    label: download_cache
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Download annotation cache."
 
   genome:
     label: iGenomes
@@ -294,10 +599,76 @@ attributes:
       - ['sacCer3', 'sacCer3']
       - ['susScr3', 'susScr3']
     help: "Name of iGenomes reference."
+  ascat_genome:
+    widget: select
+    options:
+      - ['None', ' ']
+      - ['hg19', 'hg19']
+      - ['hg38', 'hg38']
+    label: ascat_genome
+    help: "ASCAT genome."
+
+  ascat_alleles:
+    label: ascat_alleles
+    widget: text_field
+    help: "Path to ASCAT allele zip file."
+
+  ascat_loci:
+    label: ascat_loci
+    widget: text_field
+    help: "Path to ASCAT loci zip file."
+
+  ascat_loci_gc:
+    label: ascat_loci_gc
+    widget: text_field
+    help: "Path to ASCAT GC content correction file."
+
+  ascat_loci_rt:
+    label: ascat_loci_rt
+    widget: text_field
+    help: "Path to ASCAT RT (replictiming) correction file."
+
+  bwa:
+    label: bwa
+    widget: text_field
+    help: "Path to BWA mem indices."
+
+  bwamem2:
+    label: bwamem2
+    widget: text_field
+    help: "Path to bwa-mem2 mem indices."
+
+  chr_dir:
+    label: chr_dir
+    widget: text_field
+    help: "Path to chromosomes folder used with ControLFREEC."
+
+  dbsnp:
+    label: dbsnp
+    widget: text_field
+    help: "Path to dbsnp file."
+
+  dbsnp_tbi:
+    label: dbsnp_tbi
+    widget: text_field
+    help: "Path to dbsnp index."
+
   dbsnp_vqsr:
     label: dbsnp_vqsr
     widget: text_field
-    help: "label string for VariantRecalibration (haplotypecaller joint variant calling)"
+    help: "Label string for VariantRecalibration (haplotypecaller joint variant calling).
+
+If you use AWS iGenomes, this has already been set for you appropriately."
+
+  dict:
+    label: dict
+    widget: text_field
+    help: "Path to FASTA dictionary file."
+
+  dragmap:
+    label: dragmap
+    widget: text_field
+    help: "Path to dragmap indices."
 
   fasta:
     label: fasta
@@ -309,19 +680,35 @@ attributes:
     widget: text_field
     help: "Path to FASTA reference index."
 
+  germline_resource:
+    label: germline_resource
+    widget: text_field
+    help: "Path to GATK Mutect2 Germline Resource File."
+
+  germline_resource_tbi:
+    label: germline_resource_tbi
+    widget: text_field
+    help: "Path to GATK Mutect2 Germline Resource Index."
+
+  known_indels:
+    label: known_indels
+    widget: text_field
+    help: "Path to known indels file."
+
+  known_indels_tbi:
+    label: known_indels_tbi
+    widget: text_field
+    help: "Path to known indels file index."
+
   known_indels_vqsr:
     label: known_indels_vqsr
     widget: text_field
-    help: "If you use AWS iGenomes, this has already been set for you appropriately.
-
-1st label string for VariantRecalibration (haplotypecaller joint variant calling)"
+    help: "Label string for VariantRecalibration (haplotypecaller joint variant calling). If you use AWS iGenomes, this has already been set for you appropriately."
 
   known_snps:
     label: known_snps
     widget: text_field
-    help: "If you use AWS iGenomes, this has already been set for you appropriately.
-
-Path to known snps file."
+    help: "Path to known snps file."
 
   known_snps_tbi:
     label: known_snps_tbi
@@ -331,24 +718,44 @@ Path to known snps file."
   known_snps_vqsr:
     label: known_snps_vqsr
     widget: text_field
-    help: "If you use AWS iGenomes, this has already been set for you appropriately.
+    help: "Label string for VariantRecalibration (haplotypecaller joint variant calling).If you use AWS iGenomes, this has already been set for you appropriately."
 
-label string for VariantRecalibration (haplotypecaller joint variant calling)"
+  mappability:
+    label: mappability
+    widget: text_field
+    help: "Path to Control-FREEC mappability file."
 
   ngscheckmate_bed:
     label: ngscheckmate_bed
     widget: text_field
     help: "Path to SNP bed file for sample checking with NGSCheckMate"
 
+  sentieon_dnascope_model:
+    label: sentieon_dnascope_model
+    widget: text_field
+    help: "Machine learning model for Sentieon Dnascope."
+
+  snpeff_cache:
+    value: "s3://annotation-cache/snpeff_cache/"
+    label: snpeff_cache
+    widget: text_field
+    help: "Path to snpEff cache."
+
   snpeff_db:
     label: snpeff_db
     widget: text_field
     help: "snpEff DB version."
 
-  snpeff_genome:
-    label: snpeff_genome
+  vep_cache:
+    value: "s3://annotation-cache/vep_cache/"
+    label: vep_cache
     widget: text_field
-    help: "snpEff genome."
+    help: "Path to VEP cache."
+
+  vep_cache_version:
+    label: vep_cache_version
+    widget: text_field
+    help: "VEP cache version."
 
   vep_genome:
     label: vep_genome
@@ -359,53 +766,6 @@ label string for VariantRecalibration (haplotypecaller joint variant calling)"
     label: vep_species
     widget: text_field
     help: "VEP species."
-
-  vep_cache_version:
-    label: vep_cache_version
-    widget: text_field
-    help: "VEP cache version."
-
-  save_reference:
-    label: save_reference
-    widget: select
-    options:
-      - ['false', 'false']
-      - ['true', 'true']
-    help: "Save built references."
-
-  build_only_index:
-    label: build_only_index
-    widget: select
-    options:
-      - ['false', 'false']
-      - ['true', 'true']
-    help: "Only built references."
-
-  download_cache:
-    label: download_cache
-    widget: select
-    options:
-      - ['false', 'false']
-      - ['true', 'true']
-    help: "Download annotation cache."
-
-  igenomes_base:
-    value: "s3://ngi-igenomes/igenomes/"
-    label: igenomes_base
-    widget: text_field
-    help: "Directory / URL base for iGenomes references."
-
-  vep_cache:
-    value: "s3://annotation-cache/vep_cache/"
-    label: vep_cache
-    widget: text_field
-    help: "Path to VEP cache."
-
-  snpeff_cache:
-    value: "s3://annotation-cache/snpeff_cache/"
-    label: snpeff_cache
-    widget: text_field
-    help: "Path to snpEff cache."
 
 
 form:
@@ -421,45 +781,106 @@ form:
   - input
   - step
   - split_fastq
-  - wes
-  - intervals
   - nucleotides_per_second
+  - intervals
   - no_intervals
+  - wes
   - tools
   - skip_tools
   - trim_fastq
+  - clip_r1
+  - clip_r2
+  - three_prime_clip_r1
+  - three_prime_clip_r2
+  - trim_nextseq
+  - length_required
+  - save_trimmed
   - umi_read_structure
+  - group_by_umi_strategy
+  - save_split_fastqs
   - aligner
   - save_mapped
   - save_output_as_bam
   - use_gatk_spark
-  - concatenate_vcfs
   - only_paired_variant_calling
+  - ascat_min_base_qual
+  - ascat_min_counts
+  - ascat_min_map_qual
+  - ascat_ploidy
+  - ascat_purity
+  - cf_chrom_len
+  - cf_coeff
+  - cf_contamination_adjustment
+  - cf_contamination
+  - cf_minqual
+  - cf_mincov
+  - cf_ploidy
+  - cf_window
+  - cnvkit_reference
   - joint_germline
   - joint_mutect2
+  - ignore_soft_clipped_bases
+  - pon
+  - pon_tbi
+  - sentieon_haplotyper_emit_mode
+  - sentieon_dnascope_emit_mode
+  - sentieon_dnascope_pcr_indel_model
+  - concatenate_vcfs
+  - vep_include_fasta
+  - vep_dbnsfp
+  - dbnsfp
+  - dbnsfp_tbi
+  - dbnsfp_consequence
+  - dbnsfp_fields
+  - vep_loftee
+  - vep_spliceai
+  - spliceai_snv
+  - spliceai_snv_tbi
+  - spliceai_indel
+  - spliceai_indel_tbi
+  - vep_spliceregion
   - vep_custom_args
   - vep_version
+  - outdir_cache
+  - vep_out_format
   - bcftools_annotations
   - bcftools_annotations_tbi
   - bcftools_header_lines
+  - save_reference
+  - build_only_index
+  - download_cache
   - genome
+  - ascat_genome
+  - ascat_alleles
+  - ascat_loci
+  - ascat_loci_gc
+  - ascat_loci_rt
+  - bwa
+  - bwamem2
+  - chr_dir
+  - dbsnp
+  - dbsnp_tbi
   - dbsnp_vqsr
+  - dict
+  - dragmap
   - fasta
   - fasta_fai
+  - germline_resource
+  - germline_resource_tbi
+  - known_indels
+  - known_indels_tbi
   - known_indels_vqsr
   - known_snps
   - known_snps_tbi
   - known_snps_vqsr
+  - mappability
   - ngscheckmate_bed
+  - sentieon_dnascope_model
+  - snpeff_cache
   - snpeff_db
-  - snpeff_genome
+  - vep_cache
+  - vep_cache_version
   - vep_genome
   - vep_species
-  - vep_cache_version
-  - save_reference
-  - build_only_index
-  - download_cache
-  - vep_cache
-  - snpeff_cache
   - TOWER_ACCESS_TOKEN
   - resume

@@ -1,0 +1,1 @@
+2024-11-06 16:27:01	-	happy_ride	-	85c9b75b8bdc95677d64453c279377bf	01ae8c28-0e56-4a22-a2e9-ec169ad20124	nextflow run /cluster/tufts/biocontainers/nf-core/pipelines/nf-core-rnaseq/3.17.0/3_17_0 --help

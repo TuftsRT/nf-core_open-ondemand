@@ -1,0 +1,29 @@
+---
+batch_connect:
+  template: "basic"
+  conn_params:
+    - working_path 
+
+script:
+  email_on_started: true
+  email_on_terminated: true
+  email: <%= ENV["USER"] %>@tufts.edu
+  job_name: "OnDemand/nf-core_nf-core-chipseq"
+  native:
+    - "--time"
+    - "<%= bc_num_hours %>:0:0"
+    - "--nodes"
+    - "1"
+    <%- if executor == "slurm" -%>
+    - "-n"
+    - "2"
+    - "--reservation"
+    - "<%= reservation %>"
+    <%- elsif executor == "local" -%>
+    - "-n"
+    - "<%= num_core %>"
+    - "--mem"
+    - "<%= num_memory %>"
+    - "-p"
+    - <%= cpu_partition %>
+    <%- end -%>                         

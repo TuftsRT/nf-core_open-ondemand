@@ -52,11 +52,12 @@ while [[ $# -gt 0 ]]; do
                         shift 2
                         ;;
                 -h|--help)
-                        echo "Usage: nf2ood.sh -i/--input input -o/--output output"
+                        echo "Usage: nf-ood-mod -i/--input input -o/--output output -m/--module module_outdir"
                         echo "This script will convert nf-core pipelines into OOD apps."
                         echo "Arguments:"
                         echo " -i/--input input   - The input directory where nf-core pipelines are stored"
                         echo " -o/--output output  - The output directory where the OOD apps will be generated"
+                        echo " -m/--module module_outdir - The output directory where the module files will be generated"
                         exit 0
                         ;;
                 *)
@@ -77,6 +78,8 @@ if [ -d "$output" ]; then
         else
                 echo "Will use the existing output folder."
         fi
+else
+        mkdir $output
 fi
 
 # Remove existing module output folder if it exists
@@ -90,6 +93,8 @@ if [ -d "$module_outdir" ]; then
         else
                 echo "Will use the existing module output folder."
         fi
+else
+        mkdir $module_outdir
 fi
 
 # Get list of pipelines in the input folder

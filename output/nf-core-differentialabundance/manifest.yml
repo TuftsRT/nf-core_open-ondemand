@@ -1,0 +1,8 @@
+---
+name: differentialabundance
+category: Bioinformatics Apps
+subcategory: nf-core pipelines
+role: batch_connect
+description: |
+  This app will launch the [differentialabundance](https://nf-co.re/differentialabundance) pipeline developed by nf-core community. 
+

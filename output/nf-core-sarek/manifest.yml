@@ -1,0 +1,8 @@
+---
+name: sarek
+category: Bioinformatics Apps
+subcategory: nf-core pipelines
+role: batch_connect
+description: |
+  This app will launch the [sarek](https://nf-co.re/sarek) pipeline developed by nf-core community. 
+

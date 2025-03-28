@@ -1,0 +1,8 @@
+---
+name: methylseq
+category: Bioinformatics Apps
+subcategory: nf-core pipelines
+role: batch_connect
+description: |
+  This app will launch the [methylseq](https://nf-co.re/methylseq) pipeline developed by nf-core community. 
+

@@ -1,0 +1,202 @@
+Nov-07 21:13:08.088 [main] DEBUG nextflow.cli.Launcher - $> nextflow run /cluster/tufts/biocontainers/nf-core/pipelines/nf-core-rnaseq/3.17.0/3_17_0 --help
+Nov-07 21:13:08.176 [main] DEBUG nextflow.cli.CmdRun - N E X T F L O W  ~  version 24.10.0
+Nov-07 21:13:08.200 [main] DEBUG nextflow.plugin.PluginsFacade - Setting up plugin manager > mode=prod; embedded=false; plugins-dir=/cluster/home/yzhang85/.nextflow/plugins; core-plugins: nf-amazon@2.9.0,nf-azure@1.10.1,nf-cloudcache@0.4.2,nf-codecommit@0.2.2,nf-console@1.1.4,nf-google@1.15.2,nf-tower@1.9.3,nf-wave@1.7.2
+Nov-07 21:13:08.224 [main] INFO  o.pf4j.DefaultPluginStatusProvider - Enabled plugins: []
+Nov-07 21:13:08.225 [main] INFO  o.pf4j.DefaultPluginStatusProvider - Disabled plugins: []
+Nov-07 21:13:08.228 [main] INFO  org.pf4j.DefaultPluginManager - PF4J version 3.12.0 in 'deployment' mode
+Nov-07 21:13:08.239 [main] INFO  org.pf4j.AbstractPluginManager - No plugins
+Nov-07 21:13:09.039 [main] DEBUG nextflow.config.ConfigBuilder - Found config base: /cluster/tufts/biocontainers/nf-core/pipelines/nf-core-rnaseq/3.17.0/3_17_0/nextflow.config
+Nov-07 21:13:09.042 [main] DEBUG nextflow.config.ConfigBuilder - Parsing config file: /cluster/tufts/biocontainers/nf-core/pipelines/nf-core-rnaseq/3.17.0/3_17_0/nextflow.config
+Nov-07 21:13:09.075 [main] DEBUG n.secret.LocalSecretsProvider - Secrets store: /cluster/home/yzhang85/.nextflow/secrets/store.json
+Nov-07 21:13:09.078 [main] DEBUG nextflow.secret.SecretsLoader - Discovered secrets providers: [nextflow.secret.LocalSecretsProvider@630390b9] - activable => nextflow.secret.LocalSecretsProvider@630390b9
+Nov-07 21:13:09.089 [main] DEBUG nextflow.config.ConfigBuilder - Applying config profile: `standard`
+Nov-07 21:13:10.834 [main] DEBUG nextflow.cli.CmdRun - Applied DSL=2 by global default
+Nov-07 21:13:10.849 [main] DEBUG nextflow.cli.CmdRun - Launching `/cluster/tufts/biocontainers/nf-core/pipelines/nf-core-rnaseq/3.17.0/3_17_0/main.nf` [hopeful_plateau] DSL2 - revision: 85c9b75b8b
+Nov-07 21:13:10.850 [main] DEBUG nextflow.plugin.PluginsFacade - Plugins declared=[nf-schema@2.1.1]
+Nov-07 21:13:10.851 [main] DEBUG nextflow.plugin.PluginsFacade - Plugins default=[]
+Nov-07 21:13:10.851 [main] DEBUG nextflow.plugin.PluginsFacade - Plugins resolved requirement=[nf-schema@2.1.1]
+Nov-07 21:13:10.851 [main] DEBUG nextflow.plugin.PluginUpdater - Installing plugin nf-schema version: 2.1.1
+Nov-07 21:13:10.865 [main] INFO  org.pf4j.AbstractPluginManager - Plugin 'nf-schema@2.1.1' resolved
+Nov-07 21:13:10.865 [main] INFO  org.pf4j.AbstractPluginManager - Start plugin 'nf-schema@2.1.1'
+Nov-07 21:13:10.881 [main] DEBUG nextflow.plugin.BasePlugin - Plugin started nf-schema@2.1.1
+Nov-07 21:13:10.940 [main] DEBUG nextflow.Session - Session UUID: 09863680-4329-471d-8ea9-b880b6d586e8
+Nov-07 21:13:10.940 [main] DEBUG nextflow.Session - Run name: hopeful_plateau
+Nov-07 21:13:10.940 [main] DEBUG nextflow.Session - Executor pool size: 4
+Nov-07 21:13:10.947 [main] DEBUG nextflow.file.FilePorter - File porter settings maxRetries=3; maxTransfers=50; pollTimeout=null
+Nov-07 21:13:10.952 [main] DEBUG nextflow.util.ThreadPoolBuilder - Creating thread pool 'FileTransfer' minSize=10; maxSize=12; workQueue=LinkedBlockingQueue[10000]; allowCoreThreadTimeout=false
+Nov-07 21:13:11.018 [main] DEBUG nextflow.cli.CmdRun - 
+  Version: 24.10.0 build 5928
+  Created: 27-10-2024 18:36 UTC (14:36 EDT)
+  System: Linux 3.10.0-862.el7.x86_64
+  Runtime: Groovy 4.0.23 on Java HotSpot(TM) 64-Bit Server VM 15.0.2+7-27
+  Encoding: UTF-8 (UTF-8)
+  Process: 56436@login-prod-02.pax.tufts.edu [10.246.192.70]
+  CPUs: 4 - Mem: 31.2 GB (239.1 MB) - Swap: 4 GB (2.2 GB)
+Nov-07 21:13:11.104 [main] DEBUG nextflow.Session - Work-dir: /cluster/home/yzhang85/github/nf-core_open-ondemand/luas/work [nfs]
+Nov-07 21:13:11.148 [main] DEBUG nextflow.executor.ExecutorFactory - Extension executors providers=[]
+Nov-07 21:13:11.157 [main] DEBUG nextflow.Session - Observer factory: DefaultObserverFactory
+Nov-07 21:13:11.195 [main] DEBUG nextflow.cache.CacheFactory - Using Nextflow cache factory: nextflow.cache.DefaultCacheFactory
+Nov-07 21:13:11.203 [main] DEBUG nextflow.util.CustomThreadPool - Creating default thread pool > poolSize: 5; maxThreads: 1000
+Nov-07 21:13:11.291 [main] DEBUG nextflow.Session - Session start
+Nov-07 21:13:11.293 [main] DEBUG nextflow.trace.TraceFileObserver - Workflow started -- trace file: /cluster/home/yzhang85/github/nf-core_open-ondemand/luas/null/pipeline_info/execution_trace_2024-11-07_21-13-09.txt
+Nov-07 21:13:11.496 [main] DEBUG nextflow.script.ScriptRunner - > Launching execution
+Nov-07 21:13:13.601 [main] DEBUG nextflow.script.IncludeDef - Loading included plugin extensions with names: [paramsSummaryLog:paramsSummaryLog]; plugin Id: nf-schema
+Nov-07 21:13:13.718 [main] DEBUG nextflow.validation.SchemaValidator - Printing out the short help message
+Nov-07 21:13:13.776 [main] INFO  nextflow.validation.SchemaValidator - 
+-[2m----------------------------------------------------[0m-
+                                        [0;32m,--.[0;30m/[0;32m,-.[0m
+[0;34m        ___     __   __   __   ___     [0;32m/,-._.--~'[0m
+[0;34m  |\ | |__  __ /  ` /  \ |__) |__         [0;33m}  {[0m
+[0;34m  | \| |       \__, \__/ |  \ |___     [0;32m\`-._,-`-,[0m
+                                        [0;32m`._,._,'[0m
+[0;35m  nf-core/rnaseq 3.17.0[0m
+-[2m----------------------------------------------------[0m-
+Typical pipeline command:
+
+  [0;36mnextflow run nf-core/rnaseq -profile <docker/singularity/.../institute> --input samplesheet.csv --outdir <OUTDIR>[0m
+
+--help                          [2m[boolean, string] [0mShow the help message for all top level parameters. When a parameter is given to `--help`, the full help message of that parameter will be 
+printed. [2m[0m 
+--help_full                     [2m[boolean]         [0mShow the help message for all non-hidden parameters. [2m[0m
+--show_hidden                   [2m[boolean]         [0mShow all hidden parameters in the help message. This needs to be used in combination with `--help` or `--help_full`. [2m[0m
+
+[4m[1mInput/output options[0m
+  --input                       [2m[string] [0mPath to comma-separated file containing information about the samples in the experiment. [2m[0m
+  --outdir                      [2m[string] [0mThe output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure. [2m[0m
+  --email                       [2m[string] [0mEmail address for completion summary. [2m[0m
+  --multiqc_title               [2m[string] [0mMultiQC report title. Printed as page header, used for filename if not otherwise specified. [2m[0m
+
+[4m[1mReference genome options[0m
+  --genome                      [2m[string]  [0mName of iGenomes reference. [2m[0m
+  --fasta                       [2m[string]  [0mPath to FASTA genome file. [2m[0m
+  --gtf                         [2m[string]  [0mPath to GTF annotation file. [2m[0m
+  --gff                         [2m[string]  [0mPath to GFF3 annotation file. [2m[0m
+  --gene_bed                    [2m[string]  [0mPath to BED file containing gene intervals. This will be created from the GTF file if not specified. [2m[0m
+  --transcript_fasta            [2m[string]  [0mPath to FASTA transcriptome file. [2m[0m
+  --additional_fasta            [2m[string]  [0mFASTA file to concatenate to genome FASTA file e.g. containing spike-in sequences. [2m[0m
+  --splicesites                 [2m[string]  [0mSplice sites file required for HISAT2. [2m[0m
+  --star_index                  [2m[string]  [0mPath to directory or tar.gz archive for pre-built STAR index. [2m[0m
+  --hisat2_index                [2m[string]  [0mPath to directory or tar.gz archive for pre-built HISAT2 index. [2m[0m
+  --rsem_index                  [2m[string]  [0mPath to directory or tar.gz archive for pre-built RSEM index. [2m[0m
+  --salmon_index                [2m[string]  [0mPath to directory or tar.gz archive for pre-built Salmon index. [2m[0m
+  --kallisto_index              [2m[string]  [0mPath to directory or tar.gz archive for pre-built Kallisto index. [2m[0m
+  --hisat2_build_memory         [2m[string]  [0mMinimum memory required to use splice sites and exons in the HiSAT2 index build process. [2m[default: 200.GB] [0m
+  --gencode                     [2m[boolean] [0mSpecify if your GTF annotation is in GENCODE format. [2m[0m
+  --gtf_extra_attributes        [2m[string]  [0mBy default, the pipeline uses the `gene_name` field to obtain additional gene identifiers from the input GTF file when running Salmon. 
+[2m[default: gene_name] [0m 
+  --gtf_group_features          [2m[string]  [0mDefine the attribute type used to group features in the GTF file when running Salmon. [2m[default: gene_id] [0m
+  --featurecounts_group_type    [2m[string]  [0mThe attribute type used to group feature types in the GTF file when generating the biotype plot with featureCounts. [2m[default: gene_biotype] 
+[0m 
+  --featurecounts_feature_type  [2m[string]  [0mBy default, the pipeline assigns reads based on the 'exon' attribute within the GTF file. [2m[default: exon] [0m
+
+[4m[1mRead trimming options[0m
+  --trimmer                     [2m[string]  [0mSpecifies the trimming tool to use - available options are 'trimgalore' and 'fastp'. [2m (accepted: trimgalore, fastp) [default: trimgalore] 
+[0m 
+  --extra_trimgalore_args       [2m[string]  [0mExtra arguments to pass to Trim Galore! command in addition to defaults defined by the pipeline. [2m[0m
+  --extra_fastp_args            [2m[string]  [0mExtra arguments to pass to fastp command in addition to defaults defined by the pipeline. [2m[0m
+  --min_trimmed_reads           [2m[integer] [0mMinimum number of trimmed reads below which samples are removed from further processing. Some downstream steps in the pipeline will fail if 
+this threshold is too low. [2m[default: 10000] [0m 
+
+[4m[1mRead filtering options[0m
+  --bbsplit_fasta_list          [2m[string]  [0mPath to comma-separated file containing a list of reference genomes to filter reads against with BBSplit. You have to also explicitly set 
+`--skip_bbsplit false` if you want to use BBSplit. [2m[0m 
+  --bbsplit_index               [2m[string]  [0mPath to directory or tar.gz archive for pre-built BBSplit index. [2m[0m
+  --sortmerna_index             [2m[string]  [0mPath to directory or tar.gz archive for pre-built sortmerna index. [2m[0m
+  --remove_ribo_rna             [2m[boolean] [0mEnable the removal of reads derived from ribosomal RNA using SortMeRNA. [2m[0m
+  --ribo_database_manifest      [2m[string]  [0mText file containing paths to fasta files (one per line) that will be used to create the database for SortMeRNA. [2m[default: 
+${projectDir}/workflows/rnaseq/assets/rrna-db-defaults.txt] [0m 
+
+[4m[1mUMI options[0m
+  --with_umi                    [2m[boolean] [0mEnable UMI-based read deduplication. [2m[0m
+  --umitools_extract_method     [2m[string]  [0mUMI pattern to use. Can be either 'string' (default) or 'regex'. [2m[default: string] [0m
+  --umitools_bc_pattern         [2m[string]  [0mThe UMI barcode pattern to use e.g. 'NNNNNN' indicates that the first 6 nucleotides of the read are from the UMI. [2m[0m
+  --umitools_bc_pattern2        [2m[string]  [0mThe UMI barcode pattern to use if the UMI is located in read 2. [2m[0m
+  --umi_discard_read            [2m[integer] [0mAfter UMI barcode extraction discard either R1 or R2 by setting this parameter to 1 or 2, respectively. [2m[0m
+  --umitools_umi_separator      [2m[string]  [0mThe character that separates the UMI in the read name. Most likely a colon if you skipped the extraction with UMI-tools and used other 
+software. [2m[0m 
+  --umitools_grouping_method    [2m[string]  [0mMethod to use to determine read groups by subsuming those with similar UMIs. All methods start by identifying the reads with the same mapping 
+position, but treat similar yet nonidentical UMIs differently. [2m (accepted: unique, percentile, cluster, adjacency, directional) [default: 
+directional] [0m 
+  --umitools_dedup_stats        [2m[boolean] [0mGenerate output stats when running "umi_tools dedup". [2m[0m
+
+[4m[1mAlignment options[0m
+  --aligner                     [2m[string]  [0mSpecifies the alignment algorithm to use - available options are 'star_salmon', 'star_rsem' and 'hisat2'. [2m (accepted: star_salmon, 
+star_rsem, hisat2) [default: star_salmon] [0m 
+  --pseudo_aligner              [2m[string]  [0mSpecifies the pseudo aligner to use - available options are 'salmon'. Runs in addition to '--aligner'. [2m (accepted: salmon, kallisto) [0m
+  --pseudo_aligner_kmer_size    [2m[integer] [0mKmer length passed to indexing step of pseudoaligners [2m[default: 31] [0m
+  --bam_csi_index               [2m[boolean] [0mCreate a CSI index for BAM files instead of the traditional BAI index. This will be required for genomes with larger chromosome sizes. [2m[0m
+  --star_ignore_sjdbgtf         [2m[boolean] [0mWhen using pre-built STAR indices do not re-extract and use splice junctions from the GTF file. [2m[0m
+  --salmon_quant_libtype        [2m[string]  [0m Override Salmon library type inferred based on strandedness defined in meta object. [2m (accepted: A, IS, ISF, ISR, IU, MS, MSF, MSR, MU, OS, 
+OSF, OSR, OU, SF, SR, U) [0m 
+  --min_mapped_reads            [2m[number]  [0mMinimum percentage of uniquely mapped reads below which samples are removed from further processing. [2m[default: 5.0] [0m
+  --seq_center                  [2m[string]  [0mSequencing center information to be added to read group of BAM files. [2m[0m
+  --stringtie_ignore_gtf        [2m[boolean] [0mPerform reference-guided de novo assembly of transcripts using StringTie i.e. dont restrict to those in GTF file. [2m[0m
+  --extra_star_align_args       [2m[string]  [0mExtra arguments to pass to STAR alignment command in addition to defaults defined by the pipeline. Only available for the STAR-Salmon route. 
+[2m[0m 
+  --extra_salmon_quant_args     [2m[string]  [0mExtra arguments to pass to Salmon quant command in addition to defaults defined by the pipeline. [2m[0m
+  --extra_kallisto_quant_args   [2m[string]  [0mExtra arguments to pass to Kallisto quant command in addition to defaults defined by the pipeline. [2m[0m
+  --kallisto_quant_fraglen      [2m[integer] [0mIn single-end mode Kallisto requires an estimated fragment length. Specify a default value for that here. TODO: use existing RSeQC results to 
+do this dynamically. [2m[default: 200] [0m 
+  --kallisto_quant_fraglen_sd   [2m[integer] [0mIn single-end mode, Kallisto requires an estimated standard error for fragment length. Specify a default value for that here. TODO: use 
+existing RSeQC results to do this dynamically. [2m[default: 200] [0m 
+  --stranded_threshold          [2m[number]  [0mThe fraction of stranded reads that must be assigned to a strandedness for confident assignment. Must be at least 0.5. [2m[default: 0.8] [0m
+  --unstranded_threshold        [2m[number]  [0mThe difference in fraction of stranded reads assigned to 'forward' and 'reverse' below which a sample is classified as 'unstranded'. By default 
+the forward and reverse fractions must differ by less than 0.1 for the sample to be called as unstranded. [2m[default: 0.1] [0m 
+
+[4m[1mOptional outputs[0m
+  --save_merged_fastq           [2m[boolean] [0mSave FastQ files after merging re-sequenced libraries in the results directory. [2m[0m
+  --save_umi_intermeds          [2m[boolean] [0mIf this option is specified, intermediate FastQ and BAM files produced by UMI-tools are also saved in the results directory. [2m[0m
+  --save_non_ribo_reads         [2m[boolean] [0mIf this option is specified, intermediate FastQ files containing non-rRNA reads will be saved in the results directory. [2m[0m
+  --save_bbsplit_reads          [2m[boolean] [0mIf this option is specified, FastQ files split by reference will be saved in the results directory. [2m[0m
+  --save_reference              [2m[boolean] [0mIf generated by the pipeline save the STAR index in the results directory. [2m[0m
+  --save_trimmed                [2m[boolean] [0mSave the trimmed FastQ files in the results directory. [2m[0m
+  --save_align_intermeds        [2m[boolean] [0mSave the intermediate BAM files from the alignment step. [2m[0m
+  --save_unaligned              [2m[boolean] [0mWhere possible, save unaligned reads from either STAR, HISAT2 or Salmon to the results directory. [2m[0m
+  --save_kraken_assignments     [2m[boolean] [0mSave read-by-read assignments from Kraken2. [2m[0m
+  --save_kraken_unassigned      [2m[boolean] [0mSave reads that were not given assignment from Kraken2. [2m[0m
+
+[4m[1mQuality Control[0m
+  --deseq2_vst                  [2m[boolean] [0mUse vst transformation instead of rlog with DESeq2. [2m[default: true] [0m
+  --rseqc_modules               [2m[string]  [0mSpecify the RSeQC modules to run. [2m[default: 
+bam_stat,inner_distance,infer_experiment,junction_annotation,junction_saturation,read_distribution,read_duplication] [0m 
+  --contaminant_screening       [2m[string]  [0mTool to use for detecting contaminants in unaligned reads - available options are 'kraken2' and 'kraken2_bracken' [2m (accepted: kraken2, 
+kraken2_bracken) [0m 
+  --kraken_db                   [2m[string]  [0mDatabase when using Kraken2/Bracken for contaminant screening. [2m[0m
+  --bracken_precision           [2m[string]  [0mTaxonomic level for Bracken abundance estimations. [2m (accepted: D, P, C, O, F, G, S) [default: S] [0m
+
+[4m[1mProcess skipping options[0m
+  --skip_gtf_filter             [2m[boolean] [0mSkip filtering of GTF for valid scaffolds and/ or transcript IDs. [2m[0m
+  --skip_gtf_transcript_filter  [2m[boolean] [0mSkip the 'transcript_id' checking component of the GTF filtering script used in the pipeline. [2m[0m
+  --skip_bbsplit                [2m[boolean] [0mSkip BBSplit for removal of non-reference genome reads. [2m[default: true] [0m
+  --skip_umi_extract            [2m[boolean] [0mSkip the UMI extraction from the read in case the UMIs have been moved to the headers in advance of the pipeline run. [2m[0m
+  --skip_trimming               [2m[boolean] [0mSkip the adapter trimming step. [2m[0m
+  --skip_alignment              [2m[boolean] [0mSkip all of the alignment-based processes within the pipeline. [2m[0m
+  --skip_pseudo_alignment       [2m[boolean] [0mSkip all of the pseudoalignment-based processes within the pipeline. [2m[0m
+  --skip_markduplicates         [2m[boolean] [0mSkip picard MarkDuplicates step. [2m[0m
+  --skip_bigwig                 [2m[boolean] [0mSkip bigWig file creation. [2m[0m
+  --skip_stringtie              [2m[boolean] [0mSkip StringTie. [2m[0m
+  --skip_fastqc                 [2m[boolean] [0mSkip FastQC. [2m[0m
+  --skip_preseq                 [2m[boolean] [0mSkip Preseq. [2m[default: true] [0m
+  --skip_dupradar               [2m[boolean] [0mSkip dupRadar. [2m[0m
+  --skip_qualimap               [2m[boolean] [0mSkip Qualimap. [2m[0m
+  --skip_rseqc                  [2m[boolean] [0mSkip RSeQC. [2m[0m
+  --skip_biotype_qc             [2m[boolean] [0mSkip additional featureCounts process for biotype QC. [2m[0m
+  --skip_deseq2_qc              [2m[boolean] [0mSkip DESeq2 PCA and heatmap plotting. [2m[0m
+  --skip_multiqc                [2m[boolean] [0mSkip MultiQC. [2m[0m
+  --skip_qc                     [2m[boolean] [0mSkip all QC steps except for MultiQC. [2m[0m
+
+[4m[1mGeneric options[0m
+  --multiqc_methods_description [2m[string] [0mCustom MultiQC yaml file containing HTML including a methods description. [2m[0m
+
+ [2m!! Hiding 19 param(s), use the `--show_hidden` parameter to show them !![0m
+-[2m----------------------------------------------------[0m-
+
+* The pipeline
+    https://doi.org/10.5281/zenodo.1400710
+
+* The nf-core framework
+    https://doi.org/10.1038/s41587-020-0439-x
+
+* Software dependencies
+    https://github.com/nf-core/rnaseq/blob/master/CITATIONS.md
+
