@@ -1,8 +1,0 @@
----
-name: detaxizer
-category: Bioinformatics Apps
-subcategory: nf-core pipelines
-role: batch_connect
-description: |
-  This app will launch the [detaxizer](https://nf-co.re/detaxizer) pipeline developed by nf-core community. 
-

@@ -1,8 +1,0 @@
----
-name: multiplesequencealign
-category: Bioinformatics Apps
-subcategory: nf-core pipelines
-role: batch_connect
-description: |
-  This app will launch the [multiplesequencealign](https://nf-co.re/multiplesequencealign) pipeline developed by nf-core community. 
-

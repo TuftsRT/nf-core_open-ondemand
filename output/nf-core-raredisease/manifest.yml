@@ -1,8 +1,0 @@
----
-name: raredisease
-category: Bioinformatics Apps
-subcategory: nf-core pipelines
-role: batch_connect
-description: |
-  This app will launch the [raredisease](https://nf-co.re/raredisease) pipeline developed by nf-core community. 
-

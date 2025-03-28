@@ -1,1 +1,0 @@
-2024-11-07 21:13:11	-	hopeful_plateau	-	85c9b75b8bdc95677d64453c279377bf	09863680-4329-471d-8ea9-b880b6d586e8	nextflow run /cluster/tufts/biocontainers/nf-core/pipelines/nf-core-rnaseq/3.17.0/3_17_0 --help

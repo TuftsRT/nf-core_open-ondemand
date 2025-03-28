@@ -1,8 +1,0 @@
----
-name: bacass
-category: Bioinformatics Apps
-subcategory: nf-core pipelines
-role: batch_connect
-description: |
-  This app will launch the [bacass](https://nf-co.re/bacass) pipeline developed by nf-core community. 
-

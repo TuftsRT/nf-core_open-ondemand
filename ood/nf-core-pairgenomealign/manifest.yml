@@ -1,8 +1,0 @@
----
-name: pairgenomealign
-category: Bioinformatics Apps
-subcategory: nf-core pipelines
-role: batch_connect
-description: |
-  This app will launch the [pairgenomealign](https://nf-co.re/pairgenomealign) pipeline developed by nf-core community. 
-
