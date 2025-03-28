@@ -2,9 +2,14 @@
 
 As the demand for reproducibility in bioinformatics analysis increases, workflow managers have become a crucial technology. Although nf-core provides many bioinformatics pipelines that are ready to use, they are not easily accessible to non-computational users. By integrating nf-core pipelines into the user-friendly Open OnDemand(OOD) web interface, the process of executing them is significantly simplified. This enables users with limited programming experience to utilize best practices for bioinformatics analysis without navigating through the initial learning curve, thus making nexflow and nf-core more accessible to a wider audience. The scripts and OOD apps for nf-core pipelines shared in this repository will enable other HPC centers to easily deploy nf-core bioinformatics pipelines on their OOD platforms.
 
+# Prerequisite
+1. The script is read to use, so there is no installation step, but `python3` is required in your computing enviroment. 
+2. The recommended way to download nf-core pipelines to your cluster is via [nf-core/tools](https://nf-co.re/docs/nf-core-tools/installation), which simplifies installation and version management.
+3. Tufts HPC uses **SingularityCE** to run these pipelines. **Apptainer** is also supported and works equally well.
+
 ## Usage
 
-The scripts are very straightforward to use. The master script `nfcore2ood.sh` only requires two parameters, namely `-i/--input input` and `-o/--output output`. Input is the directory where nf-core pipelines are stored, and output is the directory where the generated Open OnDemand apps will be saved.
+The scripts are very straightforward to use. The master script `nf-ood-mod` only requires two parameters, namely `-i/--input input` and `-o/--output output`. Input is the directory where nf-core pipelines are stored, and output is the directory where the generated Open OnDemand apps will be saved.
 
 ### Help message
 
