@@ -7,7 +7,12 @@ attributes:
     label: Which nextflow executor to use?
     widget: select
     options:
-    - ["slurm", "slurm"]
+    - [
+        "slurm", "slurm",
+        data-hide-cpu-partition: true,
+        data-hide-num-core: true,
+        data-hide-num-memory: true
+      ]
     - ["local", "local"]
     help: |
       With slurm, tasks will be distributed to different nodes, local means all tasks will run on a single node.
@@ -21,7 +26,6 @@ attributes:
       - ["batch","batch"]
       - ["largemem", "largemem"]
       - ["preempt", "preempt"]
-      - ["patralab", "patralab"]
 
   num_core:
     widget: number_field
@@ -52,10 +56,13 @@ attributes:
 
   workdir:
     label: "Working Directory"
-    data-filepicker: true
-    data-target-file-type: dirs  # Valid values are: files, dirs, or both
-    readonly: false
-    help: "Select your project directory; defaults to $HOME"
+    widget: "path_selector"
+    directory: "/cluster/tufts"
+    required: false
+    label: Working directory
+    favorites:
+        - /cluster/tufts
+        - /cluster/home
     
   resume:
     label: resume
@@ -65,7 +72,7 @@ attributes:
     help: |
            Resume previous run if found
 
-  TOWER_ACCESS_TOKEN:
+  tower_access_token:
     widget: "text_field"
     required: false
     label: "TOWER_ACCESS_TOKEN (Optional)"

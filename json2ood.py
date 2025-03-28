@@ -224,15 +224,45 @@ default_form_fields = [
 ]
 formYmlOut.write("\n".join(f"  - {field}" for field in default_form_fields) + "\n")
 
-for name, definition in definitions.items():
-    if name in ['institutional_config_options', 'generic_options', 'max_job_request_options']:
-        continue
-    formYmlOut.write(f"  - {name}\n")
-    for k in definition['properties']:
-        if k not in ['email', 'outdir', 'igenomes_ignore'] and k not in hidden_list:
-            formYmlOut.write(f"  - {k}\n")
+# Write the context variables into paramsJsonOut
+paramsJsonOut.write("{\n")
+paramsJsonOut.write("""    "outdir":"<%= context.outdir %>",\n""")  # Add comma at the end
 
+# Convert lists to sets for faster lookups
+hidden_set = set(hidden_list)
+number_field_set = set(number_field_list)
+boolean_field_set = set(boolean_field_list)
+
+first_entry = True  # Flag to track first property to manage commas correctly
+
+# Iterate through definitions
+for name, definition in definitions.items():
+    if name in {'institutional_config_options', 'generic_options', 'max_job_request_options'}:
+        continue
+
+    formYmlOut.write(f"  - {name}\n")
+
+    # Iterate through properties
+    properties = definition.get('properties', {})
+    for k in properties:
+        if k in {'email', 'outdir', 'igenomes_ignore'} or k in hidden_set:
+            continue  # Skip excluded fields
+
+        formYmlOut.write(f"  - {k}\n")
+
+        # Add comma correctly before each new entry
+        if first_entry:
+            first_entry = False
+        else:
+            paramsJsonOut.write(",\n")  # Add comma between entries
+
+        # Write parameters based on field type
+        if k in number_field_set or k in boolean_field_set:
+            paramsJsonOut.write(f"    \"{k}\": <%= context.{k} %>")
+        else:
+            paramsJsonOut.write(f"    \"{k}\": \"<%= context.{k} %>\"")
+
+paramsJsonOut.write("\n}")
 formYmlOut.write("  - TOWER_ACCESS_TOKEN\n  - resume\n")
-paramsJsonOut.write("{\n  \"outdir\":\"<%= context.outdir %>\"\n}")
 paramsJsonOut.close()
 formYmlOut.close()

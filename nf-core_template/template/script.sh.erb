@@ -34,7 +34,7 @@ fi
 
 # Check if Nextflow Tower should be used
 with_tower_flag=""
-if [[ -n "${TOWER_ACCESS_TOKEN:="<%= context.TOWER_ACCESS_TOKEN %>"}" && -n "${TOWER_ACCESS_TOKEN// }" ]]; then
+if [[ -n "${TOWER_ACCESS_TOKEN:="<%= context.tower_access_token %>"}" && -n "${TOWER_ACCESS_TOKEN// }" ]]; then
     echo "Using Nextflow Tower."
     export TOWER_ACCESS_TOKEN="$TOWER_ACCESS_TOKEN"
     with_tower_flag="-with-tower"
