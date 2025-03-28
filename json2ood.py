@@ -64,6 +64,7 @@ def write_widget(outfile, widget, value):
         if default_value:
             outfile.write(f"    value: \"{default_value}\"\n")  # Enclose in quotes for safety
 
+    # TODO update directories
     elif widget == "path_selector":
         outfile.write("    widget: path_selector\n")
         outfile.write("    directory: /cluster/tufts\n")
@@ -190,6 +191,7 @@ paramsJsonOut = open(sys.argv[4], "w")
 # Process versions
 versions = sorted(sys.argv[5].split('%'), reverse=True)
 formYmlOut.write("\n  version:\n    label: Version\n    widget: select\n    options:")
+# TODO: update the location of local piples /cluster/tufts/biocontainers/nf-core/pipelines
 for version in versions:
     if version:
         new_version = version.replace(".", "_")

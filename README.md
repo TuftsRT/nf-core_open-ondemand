@@ -2,17 +2,15 @@
 
 As the demand for reproducibility in bioinformatics analysis increases, workflow managers have become a crucial technology. Although nf-core provides many bioinformatics pipelines that are ready to use, they are not easily accessible to non-computational users. By integrating nf-core pipelines into the user-friendly Open OnDemand(OOD) web interface, the process of executing them is significantly simplified. This enables users with limited programming experience to utilize best practices for bioinformatics analysis without navigating through the initial learning curve, thus making nexflow and nf-core more accessible to a wider audience. The scripts and OOD apps for nf-core pipelines shared in this repository will enable other HPC centers to easily deploy nf-core bioinformatics pipelines on their OOD platforms.
 
-# Prerequisite
+## Prerequisite
 1. The script is read to use, so there is no installation step, but `python3` is required in your computing enviroment. 
 2. The recommended way to download nf-core pipelines to your cluster is via [nf-core/tools](https://nf-co.re/docs/nf-core-tools/installation), which simplifies installation and version management.
 3. Tufts HPC uses **SingularityCE** to run these pipelines. **Apptainer** is also supported and works equally well.
 
 ## Usage
-
 The scripts are very straightforward to use. The master script `nf-ood-mod` only requires two parameters, namely `-i/--input input` and `-o/--output output`. Input is the directory where nf-core pipelines are stored, and output is the directory where the generated Open OnDemand apps will be saved.
 
 ### Help message
-
 ```
 bash nf-ood-mod -h/--help
 Usage: nf-ood-mod -i/--input input -o/--output output
@@ -32,103 +30,64 @@ nf-core download scrnaseq -r 2.5.1 --outdir 2.5.1 -d  -s singularity -u amend -x
 ```
 
 ### Input directory
+We provide two example nf-core pipelines in the `testpipes` directory. Below is the expected directory structure for the pipelines.
 
-At Tufts HPC, all nf-core pipelines are stored in `/cluster/tufts/biocontainers/nf-core/pipelines`. Below is the organization of all pipelines in the folder.
-
-```
-$ tree -L 2 .
-.
-├── nf-core-ampliseq
-│   └── 2.8.0
-├── nf-core-atacseq
-│   └── 2.1.2
-├── nf-core-chipseq
-│   └── 2.0.0
-├── nf-core-differentialabundance
-│   └── 1.4.0
-├── nf-core-eager
-│   └── 2.5.1
-├── nf-core-fetchngs
-│   ├── 1.11.0
-│   └── 1.12.0
-├── nf-core-funcscan
-│   └── 1.1.4
-├── nf-core-hic
-│   └── 2.1.0
-├── nf-core-mag
-│   ├── 2.5.2
-│   └── 2.5.4
-├── nf-core-metatdenovo
-│   └── 1.0.0
-├── nf-core-methylseq
-│   └── 2.6.0
-├── nf-core-nanoseq
-│   └── 3.1.0
-├── nf-core-nanostring
-│   └── 1.2.1
-├── nf-core-pangenome
-│   ├── 1.1.0
-│   └── 1.1.1
-├── nf-core-raredisease
-│   └── 2.0.1
-├── nf-core-rnafusion
-│   └── 3.0.1
-├── nf-core-rnaseq
-│   └── 3.14.0
-├── nf-core-rnasplice
-│   ├── 1.0.2
-│   └── 1.0.3
-├── nf-core-sarek
-│   └── 3.4.0
-├── nf-core-scrnaseq
-│   └── 2.5.1
-├── nf-core-smrnaseq
-│   └── 2.3.0
-├── nf-core-taxprofiler
-│   └── 1.1.5
-└── nf-core-viralrecon
-    └── 2.6.0
-```
-
-### Converting nf-core pipelines to OOD apps
-
-We provided two nf-core pipelines in the folder `testpipes`. You can use the below command to convert them into ood apps. `nf-ood-mod` also has another function, it can convert 
+When downloading your own pipelines to the HPC, please ensure that the structure matches the layout shown below.
 
 ```
-bash nf-ood-mod -i /cluster/tufts/biocontainers/nf-core/pipelines -o ood
-Generating OOD app for nf-core-ampliseq
-Generating OOD app for nf-core-atacseq
-Generating OOD app for nf-core-chipseq
-Generating OOD app for nf-core-differentialabundance
-Generating OOD app for nf-core-eager
-Generating OOD app for nf-core-fetchngs
-Generating OOD app for nf-core-funcscan
-Generating OOD app for nf-core-hic
-Generating OOD app for nf-core-mag
-Generating OOD app for nf-core-metatdenovo
-Generating OOD app for nf-core-methylseq
-Generating OOD app for nf-core-nanoseq
-Generating OOD app for nf-core-nanostring
-Generating OOD app for nf-core-pangenome
-Generating OOD app for nf-core-raredisease
-Generating OOD app for nf-core-rnafusion
+$ tree -L 3 testpipes
+testpipes
+├── nf-core-bamtofastq
+│   └── 2.1.1
+│       ├── 2_1_1
+│       └── configs -> ../../../configs/
+└── nf-core-rnaseq
+    ├── 3.14.0
+    │   ├── 3_14_0
+    │   └── configs -> ../../../configs/
+    ├── 3.16.0
+    │   ├── 3_16_0
+    │   └── configs -> /cluster/tufts/biocontainers/nf-core/configs
+    ├── 3.17.0
+    │   ├── 3_17_0
+    │   └── configs -> /cluster/tufts/biocontainers/nf-core/configs
+    └── 3.18.0
+        ├── 3_18_0
+        └── configs -> /cluster/tufts/biocontainers/nf-core/configs
+```
+
+
+### Converting nf-core pipelines to OOD apps and enviroment modules
+We provide two example nf-core pipelines in the `testpipes` directory. You can use the command below to convert them into Open OnDemand (OOD) apps.
+
+In addition to generating OOD apps, `nf-ood-mod` can also convert nf-core pipelines into environment modules. This allows users to load and run pipelines using standard module commands, such as:
+
+```bash
+module load nf-core-rnaseq/3.14.0
+
+rnaseq --input samplesheet.csv --outdir output \
+  --fasta ref.fasta --gtf ref.gtf \
+  --aligner star_salmon \
+  -profile tufts
+```
+
+```
+$ bash nf-ood-mod -i testpipes/ -o ood_apps -m modules
+Generating OOD app for nf-core-bamtofastq
+Generating module files for nf-core-bamtofastq
 Generating OOD app for nf-core-rnaseq
-Generating OOD app for nf-core-rnasplice
-Generating OOD app for nf-core-sarek
-Generating OOD app for nf-core-scrnaseq
-Generating OOD app for nf-core-smrnaseq
-Generating OOD app for nf-core-taxprofiler
-Generating OOD app for nf-core-viralrecon
+Generating module files for nf-core-rnaseq
 ```
 
 > **Note:**
 > The scripts will use nf-core_template as the template to generate different ood apps. Users need to update the template according to the configurations of your own ood platform. Below is the list of files to be edited:
 
-- nfcore2ood.sh (marked with TODO)
+- nf-ood-mod (marked with TODO)
 - json2ood.py (marked with TODO)
 - nf-core_template/template.erb
 - nf-core_template/submit.yml.erb
 - nf-core_template/template/script.sh.erb (marked with TODO)
+- module_template/lmod_template.lua (marked with TODO)
 
 ## Contributors
 

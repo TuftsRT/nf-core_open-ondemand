@@ -17,9 +17,11 @@ whatis("Home page:     https://nf-co.re/${PIPELINE}")
 -- Load the required modules
 depends_on("nextflow")
 
+-- TODO
 -- Set Singularity Cache Dir
 setenv("NXF_SINGULARITY_CACHEDIR", "/cluster/tufts/biocontainers/nf-core/singularity-images")
 
+-- TODO
 -- And assemble container command
 local pipeline_path = "/cluster/tufts/biocontainers/nf-core/pipelines/" .. myModuleName() .. "/" .. myModuleVersion() .. "/" .. "${VERSION_}"
 local pipeline_launch = "nextflow run " .. pipeline_path

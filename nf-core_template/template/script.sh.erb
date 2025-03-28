@@ -42,6 +42,7 @@ else
     echo "Not using Nextflow Tower."
 fi
 
+# TODO 
 # Set the Singularity cache directory
 export NXF_SINGULARITY_CACHEDIR="/cluster/tufts/biocontainers/nf-core/singularity-images"
 
@@ -59,7 +60,7 @@ num_core="<%= context.num_core %>"
 nextflow_command=("nextflow run <%= context.version %> -params-file nf-params.json")
 
 if [[ "<%= context.executor %>" == "slurm" ]]; then
-    echo "Using Tufts profile (Slurm execution)."
+    echo "Using Tufts profile (Slurm execution)."  # TODO
     nextflow_command+=("-profile tufts" "--partition <%= context.cpu_partition %>")
 else
     echo "Running in local mode (single-node execution)."
