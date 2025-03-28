@@ -9,12 +9,13 @@ The scripts are very straightforward to use. The master script `nfcore2ood.sh` o
 ### Help message
 
 ```
-bash nfcore2ood.sh -h/--help
-Usage: nf2ood.sh -i/--input input -o/--output output
+bash nf-ood-mod -h/--help
+Usage: nf-ood-mod -i/--input input -o/--output output
 This script will convert nf-core pipelines into OOD apps.
 Arguments:
  -i/--input input   - The input directory where nf-core pipelines are stored
  -o/--output output  - The output directory where the OOD apps will be generated
+ -m/--module module_outdir - The output directory where the module files will be generated
 ```
 
 ### Download nf-core pipelines

@@ -29,8 +29,7 @@ def generate_parent_options(name, definition):
     label = definition.get("title", name.replace("_", " ").title())
     properties = definition.get("properties", {})
     help_text = definition.get("description", "")  # Extract top-level description
-
-    output_lines.append(f"  {name}:")
+    output_lines.append(f"  {name.lower()}:") # new ood does not seem to suppport upper case
     output_lines.append(f"    label: {label}")
     output_lines.append(f"    widget: 'check_box'")
     output_lines.append(f"    html_options:")
@@ -137,7 +136,7 @@ def process_properties(outfile, properties):
             outfile.write("\n")
             continue
 
-        outfile.write(f"  {key}:\n")
+        outfile.write(f"  {key.lower()}:\n")  # new ood does not seem to suppport upper case
         outfile.write(f"    label: {key}\n")
         if 'required' in properties and key in properties['required']:
             outfile.write("    required: true\n")
@@ -240,7 +239,7 @@ for name, definition in definitions.items():
     if name in {'institutional_config_options', 'generic_options', 'max_job_request_options'}:
         continue
 
-    formYmlOut.write(f"  - {name}\n")
+    formYmlOut.write(f"  - {name.lower()}\n") # new ood does not seem to support uppercase
 
     # Iterate through properties
     properties = definition.get('properties', {})
@@ -248,7 +247,7 @@ for name, definition in definitions.items():
         if k in {'email', 'outdir', 'igenomes_ignore'} or k in hidden_set:
             continue  # Skip excluded fields
 
-        formYmlOut.write(f"  - {k}\n")
+        formYmlOut.write(f"  - {k.lower()}\n")
 
         # Add comma correctly before each new entry
         if first_entry:
@@ -257,12 +256,13 @@ for name, definition in definitions.items():
             paramsJsonOut.write(",\n")  # Add comma between entries
 
         # Write parameters based on field type
+        # Note that new ood does not seem to support uppercase
         if k in number_field_set or k in boolean_field_set:
-            paramsJsonOut.write(f"    \"{k}\": <%= context.{k} %>")
+            paramsJsonOut.write(f"    \"{k}\": <%= context.{k.lower()} %>")
         else:
-            paramsJsonOut.write(f"    \"{k}\": \"<%= context.{k} %>\"")
+            paramsJsonOut.write(f"    \"{k}\": \"<%= context.{k.lower()} %>\"")
 
 paramsJsonOut.write("\n}")
-formYmlOut.write("  - TOWER_ACCESS_TOKEN\n  - resume\n")
+formYmlOut.write("  - tower_access_token\n  - resume\n")
 paramsJsonOut.close()
 formYmlOut.close()
