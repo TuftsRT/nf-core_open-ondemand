@@ -26,6 +26,8 @@ def write_options(outfile, options):
 # Function to generate top-level options for checkboxes
 def generate_parent_options(name, definition):
     output_lines = []
+    js_lines = []
+
     label = definition.get("title", name.replace("_", " ").title())
     properties = definition.get("properties", {})
     help_text = definition.get("description", "")  # Extract top-level description
@@ -44,7 +46,17 @@ def generate_parent_options(name, definition):
         output_lines.append(f"    help: \"{replace_apostrophes(help_text)}\"")
 
     output_lines.append("")  # Add a newline for separation
-    return "\n".join(output_lines)
+
+    # JS generation (to style label)
+    js_lines.append(f"""\
+  document.querySelectorAll("label").forEach((label) => {{
+    if (label.textContent.trim() === "{label}") {{
+      label.style.color = "green";
+      label.style.fontWeight = "bold";
+    }}
+  }});""")
+
+    return "\n".join(output_lines), "\n".join(js_lines)
 
 # Function to write widget in the outfile
 def write_widget(outfile, widget, value):
@@ -187,6 +199,7 @@ shutil.copyfile(sys.argv[3], sys.argv[2])
 # Open the output files
 formYmlOut = open(sys.argv[2], "a")
 paramsJsonOut = open(sys.argv[4], "w")
+formJsOut = sys.argv[6]
 
 # Process versions
 versions = sorted(sys.argv[5].split('%'), reverse=True)
@@ -210,15 +223,29 @@ if not definitions:
     sys.exit(1)
 
 # Process each definition
+all_js_styling = []
 for name, definition in definitions.items():
     if name in ['institutional_config_options', 'generic_options', 'max_job_request_options']:
         continue
-    formYmlOut.write(generate_parent_options(name, definition))
+#    formYmlOut.write(generate_parent_options(name, definition))
+    yaml_block, js_styling_lines = generate_parent_options(name, definition)
+    formYmlOut.write(yaml_block)
     formYmlOut.write("\n")
+    all_js_styling.append(js_styling_lines)
     process_properties(formYmlOut, definition.get('properties', {}))
 
 # Write form fields
 formYmlOut.write("\nform:\n")
+
+# Wrap all JS inside DOMContentLoaded
+js_final = "document.addEventListener(\"DOMContentLoaded\", function () {\n"
+js_final += "\n\n".join(all_js_styling)
+js_final += "\n});\n"
+
+# Write JavaScript to file
+with open(formJsOut, "w") as jsOut:
+    jsOut.write(js_final)
+
 default_form_fields = [
     "bc_num_hours", "executor", "cpu_partition", "num_core",
     "num_memory", "reservation", "version", "workdir", "outdir"

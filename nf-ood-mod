@@ -111,6 +111,7 @@ for PIPELINE in $pipelines; do
         # Set input and output file paths
         inputJson="$input/$PIPELINE/$latest_version/$(echo "$latest_version" | tr '.' '_')/nextflow_schema.json"
         formYmlOut="$output/$PIPELINE/form.yml.erb"
+        formJsOut="$output/$PIPELINE/form.js"
         templateFile="$output/$PIPELINE/template.erb"
         paramsJsonOut="$output/$PIPELINE/template/nf-params.json.erb"
 
@@ -118,7 +119,7 @@ for PIPELINE in $pipelines; do
         string=$(ls -d "$input/$PIPELINE"/* | xargs -I {} basename {} | tr '\n' '%')
 
         # Run json2ood.py script
-        python "$parentfolder/json2ood.py" "$inputJson" "$formYmlOut" "$templateFile" "$paramsJsonOut" "$string"
+        python "$parentfolder/json2ood.py" "$inputJson" "$formYmlOut" "$templateFile" "$paramsJsonOut" "$string" "$formJsOut"
 
         # Replace placeholders in template files
         PIPELINE_SIMPLE=${PIPELINE##*-}
