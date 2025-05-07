@@ -1,7 +1,7 @@
 ---
-name: PIPELINE
-category: Bioinformatics Apps
-subcategory: nf-core pipelines
+name: PIPELINE VERSION
+category: nf-core pipelines
+subcategory: PIPELINE
 role: batch_connect
 description: |
   This app will launch the [PIPELINE](https://nf-co.re/PIPELINE) pipeline developed by nf-core community. 

@@ -28,7 +28,7 @@ generate_module() {
                                    "$template_file")
 
     # Output the generated modulefile
-    echo "$modulefile_content" > $output
+    echo "$modulefile_content" > "$output" # Added quotes to $output
 }
 
 
@@ -40,11 +40,11 @@ TEMPLATE_DIR="$parentfolder/module_templates"
 while [[ $# -gt 0 ]]; do
         case "$1" in
                 -i|--input)
-                        input=$2
+                        input_dir=$2
                         shift 2
                         ;;
                 -o|--output)
-                        output=$2
+                        output_dir=$2
                         shift 2
                         ;;
                 -m|--module)
@@ -68,18 +68,18 @@ while [[ $# -gt 0 ]]; do
 done
 
 # Remove existing output folder if it exists
-if [ -d "$output" ]; then
+if [ -d "$output_dir" ]; then
         echo "The output folder already exists. Do you want to continue and delete it? (y/n)"
         read answer
         if [ "$answer" == "y" ]; then
                 echo "Deleting the output folder..."
-                rm -r "$output"
-                mkdir -p "$output"
+                rm -r "$output_dir"
+                mkdir -p "$output_dir"
         else
                 echo "Will use the existing output folder."
         fi
 else
-        mkdir $output
+        mkdir -p "$output_dir" # Changed mkdir to mkdir -p
 fi
 
 # Remove existing module output folder if it exists
@@ -94,72 +94,85 @@ if [ -d "$module_outdir" ]; then
                 echo "Will use the existing module output folder."
         fi
 else
-        mkdir $module_outdir
+        mkdir -p "$module_outdir" # Changed mkdir to mkdir -p
 fi
 
 # Get list of pipelines in the input folder
-pipelines=$(ls "$input")
+pipelines=$(ls "$input_dir")
 
+
+# Function to generate OOD app and module for a given pipeline version
+generate_pipeline() {
+    local PIPELINE=$1
+    local VERSION=$2
+    local CONVERTED_VERSION="${VERSION//./-}"
+    echo "Generating OOD app and modules for $PIPELINE v$VERSION"
+
+    # Copy template files
+    cp -r "${parentfolder}/nf-core_template" "${output_dir}/${PIPELINE}-${CONVERTED_VERSION}"
+
+    # Set input and output file paths
+    local OUTDIR=${output_dir}/${PIPELINE}-${CONVERTED_VERSION}
+    inputJson="${input_dir}/${PIPELINE}/${VERSION}/$(echo "${VERSION}" | tr '.' '_')/nextflow_schema.json"
+    formYmlOut="${OUTDIR}/form.yml.erb"
+    formJsOut="${OUTDIR}/form.js"
+    templateFile="${OUTDIR}/template.erb"
+    paramsJsonOut="${OUTDIR}/template/nf-params.json.erb"
+    # Run json2ood.py script
+    python "${parentfolder}/json2ood.py" "$inputJson" "$formYmlOut" "$templateFile" "$paramsJsonOut" "$formJsOut"
+
+    # Replace placeholders in template files
+    replace_placeholders "$PIPELINE" "$VERSION" "${OUTDIR}" "$formYmlOut" "$paramsJsonOut" # Added formYmlOut and paramsJsonOut
+    mkdir -p "${module_outdir}/${PIPELINE}"
+    generate_module "$PIPELINE" "$VERSION" "${module_outdir}/${PIPELINE}/${VERSION}.lua" #call generate_module
+}
+
+# Function to perform sed replacements
+perform_sed_replacement() {
+    local file="$1"
+    local pattern="$2"
+    local replacement="$3"
+    if [ ! -f "$file" ]; then
+        echo "File not found: $file" >&2
+        exit 1
+    fi
+    sed -i -e "s#$pattern#$replacement#g" "$file"
+}
+
+# Function to replace placeholders in template files
+replace_placeholders() {
+    local PIPELINE=$1
+    local VERSION=$2
+    local CONVERTED_VERSION="${VERSION//./_}"
+    local COMBINED_VERSION="${VERSION}/${CONVERTED_VERSION}"
+    local OUTDIR=$3
+    local formYmlOut=$4 # Added
+    local paramsJsonOut=$5 # Added
+
+    # Perform substitutions
+    perform_sed_replacement "${OUTDIR}/submit.yml.erb" "PIPELINE" "${PIPELINE}"
+    perform_sed_replacement "${OUTDIR}/manifest.yml" "PIPELINE" "${PIPELINE##*-}"
+    perform_sed_replacement "${OUTDIR}/manifest.yml" "VERSION" "${VERSION}"
+    perform_sed_replacement "${OUTDIR}/template/script.sh.erb" "VERSION" "${COMBINED_VERSION}"
+    perform_sed_replacement "${OUTDIR}/template/script.sh.erb" "PIPELINE" "${PIPELINE}"
+    perform_sed_replacement "$formYmlOut" "PIPELINE" "${PIPELINE}"
+    sed -i '/- igenomes_base/d' "$formYmlOut"
+    sed -i "s/value: True/value: true/g" "$formYmlOut"
+    sed -i "s/value: False/value: false/g" "$formYmlOut"
+
+    # TODO: update igenomes_base
+    sed -i -e 's$<%= context.igenomes_base %>$/cluster/tufts/biocontainers/datasets/igenomes$' "$paramsJsonOut"
+
+    # Remove template file
+    rm "$templateFile" # Assuming this is defined elsewhere
+}
+
+# Main loop to process each pipeline and version
 for PIPELINE in $pipelines; do
-        echo "Generating OOD app for $PIPELINE"
-        # Copy nf-core_template to output folder
-        cp -r "$parentfolder/nf-core_template" "$output/$PIPELINE"
+    echo "Generating OOD app and modules for $PIPELINE"
 
-        # Get the latest version of the pipeline
-        latest_version=$(ls "$input/$PIPELINE" | tail -n 1)
-        versions=$(ls "$input/$PIPELINE")
-        # Set input and output file paths
-        inputJson="$input/$PIPELINE/$latest_version/$(echo "$latest_version" | tr '.' '_')/nextflow_schema.json"
-        formYmlOut="$output/$PIPELINE/form.yml.erb"
-        formJsOut="$output/$PIPELINE/form.js"
-        templateFile="$output/$PIPELINE/template.erb"
-        paramsJsonOut="$output/$PIPELINE/template/nf-params.json.erb"
-
-        # Generate string of versions
-        string=$(ls -d "$input/$PIPELINE"/* | xargs -I {} basename {} | tr '\n' '%')
-
-        # Run json2ood.py script
-        python "$parentfolder/json2ood.py" "$inputJson" "$formYmlOut" "$templateFile" "$paramsJsonOut" "$string" "$formJsOut"
-
-        # Replace placeholders in template files
-        PIPELINE_SIMPLE=${PIPELINE##*-}
-        sed -i -e 's/PIPELINE/'"$PIPELINE"'/g' "$output/$PIPELINE/submit.yml.erb"
-        sed -i -e 's/PIPELINE/'"$PIPELINE_SIMPLE"'/g' "$output/$PIPELINE/manifest.yml"
-        sed -i -e 's/PIPELINE/'"$PIPELINE"'/g' "$formYmlOut"
-        sed -i -e '/- igenomes_base/d' "$formYmlOut"
-        sed -i 's/value: True/value: true/g' "$formYmlOut"
-        sed -i 's/value: False/value: false/g' "$formYmlOut"
-# TODO: update igenomes_base
-        sed -i -e 's$<%= context.igenomes_base %>$/cluster/tufts/biocontainers/datasets/igenomes$' $paramsJsonOut 
-
-        if grep -q igenomes_ignore "$formYmlOut"; then
-                # Remove existing igenomes_ignore and add it under genome
-                sed -i -e '/- igenomes_ignore/d' "$formYmlOut"
-                sed -i -e 's/- genome/- genome\n  - igenomes_ignore/' "$formYmlOut"
-        fi
-
-        # Remove template file
-        rm "$templateFile"
-
-        # Generate module file
-        App=${PIPELINE##*-}
-        VersionArray=($(ls -1 "$input/$PIPELINE/"))
-        echo "Generating module files for $PIPELINE"
-        for version in "${VersionArray[@]}"; do
-            VERSION=$(basename "$version")
-            VERSION=$(echo "$VERSION" | xargs)
-            lmod_out="$module_outdir/$PIPELINE/${VERSION}.lua"
-
-            # Extract the directory part of lmod_out
-            lmod_out_dir=$(dirname "$lmod_out")
-
-            # Create the output directory if it doesn't exist or has just been deleted
-            mkdir -p "$lmod_out_dir"
-
-            # Create or touch the lmod_out file
-            touch "$lmod_out"
-
-            # Call the generate_module function (ensure this function is defined elsewhere)
-            generate_module "$App" "$VERSION" "$lmod_out"
-        done
+    VersionArray=($(ls -1 "${input_dir}/${PIPELINE}/")) # Corrected input dir
+    for version in "${VersionArray[@]}"; do
+        generate_pipeline "$PIPELINE" "$version"
+    done
 done

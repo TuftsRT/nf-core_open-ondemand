@@ -48,8 +48,11 @@ export NXF_SINGULARITY_CACHEDIR="/cluster/tufts/biocontainers/nf-core/singularit
 
 # Clean up nf-params.json by removing empty values and replacing placeholders
 sed -i -E '/:[[:space:]]*,/d; /"[[:space:]]*"/d' nf-params.json
-export projectDir="<%= context.version %>"
-export baseDir="<%= context.version %>"
+
+export pipeline_version=/cluster/tufts/biocontainers/nf-core/pipelines/PIPELINE/VERSION
+export projectDir=$pipeline_version
+export baseDir=$pipeline_version
+
 sed -i -E "s@\$(projectDir)@$projectDir@g; s@\$(baseDir)@$baseDir@g; s/\"None\"/null/g" nf-params.json
 
 # Define resources based on execution environment
@@ -57,7 +60,7 @@ num_memory="<%= context.num_memory %>"
 num_core="<%= context.num_core %>"
 
 # Build Nextflow command
-nextflow_command=("nextflow run <%= context.version %> -params-file nf-params.json")
+nextflow_command=("nextflow run $pipeline_version -params-file nf-params.json")
 
 if [[ "<%= context.executor %>" == "slurm" ]]; then
     echo "Using Tufts profile (Slurm execution)."  # TODO

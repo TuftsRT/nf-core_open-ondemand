@@ -174,7 +174,7 @@ def determine_widget_type(key, value):
         return "check_box"
 
     if widget_type == "string":
-        if widget_format == "file-path" or widget_format == "path":
+        if widget_format == "file-path" or widget_format == "path" or widget_format == "directory-path":
             return "path_selector"
         return "text_field"
 
@@ -199,16 +199,7 @@ shutil.copyfile(sys.argv[3], sys.argv[2])
 # Open the output files
 formYmlOut = open(sys.argv[2], "a")
 paramsJsonOut = open(sys.argv[4], "w")
-formJsOut = sys.argv[6]
-
-# Process versions
-versions = sorted(sys.argv[5].split('%'), reverse=True)
-formYmlOut.write("\n  version:\n    label: Version\n    widget: select\n    options:")
-# TODO: update the location of local piples /cluster/tufts/biocontainers/nf-core/pipelines
-for version in versions:
-    if version:
-        new_version = version.replace(".", "_")
-        formYmlOut.write(f"\n      - ['{version}', '/cluster/tufts/biocontainers/nf-core/pipelines/PIPELINE/{version}/{new_version}']")
+formJsOut = sys.argv[5]
 
 # Load schema JSON
 with open(sys.argv[1]) as schemaJson:
@@ -225,9 +216,8 @@ if not definitions:
 # Process each definition
 all_js_styling = []
 for name, definition in definitions.items():
-    if name in ['institutional_config_options', 'generic_options', 'max_job_request_options']:
+    if name in ['institutional_config_options', 'generic_options', 'max_job_request_options', 'deprecated_options']:
         continue
-#    formYmlOut.write(generate_parent_options(name, definition))
     yaml_block, js_styling_lines = generate_parent_options(name, definition)
     formYmlOut.write(yaml_block)
     formYmlOut.write("\n")
@@ -243,18 +233,17 @@ js_final += "\n\n".join(all_js_styling)
 js_final += "\n});\n"
 
 # Write JavaScript to file
-with open(formJsOut, "w") as jsOut:
+with open(formJsOut, "a") as jsOut:
     jsOut.write(js_final)
 
 default_form_fields = [
     "bc_num_hours", "executor", "cpu_partition", "num_core",
-    "num_memory", "reservation", "version", "workdir", "outdir"
+    "num_memory", "reservation", "workdir", 
 ]
 formYmlOut.write("\n".join(f"  - {field}" for field in default_form_fields) + "\n")
 
 # Write the context variables into paramsJsonOut
 paramsJsonOut.write("{\n")
-paramsJsonOut.write("""    "outdir":"<%= context.outdir %>",\n""")  # Add comma at the end
 
 # Convert lists to sets for faster lookups
 hidden_set = set(hidden_list)
@@ -265,7 +254,7 @@ first_entry = True  # Flag to track first property to manage commas correctly
 
 # Iterate through definitions
 for name, definition in definitions.items():
-    if name in {'institutional_config_options', 'generic_options', 'max_job_request_options'}:
+    if name in {'institutional_config_options', 'generic_options', 'max_job_request_options', 'deprecated_options'}:
         continue
 
     formYmlOut.write(f"  - {name.lower()}\n") # new ood does not seem to support uppercase
@@ -273,7 +262,7 @@ for name, definition in definitions.items():
     # Iterate through properties
     properties = definition.get('properties', {})
     for k in properties:
-        if k in {'email', 'outdir', 'igenomes_ignore'} or k in hidden_set:
+        if k in {'email', 'igenomes_ignore'} or k in hidden_set:
             continue  # Skip excluded fields
 
         formYmlOut.write(f"  - {k.lower()}\n")
