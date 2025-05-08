@@ -1,8 +1,17 @@
 ---
 name: PIPELINE VERSION
 category: nf-core pipelines
-subcategory: PIPELINE
+subcategory: SUBCATEGORY
 role: batch_connect
 description: |
   This app will launch the [PIPELINE](https://nf-co.re/PIPELINE) pipeline developed by nf-core community. 
 
+  💡 **Clearing Saved Form Settings**
+
+  This app saves your form inputs in a cache file for future sessions.
+
+  To reset to **default** values, run the following command in a terminal:
+
+  ```
+  rm -rf ~/ondemand/data/sys/dashboard/batch_connect/cache/sys_MYAPP.json
+  ```

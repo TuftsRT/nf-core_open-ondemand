@@ -146,9 +146,31 @@ replace_placeholders() {
     local CONVERTED_VERSION="${VERSION//./_}"
     local COMBINED_VERSION="${VERSION}/${CONVERTED_VERSION}"
     local OUTDIR=$3
+    local MYAPP="${OUTDIR##*/}"
     local formYmlOut=$4 # Added
     local paramsJsonOut=$5 # Added
 
+    ## Group pipelines into subcategories
+    case "$PIPELINE" in
+    nf-core-rnaseq | nf-core-differentialabundance)
+    SUBCATEGORY="rnaseq"
+    ;;
+    nf-core-pangenome | nf-core-sarek)
+    SUBCATEGORY="genomics"
+    ;;
+    nf-core-fetchngs)
+    SUBCATEGORY="ngs"
+    ;;
+    nf-core-ampliseq | nf-core-taxprofiler)
+    SUBCATEGORY="metagenomics"
+    ;;
+    nf-core-*)
+    SUBCATEGORY="${PIPELINE#nf-core-}"
+    ;;
+    *)
+    SUBCATEGORY="unknown"
+    ;;
+    esac
     # Perform substitutions
     perform_sed_replacement "${OUTDIR}/submit.yml.erb" "PIPELINE" "${PIPELINE}"
     perform_sed_replacement "${OUTDIR}/manifest.yml" "PIPELINE" "${PIPELINE##*-}"
@@ -156,6 +178,8 @@ replace_placeholders() {
     perform_sed_replacement "${OUTDIR}/template/script.sh.erb" "VERSION" "${COMBINED_VERSION}"
     perform_sed_replacement "${OUTDIR}/template/script.sh.erb" "PIPELINE" "${PIPELINE}"
     perform_sed_replacement "$formYmlOut" "PIPELINE" "${PIPELINE}"
+    perform_sed_replacement "${OUTDIR}/manifest.yml" "MYAPP" "${MYAPP}"
+    perform_sed_replacement "${OUTDIR}/manifest.yml" "SUBCATEGORY" "${SUBCATEGORY}"
     sed -i '/- igenomes_base/d' "$formYmlOut"
     sed -i "s/value: True/value: true/g" "$formYmlOut"
     sed -i "s/value: False/value: false/g" "$formYmlOut"
