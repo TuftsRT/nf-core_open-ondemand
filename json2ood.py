@@ -184,7 +184,6 @@ def process_properties(outfile, properties):
 
 # Function to determine widget type
 def determine_widget_type(key, value):
-    print(value)
     widget_format = value.get("format", "").strip().lower()
 #    widget_type = value.get("type", "").strip().lower()
     widget_enum = value.get("enum", [])
