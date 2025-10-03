@@ -186,9 +186,18 @@ def process_properties(outfile, properties):
 def determine_widget_type(key, value):
     print(value)
     widget_format = value.get("format", "").strip().lower()
-    widget_type = value.get("type", "").strip().lower()
+#    widget_type = value.get("type", "").strip().lower()
     widget_enum = value.get("enum", [])
+    widget_type = value.get("type", "")
 
+    if isinstance(widget_type, list):
+        # pick the first type, or handle "null" specially
+        widget_type = widget_type[0]
+
+    if isinstance(widget_type, str):
+        widget_type = widget_type.strip().lower()
+    else:
+        widget_type = ""
     # If enum exists, the widget should be a "select" dropdown
     if widget_enum:
         return "select"
