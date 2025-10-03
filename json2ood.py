@@ -40,7 +40,8 @@ def generate_parent_options(name, definition):
     for prop in properties:
         if prop == "email":  # Skip 'email' key
             continue
-        output_lines.append(f"        hide-{prop}-when-un-checked: true")
+        fixed_prop = move_digits_to_end(prop)
+        output_lines.append(f"        hide-{fixed_prop}-when-un-checked: true")
 
     if help_text:
         output_lines.append(f"    help: \"{replace_apostrophes(help_text)}\"")
@@ -57,6 +58,28 @@ def generate_parent_options(name, definition):
   }});""")
 
     return "\n".join(output_lines), "\n".join(js_lines)
+
+
+def move_digits_to_end(prop: str) -> str:
+    """
+    Move digits inside a string to the end of the last segment.
+    Example:
+      h3i       -> hi3
+      dfam_h3i  -> dfam_hi3
+      pfam12abc -> pfamabc12
+      normal    -> normal
+    """
+    prop = prop.lower()
+    # Split on underscores, only transform the last part
+    parts = prop.split("_")
+    last = parts[-1]
+
+    # Separate letters and digits in the last part
+    letters = re.sub(r'\d+', '', last)
+    digits = re.sub(r'\D+', '', last)
+
+    parts[-1] = f"{letters}{digits}" if digits else last
+    return "_".join(parts)
 
 # Function to write widget in the outfile
 def write_widget(outfile, widget, value):
@@ -148,8 +171,8 @@ def process_properties(outfile, properties):
             write_help(outfile, value.get("description", ""))
             outfile.write("\n")
             continue
-
-        outfile.write(f"  {key.lower()}:\n")  # new ood does not seem to suppport upper case
+        fixed_key = move_digits_to_end(key)
+        outfile.write(f"  {fixed_key}:\n")  # new ood does not seem to suppport upper case
         outfile.write(f"    label: {key}\n")
         if 'required' in properties and key in properties['required']:
             outfile.write("    required: true\n")
@@ -161,6 +184,7 @@ def process_properties(outfile, properties):
 
 # Function to determine widget type
 def determine_widget_type(key, value):
+    print(value)
     widget_format = value.get("format", "").strip().lower()
     widget_type = value.get("type", "").strip().lower()
     widget_enum = value.get("enum", [])
