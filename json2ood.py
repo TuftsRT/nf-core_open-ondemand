@@ -308,9 +308,10 @@ for name, definition in definitions.items():
         # Write parameters based on field type
         # Note that new ood does not seem to support uppercase
         if k in number_field_set or k in boolean_field_set:
-            paramsJsonOut.write(f"    \"{k}\": <%= context.{k.lower()} %>")
+            k_fixed = move_digits_to_end(k)
+            paramsJsonOut.write(f"    \"{k}\": <%= context.{k_fixed} %>")
         else:
-            paramsJsonOut.write(f"    \"{k}\": \"<%= context.{k.lower()} %>\"")
+            paramsJsonOut.write(f"    \"{k}\": \"<%= context.{k_fixed} %>\"")
 
 paramsJsonOut.write("\n}")
 formYmlOut.write("  - tower_access_token\n  - resume\n")
