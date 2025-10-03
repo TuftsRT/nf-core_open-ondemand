@@ -237,8 +237,8 @@ with open(formJsOut, "a") as jsOut:
     jsOut.write(js_final)
 
 default_form_fields = [
-    "bc_num_hours", "executor", "cpu_partition", "num_core",
-    "num_memory", "reservation", "workdir", 
+    "bc_num_hours", "executor", "partition", "num_cores",
+    "num_memory",  "workdir", 
 ]
 formYmlOut.write("\n".join(f"  - {field}" for field in default_form_fields) + "\n")
 

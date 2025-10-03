@@ -17,13 +17,11 @@ script:
     <%- if executor == "slurm" -%>
     - "-n"
     - "2"
-    - "--reservation"
-    - "<%= reservation %>"
     <%- elsif executor == "local" -%>
     - "-n"
-    - "<%= num_core %>"
+    - "<%= num_cores %>"
     - "--mem"
     - "<%= num_memory %>"
     - "-p"
-    - <%= cpu_partition %>
+    - <%= partition %>
     <%- end -%>                         
