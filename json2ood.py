@@ -296,8 +296,8 @@ for name, definition in definitions.items():
     for k in properties:
         if k in {'email', 'igenomes_ignore'} or k in hidden_set:
             continue  # Skip excluded fields
-
-        formYmlOut.write(f"  - {k.lower()}\n")
+        k_fixed = move_digits_to_end(k)
+        formYmlOut.write(f"  - {k_fixed}\n")
 
         # Add comma correctly before each new entry
         if first_entry:
