@@ -6,10 +6,14 @@ import os
 import sys
 import re
 
+
 # Lists to store field information
 hidden_list = ["report_file", "citations_file", "css_file", "logo_file", "report_template", "report_logo", "report_css"]
 number_field_list = []
 boolean_field_list = []
+
+
+
 
 # Function to check if a file exists
 def check_file_exists(filepath):
@@ -26,13 +30,13 @@ def write_options(outfile, options):
 # Function to generate top-level options for checkboxes
 def generate_parent_options(name, definition):
     output_lines = []
-    js_lines = []
 
     label = definition.get("title", name.replace("_", " ").title())
     properties = definition.get("properties", {})
-    help_text = definition.get("description", "")  # Extract top-level description
+    # MODIFIED: Get only the first line of the description
+    help_text = definition.get("description", "").split('\n')[0]
     output_lines.append(f"  {name.lower()}:") # new ood does not seem to suppport upper case
-    output_lines.append(f"    label: {label}")
+    output_lines.append(f"    label: \"{label}\"")
     output_lines.append(f"    widget: 'check_box'")
     output_lines.append(f"    html_options:")
     output_lines.append(f"      data:")
@@ -47,39 +51,29 @@ def generate_parent_options(name, definition):
         output_lines.append(f"    help: \"{replace_apostrophes(help_text)}\"")
 
     output_lines.append("")  # Add a newline for separation
+    return "\n".join(output_lines)
 
-    # JS generation (to style label)
-    js_lines.append(f"""\
-  document.querySelectorAll("label").forEach((label) => {{
-    if (label.textContent.trim() === "{label}") {{
-      label.style.color = "green";
-      label.style.fontWeight = "bold";
-    }}
-  }});""")
-
-    return "\n".join(output_lines), "\n".join(js_lines)
-
-
+# Function to move digits to the end of the last segment of a string
 def move_digits_to_end(prop: str) -> str:
     """
-    Move digits inside a string to the end of the last segment.
+    Move all digits in each segment to the end of that segment.
     Example:
-      h3i       -> hi3
-      dfam_h3i  -> dfam_hi3
-      pfam12abc -> pfamabc12
-      normal    -> normal
+      h3i             -> hi3
+      dfam_h3i        -> dfam_hi3
+      pfam12abc       -> pfamabc12
+      3abc12          -> abc123
+      ignore_3prime_r2 -> ignore_prime3_r2
     """
     prop = prop.lower()
-    # Split on underscores, only transform the last part
     parts = prop.split("_")
-    last = parts[-1]
 
-    # Separate letters and digits in the last part
-    letters = re.sub(r'\d+', '', last)
-    digits = re.sub(r'\D+', '', last)
-
-    parts[-1] = f"{letters}{digits}" if digits else last
-    return "_".join(parts)
+    new_parts = []
+    for part in parts:
+        letters = re.sub(r'\d', '', part)
+        digits = re.sub(r'\D', '', part)
+        new_parts.append(f"{letters}{digits}" if digits else letters)
+    
+    return "_".join(new_parts)
 
 # Function to write widget in the outfile
 def write_widget(outfile, widget, value):
@@ -156,7 +150,6 @@ def process_genome(outfile):
     write_options(outfile, genomes)
 
 
-# Function to process properties
 def process_properties(outfile, properties):
     for key, value in properties.items():
         if key in ['email', 'igenomes_ignore']:
@@ -168,18 +161,20 @@ def process_properties(outfile, properties):
 
         if key == "genome":
             process_genome(outfile)
-            write_help(outfile, value.get("description", ""))
+            # MODIFIED: Get only the first line of the description
+            write_help(outfile, value.get("description", "").split('\n')[0])
             outfile.write("\n")
             continue
         fixed_key = move_digits_to_end(key)
         outfile.write(f"  {fixed_key}:\n")  # new ood does not seem to suppport upper case
-        outfile.write(f"    label: {key}\n")
+        outfile.write(f"    label: \"{key}\"\n")
         if 'required' in properties and key in properties['required']:
             outfile.write("    required: true\n")
 
         widget = determine_widget_type(key, value)
         write_widget(outfile, widget, value)
-        write_help(outfile, value.get("description", ""))
+        # MODIFIED: Get only the first line of the description
+        write_help(outfile, value.get("description", "").split('\n')[0])
         outfile.write("\n")
 
 # Function to determine widget type
@@ -231,7 +226,6 @@ shutil.copyfile(sys.argv[3], sys.argv[2])
 # Open the output files
 formYmlOut = open(sys.argv[2], "a")
 paramsJsonOut = open(sys.argv[4], "w")
-formJsOut = sys.argv[5]
 
 # Load schema JSON
 with open(sys.argv[1]) as schemaJson:
@@ -250,23 +244,13 @@ all_js_styling = []
 for name, definition in definitions.items():
     if name in ['institutional_config_options', 'generic_options', 'max_job_request_options', 'deprecated_options']:
         continue
-    yaml_block, js_styling_lines = generate_parent_options(name, definition)
+    yaml_block = generate_parent_options(name, definition)
     formYmlOut.write(yaml_block)
     formYmlOut.write("\n")
-    all_js_styling.append(js_styling_lines)
     process_properties(formYmlOut, definition.get('properties', {}))
 
 # Write form fields
 formYmlOut.write("\nform:\n")
-
-# Wrap all JS inside DOMContentLoaded
-js_final = "document.addEventListener(\"DOMContentLoaded\", function () {\n"
-js_final += "\n\n".join(all_js_styling)
-js_final += "\n});\n"
-
-# Write JavaScript to file
-with open(formJsOut, "a") as jsOut:
-    jsOut.write(js_final)
 
 default_form_fields = [
     "bc_num_hours", "executor", "partition", "num_cores",
