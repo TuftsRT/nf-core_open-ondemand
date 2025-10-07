@@ -1,0 +1,768 @@
+---
+cluster: "pax"
+
+attributes:
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/cpu_partition.yml").indent(2) %>
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/num_cores_generic.yml").indent(2) %>
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/num_memory_generic.yml").indent(2) %>
+
+  executor:
+    label: Which nextflow executor to use?
+    widget: select
+    options:
+    - [
+        "slurm", "slurm",
+        data-hide-partition: true,
+        data-hide-num-cores: true,
+        data-hide-num-memory: true
+      ]
+    - ["local", "local"]
+    help: |
+      With slurm, tasks will be distributed to different nodes, local means all tasks will run on a single node.
+
+  workdir:
+    label: "Working Directory"
+    widget: "path_selector"
+    directory: "/cluster/tufts"
+    required: false
+    label: Working directory
+    favorites:
+        - /cluster/tufts
+        - /cluster/home
+    
+  resume:
+    label: Resume
+    widget: check_box
+    checked_value: 1
+    unchecked_value: 0
+    help: |
+           Resume previous run if found
+
+  tower_access_token:
+    widget: "text_field"
+    required: false
+    label: "TOWER_ACCESS_TOKEN (Optional)"
+    help: "Your TOWER_ACCESS_TOKEN used to monitor runs on [Nextflow Tower](https://seqera.io)."
+
+
+
+  input_output_options:
+    label: "Input/output options"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-input-when-un-checked: true
+        hide-outdir-when-un-checked: true
+        hide-multiqc_title-when-un-checked: true
+    help: "Define where the pipeline should find input data and save output data."
+
+  input:
+    label: "input"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to comma-separated file containing information about the samples in the experiment."
+
+  outdir:
+    label: "outdir"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure."
+
+  multiqc_title:
+    label: "multiqc_title"
+    widget: text_field
+    help: "MultiQC report title. Printed as page header, used for filename if not otherwise specified."
+
+  save_intermediate_files:
+    label: "Save intermediate files"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-save_reference-when-un-checked: true
+        hide-save_align_intermeds-when-un-checked: true
+        hide-unmapped-when-un-checked: true
+        hide-save_trimmed-when-un-checked: true
+    help: "Options for saving a variety of intermediate files"
+
+  save_reference:
+    label: "save_reference"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save reference(s) to results directory"
+
+  save_align_intermeds:
+    label: "save_align_intermeds"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save aligned intermediates to results directory"
+
+  unmapped:
+    label: "unmapped"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Bismark only - Save unmapped reads to FastQ files"
+
+  save_trimmed:
+    label: "save_trimmed"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save trimmed reads to results directory."
+
+  reference_genome_options:
+    label: "Reference genome options"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-genome-when-un-checked: true
+        hide-fasta-when-un-checked: true
+        hide-fasta_index-when-un-checked: true
+        hide-bismark_index-when-un-checked: true
+        hide-bwameth_index-when-un-checked: true
+        hide-igenomes_ignore-when-un-checked: true
+        hide-igenomes_base-when-un-checked: true
+    help: "Options for the reference genome indices used to align reads."
+
+  genome:
+    label: iGenomes
+    widget: select
+    required: false
+    options:
+      - ['None', ' ']
+      - ['GRCh37', 'GRCh37']
+      - ['GRCh38', 'GRCh38']
+      - ['GRCm38', 'GRCm38']
+      - ['TAIR10', 'TAIR10']
+      - ['EB2', 'EB2']
+      - ['UMD3.1', 'UMD3.1']
+      - ['WBcel235', 'WBcel235']
+      - ['CanFam3.1', 'CanFam3.1']
+      - ['GRCz10', 'GRCz10']
+      - ['BDGP6', 'BDGP6']
+      - ['EquCab2', 'EquCab2']
+      - ['EB1', 'EB1']
+      - ['Galgal4', 'Galgal4']
+      - ['Gm01', 'Gm01']
+      - ['Mmul_1', 'Mmul_1']
+      - ['IRGSP-1.0', 'IRGSP-1.0']
+      - ['CHIMP2.1.4', 'CHIMP2.1.4']
+      - ['Rnor_5.0', 'Rnor_5.0']
+      - ['Rnor_6.0', 'Rnor_6.0']
+      - ['R64-1-1', 'R64-1-1']
+      - ['EF2', 'EF2']
+      - ['Sbi1', 'Sbi1']
+      - ['Sscrofa10.2', 'Sscrofa10.2']
+      - ['AGPv3', 'AGPv3']
+      - ['hg38', 'hg38']
+      - ['hg19', 'hg19']
+      - ['mm10', 'mm10']
+      - ['bosTau8', 'bosTau8']
+      - ['ce10', 'ce10']
+      - ['canFam3', 'canFam3']
+      - ['danRer10', 'danRer10']
+      - ['dm6', 'dm6']
+      - ['equCab2', 'equCab2']
+      - ['galGal4', 'galGal4']
+      - ['panTro4', 'panTro4']
+      - ['rn6', 'rn6']
+      - ['sacCer3', 'sacCer3']
+      - ['susScr3', 'susScr3']
+    help: "Name of iGenomes reference."
+
+  fasta:
+    label: "fasta"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to FASTA genome file"
+
+  fasta_index:
+    label: "fasta_index"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to Fasta index file."
+
+  bismark_index:
+    label: "bismark_index"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to a directory containing a Bismark reference index."
+
+  bwameth_index:
+    label: "bwameth_index"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "bwameth index filename base"
+
+  alignment_options:
+    label: "Alignment options"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-aligner-when-un-checked: true
+        hide-use_mem2-when-un-checked: true
+
+  aligner:
+    label: "aligner"
+    widget: select
+    options:
+      - ['bismark', 'bismark']
+      - ['bismark_hisat', 'bismark_hisat']
+      - ['bwameth', 'bwameth']
+    help: "Alignment tool to use."
+
+  use_mem2:
+    label: "use_mem2"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Use BWA-MEM2 algorithm for BWA-Meth indexing and alignment."
+
+  special_library_types:
+    label: "Special library types"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-pbat-when-un-checked: true
+        hide-rrbs-when-un-checked: true
+        hide-slamseq-when-un-checked: true
+        hide-em_seq-when-un-checked: true
+        hide-single_cell-when-un-checked: true
+        hide-accel-when-un-checked: true
+        hide-zymo-when-un-checked: true
+    help: "Presets for working with specific bisulfite library preparation methods."
+
+  pbat:
+    label: "pbat"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Preset for working with PBAT libraries."
+
+  rrbs:
+    label: "rrbs"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on if dealing with MspI digested material."
+
+  slamseq:
+    label: "slamseq"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Run bismark in SLAM-seq mode."
+
+  em_seq:
+    label: "em_seq"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Preset for EM-seq libraries."
+
+  single_cell:
+    label: "single_cell"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Trimming preset for single-cell bisulfite libraries."
+
+  accel:
+    label: "accel"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Trimming preset for the Accel kit."
+
+  zymo:
+    label: "zymo"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Trimming preset for the Zymo kit."
+
+  adapter_trimming:
+    label: "Adapter Trimming"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-clip_r1-when-un-checked: true
+        hide-clip_r2-when-un-checked: true
+        hide-three_prime_clip_r1-when-un-checked: true
+        hide-three_prime_clip_r2-when-un-checked: true
+        hide-nextseq_trim-when-un-checked: true
+        hide-length_trim-when-un-checked: true
+        hide-skip_trimming_presets-when-un-checked: true
+    help: "Bisulfite libraries often require additional base pairs to be removed from the ends of the reads before alignment."
+
+  clip_r1:
+    label: "clip_r1"
+    widget: number_field
+    value: 0
+    step: 1
+    help: "Trim bases from the 5` end of read 1 (or single-end reads)."
+
+  clip_r2:
+    label: "clip_r2"
+    widget: number_field
+    value: 0
+    step: 1
+    help: "Trim bases from the 5` end of read 2 (paired-end only)."
+
+  three_prime_clip_r1:
+    label: "three_prime_clip_r1"
+    widget: number_field
+    value: 0
+    step: 1
+    help: "Trim bases from the 3` end of read 1 AFTER adapter/quality trimming."
+
+  three_prime_clip_r2:
+    label: "three_prime_clip_r2"
+    widget: number_field
+    value: 0
+    step: 1
+    help: "Trim bases from the 3` end of read 2 AFTER adapter/quality trimming"
+
+  nextseq_trim:
+    label: "nextseq_trim"
+    widget: number_field
+    value: 0
+    step: 1
+    help: "Trim bases below this quality value from the 3` end of the read, ignoring high-quality G bases"
+
+  length_trim:
+    label: "length_trim"
+    widget: number_field
+    step: 1
+    help: "Discard reads that become shorter than INT because of either quality or adapter trimming."
+
+  skip_trimming_presets:
+    label: "skip_trimming_presets"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip presetting trimming parameters entirely"
+
+  bismark_options:
+    label: "Bismark options"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-non_directional-when-un-checked: true
+        hide-cytosine_report-when-un-checked: true
+        hide-relax_mismatches-when-un-checked: true
+        hide-num_mismatches-when-un-checked: true
+        hide-meth_cutoff-when-un-checked: true
+        hide-no_overlap-when-un-checked: true
+        hide-ignore_r1-when-un-checked: true
+        hide-ignore_r2-when-un-checked: true
+        hide-ignore_prime3_r1-when-un-checked: true
+        hide-ignore_prime3_r2-when-un-checked: true
+        hide-known_splices-when-un-checked: true
+        hide-local_alignment-when-un-checked: true
+        hide-minins-when-un-checked: true
+        hide-maxins-when-un-checked: true
+        hide-nomeseq-when-un-checked: true
+        hide-comprehensive-when-un-checked: true
+    help: "Parameters specific to the Bismark workflow"
+
+  non_directional:
+    label: "non_directional"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Run alignment against all four possible strands."
+
+  cytosine_report:
+    label: "cytosine_report"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Output stranded cytosine report, following Bismark's bismark_methylation_extractor step."
+
+  relax_mismatches:
+    label: "relax_mismatches"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on to relax stringency for alignment (set allowed penalty with --num_mismatches)."
+
+  num_mismatches:
+    label: "num_mismatches"
+    widget: number_field
+    value: 0.6
+    step: 1
+    help: "0.6 will allow a penalty of bp * -0.6 - for 100bp reads (bismark default is 0.2)"
+
+  meth_cutoff:
+    label: "meth_cutoff"
+    widget: number_field
+    step: 1
+    help: "Specify a minimum read coverage to report a methylation call"
+
+  no_overlap:
+    label: "no_overlap"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Ignore read 2 methylation when it overlaps read 1"
+
+  ignore_r1:
+    label: "ignore_r1"
+    widget: number_field
+    value: 0
+    step: 1
+    help: "Ignore methylation in first n bases of 5` end of R1"
+
+  ignore_r2:
+    label: "ignore_r2"
+    widget: number_field
+    value: 2
+    step: 1
+    help: "Ignore methylation in first n bases of 5` end of R2"
+
+  ignore_prime3_r1:
+    label: "ignore_3prime_r1"
+    widget: number_field
+    value: 0
+    step: 1
+    help: "Ignore methylation in last n bases of 3` end of R1"
+
+  ignore_prime3_r2:
+    label: "ignore_3prime_r2"
+    widget: number_field
+    value: 2
+    step: 1
+    help: "Ignore methylation in last n bases of 3` end of R2"
+
+  known_splices:
+    label: "known_splices"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Supply a .gtf file containing known splice sites (bismark_hisat only)."
+
+  local_alignment:
+    label: "local_alignment"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Allow soft-clipping of reads (potentially useful for single-cell experiments)."
+
+  minins:
+    label: "minins"
+    widget: number_field
+    step: 1
+    help: "The minimum insert size for valid paired-end alignments."
+
+  maxins:
+    label: "maxins"
+    widget: number_field
+    step: 1
+    help: "The maximum insert size for valid paired-end alignments."
+
+  nomeseq:
+    label: "nomeseq"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Sample is NOMe-seq or NMT-seq. Runs coverage2cytosine."
+
+  comprehensive:
+    label: "comprehensive"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Merges methylation calls for every strand into a single, context dependent file."
+
+  bwameth_options:
+    label: "bwa-meth options"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-all_contexts-when-un-checked: true
+        hide-merge_context-when-un-checked: true
+        hide-min_depth-when-un-checked: true
+        hide-ignore_flags-when-un-checked: true
+        hide-methyl_kit-when-un-checked: true
+
+  all_contexts:
+    label: "all_contexts"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Call methylation in all three CpG, CHG and CHH contexts."
+
+  merge_context:
+    label: "merge_context"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Merges methylation metrics of the Cytosines in a given context."
+
+  min_depth:
+    label: "min_depth"
+    widget: number_field
+    value: 0
+    step: 1
+    help: "Specify a minimum read coverage for MethylDackel to report a methylation call."
+
+  ignore_flags:
+    label: "ignore_flags"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "MethylDackel - ignore SAM flags"
+
+  methyl_kit:
+    label: "methyl_kit"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save files for use with methylKit"
+
+  qualimap_options:
+    label: "Qualimap Options"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-bamqc_regions_file-when-un-checked: true
+    help: "Qualimap configurations"
+
+  bamqc_regions_file:
+    label: "bamqc_regions_file"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "A GFF or BED file containing the target regions which will be passed to Qualimap/Bamqc."
+
+  targeted_sequencing_analysis_options:
+    label: "Targeted Sequencing Analysis Options"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-target_regions_file-when-un-checked: true
+        hide-collecthsmetrics-when-un-checked: true
+    help: "Targeted sequencing analysis configurations. They need `--run_targeted_sequencing` to have an effect"
+
+  target_regions_file:
+    label: "target_regions_file"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "A BED file containing the target regions"
+
+  collecthsmetrics:
+    label: "collecthsmetrics"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Run Picard CollectHsMetrics in the targeted analysis"
+
+  skip_pipeline_steps:
+    label: "Skip pipeline steps"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-skip_trimming-when-un-checked: true
+        hide-skip_deduplication-when-un-checked: true
+        hide-skip_fastqc-when-un-checked: true
+        hide-skip_multiqc-when-un-checked: true
+
+  skip_trimming:
+    label: "skip_trimming"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip read trimming."
+
+  skip_deduplication:
+    label: "skip_deduplication"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip deduplication step after alignment."
+
+  skip_fastqc:
+    label: "skip_fastqc"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip FastQC"
+
+  skip_multiqc:
+    label: "skip_multiqc"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip MultiQC"
+
+  run_pipeline_steps:
+    label: "Run pipeline steps"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-run_preseq-when-un-checked: true
+        hide-run_qualimap-when-un-checked: true
+        hide-run_targeted_sequencing-when-un-checked: true
+
+  run_preseq:
+    label: "run_preseq"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Run preseq/lcextrap tool"
+
+  run_qualimap:
+    label: "run_qualimap"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Run qualimap/bamqc tool"
+
+  run_targeted_sequencing:
+    label: "run_targeted_sequencing"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Run advanced analysis for targeted methylation kits with enrichment of specific regions"
+
+
+form:
+  - bc_num_hours
+  - executor
+  - partition
+  - num_cores
+  - num_memory
+  - workdir
+  - input_output_options
+  - input
+  - outdir
+  - multiqc_title
+  - save_intermediate_files
+  - save_reference
+  - save_align_intermeds
+  - unmapped
+  - save_trimmed
+  - reference_genome_options
+  - genome
+  - fasta
+  - fasta_index
+  - bismark_index
+  - bwameth_index
+  - alignment_options
+  - aligner
+  - use_mem2
+  - special_library_types
+  - pbat
+  - rrbs
+  - slamseq
+  - em_seq
+  - single_cell
+  - accel
+  - zymo
+  - adapter_trimming
+  - clip_r1
+  - clip_r2
+  - three_prime_clip_r1
+  - three_prime_clip_r2
+  - nextseq_trim
+  - length_trim
+  - skip_trimming_presets
+  - bismark_options
+  - non_directional
+  - cytosine_report
+  - relax_mismatches
+  - num_mismatches
+  - meth_cutoff
+  - no_overlap
+  - ignore_r1
+  - ignore_r2
+  - ignore_prime3_r1
+  - ignore_prime3_r2
+  - known_splices
+  - local_alignment
+  - minins
+  - maxins
+  - nomeseq
+  - comprehensive
+  - bwameth_options
+  - all_contexts
+  - merge_context
+  - min_depth
+  - ignore_flags
+  - methyl_kit
+  - qualimap_options
+  - bamqc_regions_file
+  - targeted_sequencing_analysis_options
+  - target_regions_file
+  - collecthsmetrics
+  - skip_pipeline_steps
+  - skip_trimming
+  - skip_deduplication
+  - skip_fastqc
+  - skip_multiqc
+  - run_pipeline_steps
+  - run_preseq
+  - run_qualimap
+  - run_targeted_sequencing
+  - tower_access_token
+  - resume

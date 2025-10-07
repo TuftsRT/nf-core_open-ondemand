@@ -1,0 +1,1473 @@
+---
+cluster: "pax"
+
+attributes:
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/cpu_partition.yml").indent(2) %>
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/num_cores_generic.yml").indent(2) %>
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/num_memory_generic.yml").indent(2) %>
+
+  executor:
+    label: Which nextflow executor to use?
+    widget: select
+    options:
+    - [
+        "slurm", "slurm",
+        data-hide-partition: true,
+        data-hide-num-cores: true,
+        data-hide-num-memory: true
+      ]
+    - ["local", "local"]
+    help: |
+      With slurm, tasks will be distributed to different nodes, local means all tasks will run on a single node.
+
+  workdir:
+    label: "Working Directory"
+    widget: "path_selector"
+    directory: "/cluster/tufts"
+    required: false
+    label: Working directory
+    favorites:
+        - /cluster/tufts
+        - /cluster/home
+    
+  resume:
+    label: Resume
+    widget: check_box
+    checked_value: 1
+    unchecked_value: 0
+    help: |
+           Resume previous run if found
+
+  tower_access_token:
+    widget: "text_field"
+    required: false
+    label: "TOWER_ACCESS_TOKEN (Optional)"
+    help: "Your TOWER_ACCESS_TOKEN used to monitor runs on [Nextflow Tower](https://seqera.io)."
+
+
+
+  input_output_options:
+    label: "Input/output options"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-input-when-un-checked: true
+        hide-single_end-when-un-checked: true
+        hide-assembly_input-when-un-checked: true
+        hide-outdir-when-un-checked: true
+        hide-multiqc_title-when-un-checked: true
+    help: "Define where the pipeline should find input data and save output data."
+
+  input:
+    label: "input"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "CSV samplesheet file containing information about the samples in the experiment."
+
+  single_end:
+    label: "single_end"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specifies that the input is single-end reads."
+
+  assembly_input:
+    label: "assembly_input"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Additional input CSV samplesheet containing information about pre-computed assemblies. When set, both read pre-processing and assembly are skipped and the pipeline begins at the binning stage."
+
+  outdir:
+    label: "outdir"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure."
+
+  multiqc_title:
+    label: "multiqc_title"
+    widget: text_field
+    help: "MultiQC report title. Printed as page header, used for filename if not otherwise specified."
+
+  reference_genome_options:
+    label: "Reference genome options"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-igenomes_ignore-when-un-checked: true
+        hide-igenomes_base-when-un-checked: true
+    help: "Reference genome related files and options required for the workflow."
+
+  reproducibility_options:
+    label: "Reproducibility options"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-megahit_fix_cpu1-when-un-checked: true
+        hide-spades_fix_cpus-when-un-checked: true
+        hide-spadeshybrid_fix_cpus-when-un-checked: true
+        hide-metabat_rng_seed-when-un-checked: true
+    help: "Use these parameters to also enable reproducible results from the individual assembly and binning tools ."
+
+  megahit_fix_cpu1:
+    label: "megahit_fix_cpu_1"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Fix number of CPUs for MEGAHIT to 1. Not increased with retries."
+
+  spades_fix_cpus:
+    label: "spades_fix_cpus"
+    widget: number_field
+    value: -1
+    step: 1
+    help: "Fix number of CPUs used by SPAdes. Not increased with retries."
+
+  spadeshybrid_fix_cpus:
+    label: "spadeshybrid_fix_cpus"
+    widget: number_field
+    value: -1
+    step: 1
+    help: "Fix number of CPUs used by SPAdes hybrid. Not increased with retries."
+
+  metabat_rng_seed:
+    label: "metabat_rng_seed"
+    widget: number_field
+    value: 1
+    step: 1
+    help: "RNG seed for MetaBAT2."
+
+  quality_control_for_short_reads_options:
+    label: "Quality control for short reads options"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-clip_tool-when-un-checked: true
+        hide-save_clipped_reads-when-un-checked: true
+        hide-reads_minlength-when-un-checked: true
+        hide-fastp_qualified_quality-when-un-checked: true
+        hide-fastp_cut_mean_quality-when-un-checked: true
+        hide-fastp_save_trimmed_fail-when-un-checked: true
+        hide-fastp_trim_polyg-when-un-checked: true
+        hide-adapterremoval_minquality-when-un-checked: true
+        hide-adapterremoval_trim_quality_stretch-when-un-checked: true
+        hide-adapterremoval_adapter1-when-un-checked: true
+        hide-adapterremoval_adapter2-when-un-checked: true
+        hide-host_genome-when-un-checked: true
+        hide-host_fasta-when-un-checked: true
+        hide-host_fasta_bowtieindex2-when-un-checked: true
+        hide-host_removal_verysensitive-when-un-checked: true
+        hide-host_removal_save_ids-when-un-checked: true
+        hide-save_hostremoved_reads-when-un-checked: true
+        hide-keep_phix-when-un-checked: true
+        hide-phix_reference-when-un-checked: true
+        hide-skip_clipping-when-un-checked: true
+        hide-skip_shortread_qc-when-un-checked: true
+        hide-save_phixremoved_reads-when-un-checked: true
+        hide-bbnorm-when-un-checked: true
+        hide-bbnorm_target-when-un-checked: true
+        hide-bbnorm_min-when-un-checked: true
+        hide-save_bbnorm_reads-when-un-checked: true
+
+  clip_tool:
+    label: "clip_tool"
+    widget: select
+    options:
+      - ['fastp', 'fastp']
+      - ['adapterremoval', 'adapterremoval']
+      - ['trimmomatic', 'trimmomatic']
+    help: "Specify which adapter clipping tool to use."
+
+  save_clipped_reads:
+    label: "save_clipped_reads"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specify to save the resulting clipped FASTQ files to --outdir."
+
+  reads_minlength:
+    label: "reads_minlength"
+    widget: number_field
+    value: 15
+    step: 1
+    help: "The minimum length of reads must have to be retained for downstream analysis."
+
+  fastp_qualified_quality:
+    label: "fastp_qualified_quality"
+    widget: number_field
+    value: 15
+    step: 1
+    help: "Minimum phred quality value of a base to be qualified in fastp."
+
+  fastp_cut_mean_quality:
+    label: "fastp_cut_mean_quality"
+    widget: number_field
+    value: 15
+    step: 1
+    help: "The mean quality requirement used for per read sliding window cutting by fastp."
+
+  fastp_save_trimmed_fail:
+    label: "fastp_save_trimmed_fail"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save reads that fail fastp filtering in a separate file. Not used downstream."
+
+  fastp_trim_polyg:
+    label: "fastp_trim_polyg"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on detecting and trimming of poly-G tails"
+
+  adapterremoval_minquality:
+    label: "adapterremoval_minquality"
+    widget: number_field
+    value: 2
+    step: 1
+    help: "The minimum base quality for low-quality base trimming by AdapterRemoval."
+
+  adapterremoval_trim_quality_stretch:
+    label: "adapterremoval_trim_quality_stretch"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on quality trimming by consecutive stretch of low quality bases, rather than by window."
+
+  adapterremoval_adapter1:
+    label: "adapterremoval_adapter1"
+    widget: text_field
+    value: "AGATCGGAAGAGCACACGTCTGAACTCCAGTCACNNNNNNATCTCGTATGCCGTCTTCTGCTTG"
+    help: "Forward read adapter to be trimmed by AdapterRemoval."
+
+  adapterremoval_adapter2:
+    label: "adapterremoval_adapter2"
+    widget: text_field
+    value: "AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGTAGATCTCGGTGGTCGCCGTATCATT"
+    help: "Reverse read adapter to be trimmed by AdapterRemoval for paired end data."
+
+  host_genome:
+    label: "host_genome"
+    widget: text_field
+    help: "Name of iGenomes reference for host contamination removal."
+
+  host_fasta:
+    label: "host_fasta"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Fasta reference file for host contamination removal."
+
+  host_fasta_bowtieindex2:
+    label: "host_fasta_bowtie2index"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Bowtie2 index directory corresponding to `--host_fasta` reference file for host contamination removal."
+
+  host_removal_verysensitive:
+    label: "host_removal_verysensitive"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Use the `--very-sensitive` instead of the`--sensitive`setting for Bowtie 2 to map reads against the host genome."
+
+  host_removal_save_ids:
+    label: "host_removal_save_ids"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save the read IDs of removed host reads."
+
+  save_hostremoved_reads:
+    label: "save_hostremoved_reads"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specify to save input FASTQ files with host reads removed to --outdir."
+
+  keep_phix:
+    label: "keep_phix"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Keep reads similar to the Illumina internal standard PhiX genome."
+
+  phix_reference:
+    label: "phix_reference"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Genome reference used to remove Illumina PhiX contaminant reads."
+
+  skip_clipping:
+    label: "skip_clipping"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip read preprocessing using fastp or adapterremoval."
+
+  skip_shortread_qc:
+    label: "skip_shortread_qc"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip all default QC steps for short reads (adapter trimming, phiX removal)."
+
+  save_phixremoved_reads:
+    label: "save_phixremoved_reads"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specify to save input FASTQ files with phiX reads removed to --outdir."
+
+  bbnorm:
+    label: "bbnorm"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Run BBnorm to normalize sequence depth."
+
+  bbnorm_target:
+    label: "bbnorm_target"
+    widget: number_field
+    value: 100
+    step: 1
+    help: "Set BBnorm target maximum depth to this number."
+
+  bbnorm_min:
+    label: "bbnorm_min"
+    widget: number_field
+    value: 5
+    step: 1
+    help: "Set BBnorm minimum depth to this number."
+
+  save_bbnorm_reads:
+    label: "save_bbnorm_reads"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save normalized read files to output directory."
+
+  quality_control_for_long_reads_options:
+    label: "Quality control for long reads options"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-skip_adapter_trimming-when-un-checked: true
+        hide-skip_longread_filtering-when-un-checked: true
+        hide-skip_longread_qc-when-un-checked: true
+        hide-longreads_min_length-when-un-checked: true
+        hide-longreads_min_quality-when-un-checked: true
+        hide-longreads_keep_percent-when-un-checked: true
+        hide-longreads_length_weight-when-un-checked: true
+        hide-keep_lambda-when-un-checked: true
+        hide-lambda_reference-when-un-checked: true
+        hide-save_lambdaremoved_reads-when-un-checked: true
+        hide-save_porechop_reads-when-un-checked: true
+        hide-save_filtered_longreads-when-un-checked: true
+        hide-longread_adaptertrimming_tool-when-un-checked: true
+        hide-longread_filtering_tool-when-un-checked: true
+
+  skip_adapter_trimming:
+    label: "skip_adapter_trimming"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip removing adapter sequences from long reads."
+
+  skip_longread_filtering:
+    label: "skip_longread_filtering"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip filtering long reads."
+
+  skip_longread_qc:
+    label: "skip_longread_qc"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip all default QC steps for long reads (adapter trimming, filtering, removal of lambda sequences)."
+
+  longreads_min_length:
+    label: "longreads_min_length"
+    widget: number_field
+    value: 1000
+    step: 1
+    help: "Discard any read which is shorter than this value."
+
+  longreads_min_quality:
+    label: "longreads_min_quality"
+    widget: number_field
+    step: 1
+    help: "Discard any read which has a mean quality score lower than this value."
+
+  longreads_keep_percent:
+    label: "longreads_keep_percent"
+    widget: number_field
+    value: 90
+    step: 1
+    help: "Keep this percent of bases."
+
+  longreads_length_weight:
+    label: "longreads_length_weight"
+    widget: number_field
+    value: 10
+    step: 1
+    help: "The higher the more important is read length when choosing the best reads."
+
+  keep_lambda:
+    label: "keep_lambda"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Keep reads similar to the ONT internal standard Escherichia virus Lambda genome."
+
+  lambda_reference:
+    label: "lambda_reference"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Genome reference used to remove ONT Lambda contaminant reads."
+
+  save_lambdaremoved_reads:
+    label: "save_lambdaremoved_reads"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specify to save input FASTQ files with lamba reads removed  to --outdir."
+
+  save_porechop_reads:
+    label: "save_porechop_reads"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specify to save the resulting clipped FASTQ files to --outdir."
+
+  save_filtered_longreads:
+    label: "save_filtered_longreads"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specify to save the resulting length filtered long read FASTQ files to --outdir."
+
+  longread_adaptertrimming_tool:
+    label: "longread_adaptertrimming_tool"
+    widget: select
+    options:
+      - ['porechop_abi', 'porechop_abi']
+      - ['porechop', 'porechop']
+    help: "Specify which long read adapter trimming tool to use."
+
+  longread_filtering_tool:
+    label: "longread_filtering_tool"
+    widget: select
+    options:
+      - ['filtlong', 'filtlong']
+      - ['nanoq', 'nanoq']
+      - ['chopper', 'chopper']
+    help: "Specify which long read filtering tool to use."
+
+  taxonomic_profiling_options:
+    label: "Taxonomic profiling options"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-cat_db-when-un-checked: true
+        hide-cat_db_generate-when-un-checked: true
+        hide-save_cat_db-when-un-checked: true
+        hide-cat_allow_unofficial_lineages-when-un-checked: true
+        hide-cat_classify_unbinned-when-un-checked: true
+        hide-cat_no_suggestive_asterisks-when-un-checked: true
+        hide-skip_gtdbtk-when-un-checked: true
+        hide-gtdb_db-when-un-checked: true
+        hide-gtdbtk_min_completeness-when-un-checked: true
+        hide-gtdbtk_max_contamination-when-un-checked: true
+        hide-gtdbtk_min_perc_aa-when-un-checked: true
+        hide-gtdbtk_min_af-when-un-checked: true
+        hide-gtdbtk_pplacer_cpus-when-un-checked: true
+        hide-gtdbtk_pplacer_useram-when-un-checked: true
+        hide-gtdbtk_use_full_tree-when-un-checked: true
+        hide-gtdbtk_skip_aniscreen-when-un-checked: true
+    help: "Taxonomic classification is disabled by default. You have to specify one of the options below to activate it."
+
+  cat_db:
+    label: "cat_db"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Database for taxonomic classification of metagenome assembled genomes. Can be either a zipped file or a directory containing the extracted output of such."
+
+  cat_db_generate:
+    label: "cat_db_generate"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Generate CAT database."
+
+  save_cat_db:
+    label: "save_cat_db"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save the CAT database generated when specified by `--cat_db_generate`."
+
+  cat_allow_unofficial_lineages:
+    label: "cat_allow_unofficial_lineages"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Allow unofficial lineages in CAT classification."
+
+  cat_classify_unbinned:
+    label: "cat_classify_unbinned"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Classify unbinned contigs with CAT (contig mode)."
+
+  cat_no_suggestive_asterisks:
+    label: "cat_no_suggestive_asterisks"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specify to turn off CAT marking in output files most probable hits (when multiple) with an asterix."
+
+  skip_gtdbtk:
+    label: "skip_gtdbtk"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip the running of GTDB, as well as the automatic download of the database"
+
+  gtdb_db:
+    label: "gtdb_db"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Specify the location of a GTDBTK database. Can be either an uncompressed directory or a `.tar.gz` archive. If not specified will be downloaded for you when GTDBTK or binning QC is not skipped."
+
+  gtdbtk_min_completeness:
+    label: "gtdbtk_min_completeness"
+    widget: number_field
+    value: 50
+    step: 1
+    help: "Min. bin completeness (in %) required to apply GTDB-tk classification."
+
+  gtdbtk_max_contamination:
+    label: "gtdbtk_max_contamination"
+    widget: number_field
+    value: 10
+    step: 1
+    help: "Max. bin contamination (in %) allowed to apply GTDB-tk classification."
+
+  gtdbtk_min_perc_aa:
+    label: "gtdbtk_min_perc_aa"
+    widget: number_field
+    value: 10
+    step: 1
+    help: "Min. fraction of AA (in %) in the MSA for bins to be kept."
+
+  gtdbtk_min_af:
+    label: "gtdbtk_min_af"
+    widget: number_field
+    value: 0.65
+    step: 1
+    help: "Min. alignment fraction to consider closest genome."
+
+  gtdbtk_pplacer_cpus:
+    label: "gtdbtk_pplacer_cpus"
+    widget: number_field
+    value: 1
+    step: 1
+    help: "Number of CPUs used for the by GTDB-Tk run tool pplacer."
+
+  gtdbtk_pplacer_useram:
+    label: "gtdbtk_pplacer_useram"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Speed up pplacer step of GTDB-Tk by loading to memory."
+
+  gtdbtk_use_full_tree:
+    label: "gtdbtk_use_full_tree"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specify to have GTDBTk to use the full bacterial tree rather than the split tree (requires more memory!)"
+
+  gtdbtk_skip_aniscreen:
+    label: "gtdbtk_skip_aniscreen"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specify to disable fast classification of genomes by ANI using skani in GTDB-Tk."
+
+  assembly_options:
+    label: "Assembly options"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-coassemble_group-when-un-checked: true
+        hide-spades_options-when-un-checked: true
+        hide-spades_downstreaminput-when-un-checked: true
+        hide-megahit_options-when-un-checked: true
+        hide-skip_spades-when-un-checked: true
+        hide-skip_spadeshybrid-when-un-checked: true
+        hide-skip_megahit-when-un-checked: true
+        hide-skip_quast-when-un-checked: true
+        hide-skip_metamdbg-when-un-checked: true
+        hide-skip_flye-when-un-checked: true
+
+  coassemble_group:
+    label: "coassemble_group"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Co-assemble samples within one group, instead of assembling each sample separately."
+
+  spades_options:
+    label: "spades_options"
+    widget: text_field
+    help: "Additional custom options for SPAdes and SPAdesHybrid. Do not specify `--meta` as this will be added for you!"
+
+  spades_downstreaminput:
+    label: "spades_downstreaminput"
+    widget: select
+    options:
+      - ['scaffolds', 'scaffolds']
+      - ['contigs', 'contigs']
+    help: "Specify whether to use contigs or scaffolds assembled by SPAdes"
+
+  megahit_options:
+    label: "megahit_options"
+    widget: text_field
+    help: "Additional custom options for MEGAHIT."
+
+  skip_spades:
+    label: "skip_spades"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip Illumina-only SPAdes assembly."
+
+  skip_spadeshybrid:
+    label: "skip_spadeshybrid"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip SPAdes hybrid assembly."
+
+  skip_megahit:
+    label: "skip_megahit"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip MEGAHIT assembly."
+
+  skip_quast:
+    label: "skip_quast"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip metaQUAST."
+
+  skip_metamdbg:
+    label: "skip_metamdbg"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip MetaDBG assembly."
+
+  skip_flye:
+    label: "skip_flye"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip Flye assembly."
+
+  gene_prediction_and_annotation_options:
+    label: "Gene prediction and annotation options"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-skip_prodigal-when-un-checked: true
+        hide-prokka_with_compliance-when-un-checked: true
+        hide-prokka_compliance_centre-when-un-checked: true
+        hide-skip_prokka-when-un-checked: true
+        hide-prokka_fast_mode-when-un-checked: true
+        hide-skip_metaeuk-when-un-checked: true
+        hide-metaeuk_mmseqs_db-when-un-checked: true
+        hide-metaeuk_db-when-un-checked: true
+        hide-save_mmseqs_db-when-un-checked: true
+
+  skip_prodigal:
+    label: "skip_prodigal"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip Prodigal gene prediction"
+
+  prokka_with_compliance:
+    label: "prokka_with_compliance"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on Prokka complicance mode for truncating contig names for NCBI/ENA compatibility."
+
+  prokka_compliance_centre:
+    label: "prokka_compliance_centre"
+    widget: text_field
+    help: "Specify sequencing centre name required for Prokka's compliance mode."
+
+  skip_prokka:
+    label: "skip_prokka"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip Prokka genome annotation."
+
+  prokka_fast_mode:
+    label: "prokka_fast_mode"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specify to skip CDS/product searching in Prokka runs"
+
+  skip_metaeuk:
+    label: "skip_metaeuk"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip MetaEuk gene prediction and annotation"
+
+  metaeuk_mmseqs_db:
+    label: "metaeuk_mmseqs_db"
+    widget: select
+    options:
+      - ['UniRef100', 'UniRef100']
+      - ['UniRef90', 'UniRef90']
+      - ['UniRef50', 'UniRef50']
+      - ['UniProtKB', 'UniProtKB']
+      - ['UniProtKB/TrEMBL', 'UniProtKB/TrEMBL']
+      - ['UniProtKB/Swiss-Prot', 'UniProtKB/Swiss-Prot']
+      - ['NR', 'NR']
+      - ['NT', 'NT']
+      - ['GTDB', 'GTDB']
+      - ['PDB', 'PDB']
+      - ['PDB70', 'PDB70']
+      - ['Pfam-A.full', 'Pfam-A.full']
+      - ['Pfam-A.seed', 'Pfam-A.seed']
+      - ['Pfam-B', 'Pfam-B']
+      - ['CDD', 'CDD']
+      - ['eggNOG', 'eggNOG']
+      - ['VOGDB', 'VOGDB']
+      - ['dbCAN2', 'dbCAN2']
+      - ['SILVA', 'SILVA']
+      - ['Resfinder', 'Resfinder']
+      - ['Kalamari', 'Kalamari']
+    help: "A string containing the name of one of the databases listed in the [mmseqs2 documentation](https://github.com/soedinglab/MMseqs2/wiki#downloading-databases). This database will be downloaded and formatted for eukaryotic genome annotation. Incompatible with --metaeuk_db."
+
+  metaeuk_db:
+    label: "metaeuk_db"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to either a local fasta file of protein sequences, or to a directory containing an MMseqs2-formatted database, for annotation of eukaryotic genomes."
+
+  save_mmseqs_db:
+    label: "save_mmseqs_db"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save the downloaded mmseqs2 database specified in `--metaeuk_mmseqs_db`."
+
+  virus_identification_options:
+    label: "Virus identification options"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-run_virus_identification-when-un-checked: true
+        hide-genomad_db-when-un-checked: true
+        hide-genomad_min_score-when-un-checked: true
+        hide-genomad_splits-when-un-checked: true
+
+  run_virus_identification:
+    label: "run_virus_identification"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Run virus identification."
+
+  genomad_db:
+    label: "genomad_db"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Database for virus classification with geNomad"
+
+  genomad_min_score:
+    label: "genomad_min_score"
+    widget: number_field
+    value: 0.7
+    step: 1
+    help: "Minimum geNomad score for a sequence to be considered viral"
+
+  genomad_splits:
+    label: "genomad_splits"
+    widget: number_field
+    value: 1
+    step: 1
+    help: "Number of groups that geNomad's MMSeqs2 databse should be split into (reduced memory requirements)"
+
+  binning_options:
+    label: "Binning options"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-binning_map_mode-when-un-checked: true
+        hide-skip_binning-when-un-checked: true
+        hide-skip_metabat2-when-un-checked: true
+        hide-skip_maxbin2-when-un-checked: true
+        hide-skip_concoct-when-un-checked: true
+        hide-min_contig_size-when-un-checked: true
+        hide-min_length_unbinned_contigs-when-un-checked: true
+        hide-max_unbinned_contigs-when-un-checked: true
+        hide-bin_min_size-when-un-checked: true
+        hide-bin_max_size-when-un-checked: true
+        hide-bin_concoct_chunksize-when-un-checked: true
+        hide-bin_concoct_overlap-when-un-checked: true
+        hide-bin_concoct_donotconcatlast-when-un-checked: true
+        hide-bowtie2_mode-when-un-checked: true
+        hide-save_assembly_mapped_reads-when-un-checked: true
+        hide-bin_domain_classification-when-un-checked: true
+        hide-bin_domain_classification_tool-when-un-checked: true
+        hide-tiara_min_length-when-un-checked: true
+        hide-exclude_unbins_from_postbinning-when-un-checked: true
+        hide-longread_percentidentity-when-un-checked: true
+        hide-shortread_percentidentity-when-un-checked: true
+
+  binning_map_mode:
+    label: "binning_map_mode"
+    widget: select
+    options:
+      - ['group', 'group']
+      - ['all', 'all']
+      - ['own', 'own']
+    help: "Defines mapping strategy to compute co-abundances for binning, i.e. which samples will be mapped against the assembly."
+
+  skip_binning:
+    label: "skip_binning"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip metagenome binning entirely"
+
+  skip_metabat2:
+    label: "skip_metabat2"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip MetaBAT2 Binning"
+
+  skip_maxbin2:
+    label: "skip_maxbin2"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip MaxBin2 Binning"
+
+  skip_concoct:
+    label: "skip_concoct"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip CONCOCT Binning"
+
+  min_contig_size:
+    label: "min_contig_size"
+    widget: number_field
+    value: 1500
+    step: 1
+    help: "Minimum contig size to be considered for binning and for bin quality check."
+
+  min_length_unbinned_contigs:
+    label: "min_length_unbinned_contigs"
+    widget: number_field
+    value: 1000000
+    step: 1
+    help: "Minimal length of contigs that are not part of any bin but treated as individual genome."
+
+  max_unbinned_contigs:
+    label: "max_unbinned_contigs"
+    widget: number_field
+    value: 100
+    step: 1
+    help: "Maximal number of contigs that are not part of any bin but treated as individual genome."
+
+  bin_min_size:
+    label: "bin_min_size"
+    widget: number_field
+    value: 0
+    step: 1
+    help: "Specify the shortest length a bin should be to retain for downstream processing (in base pairs)"
+
+  bin_max_size:
+    label: "bin_max_size"
+    widget: number_field
+    step: 1
+    help: "Specify the longest length a bin should be to retain for downstream processing (in base pairs). By default no limit."
+
+  bin_concoct_chunksize:
+    label: "bin_concoct_chunksize"
+    widget: number_field
+    value: 10000
+    step: 1
+    help: "Specify length of sub-contigs cut up prior CONCOCT binning"
+
+  bin_concoct_overlap:
+    label: "bin_concoct_overlap"
+    widget: number_field
+    value: 0
+    step: 1
+    help: "Specify the overlap between each sub-contig prior CONCOCT binning"
+
+  bin_concoct_donotconcatlast:
+    label: "bin_concoct_donotconcatlast"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specify to not append the last contig less than sub-contig length to the last correct length contig"
+
+  bowtie2_mode:
+    label: "bowtie2_mode"
+    widget: text_field
+    help: "Specify alternative Bowtie2 settings for aligning reads back against the assembly."
+
+  save_assembly_mapped_reads:
+    label: "save_assembly_mapped_reads"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save the output of mapping raw reads back to assembled contigs"
+
+  bin_domain_classification:
+    label: "bin_domain_classification"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Enable domain-level (prokaryote or eukaryote) classification of bins using Tiara. Processes which are domain-specific will then only receive bins matching the domain requirement."
+
+  tiara_min_length:
+    label: "tiara_min_length"
+    widget: number_field
+    value: 3000
+    step: 1
+    help: "Minimum contig length for Tiara to use for domain classification. For accurate classification, should be longer than 3000 bp."
+
+  exclude_unbins_from_postbinning:
+    label: "exclude_unbins_from_postbinning"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Exclude unbinned contigs in the post-binning steps (bin QC, taxonomic classification, and annotation steps)."
+
+  longread_percentidentity:
+    label: "longread_percentidentity"
+    widget: number_field
+    step: 1
+    help: "Specify a minimum percent identity filter for long reads mapping back to assembled contigs."
+
+  shortread_percentidentity:
+    label: "shortread_percentidentity"
+    widget: number_field
+    step: 1
+    help: "Specify a minimum percent identity filter for short reads mapping back to assembled contigs."
+
+  bin_quality_check_options:
+    label: "Bin quality check options"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-skip_binqc-when-un-checked: true
+        hide-binqc_tool-when-un-checked: true
+        hide-busco_db-when-un-checked: true
+        hide-busco_db_lineage-when-un-checked: true
+        hide-save_busco_db-when-un-checked: true
+        hide-busco_clean-when-un-checked: true
+        hide-checkm_download_url-when-un-checked: true
+        hide-checkm_db-when-un-checked: true
+        hide-save_checkm_data-when-un-checked: true
+        hide-checkm2_db-when-un-checked: true
+        hide-checkm2_db_version-when-un-checked: true
+        hide-save_checkm2_data-when-un-checked: true
+        hide-refine_bins_dastool-when-un-checked: true
+        hide-refine_bins_dastool_threshold-when-un-checked: true
+        hide-postbinning_input-when-un-checked: true
+        hide-run_gunc-when-un-checked: true
+        hide-gunc_db-when-un-checked: true
+        hide-gunc_database_type-when-un-checked: true
+        hide-gunc_save_db-when-un-checked: true
+
+  skip_binqc:
+    label: "skip_binqc"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Disable bin QC with BUSCO, CheckM or CheckM2."
+
+  binqc_tool:
+    label: "binqc_tool"
+    widget: select
+    options:
+      - ['busco', 'busco']
+      - ['checkm', 'checkm']
+      - ['checkm2', 'checkm2']
+    help: "Specify which tool for bin quality-control validation to use."
+
+  busco_db:
+    label: "busco_db"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Download URL, local tar.gz archive, or local uncompressed directory for an *_odb10 or *_odb12 BUSCO lineage dataset."
+
+  busco_db_lineage:
+    label: "busco_db_lineage"
+    widget: text_field
+    value: "auto"
+    help: "Name of the BUSCO *_odb10 or *_odb12 lineage to check against. Additionally supports `auto`, `auto_prok` and `auto_euk` for automatic lineage selection mode."
+
+  save_busco_db:
+    label: "save_busco_db"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save the used BUSCO lineage datasets provided via `--busco_db`."
+
+  busco_clean:
+    label: "busco_clean"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Enable clean-up of temporary files created during BUSCO runs."
+
+  checkm_db:
+    label: "checkm_db"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to local folder containing already downloaded and uncompressed CheckM database."
+
+  save_checkm_data:
+    label: "save_checkm_data"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save the used CheckM reference files downloaded when not using --checkm_db parameter."
+
+  checkm2_db:
+    label: "checkm2_db"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to local file of an already downloaded and uncompressed CheckM2 database (.dmnd file)."
+
+  checkm2_db_version:
+    label: "checkm2_db_version"
+    widget: number_field
+    value: 14897628
+    step: 1
+    help: "CheckM2 database version number to download (Zenodo record ID, for reference check the canonical reference https://zenodo.org/records/5571251, and pick the Zenodo ID of the database version of your choice)."
+
+  save_checkm2_data:
+    label: "save_checkm2_data"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save the used CheckM2 reference files downloaded when not using --checkm2_db parameter."
+
+  refine_bins_dastool:
+    label: "refine_bins_dastool"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on bin refinement using DAS Tool."
+
+  refine_bins_dastool_threshold:
+    label: "refine_bins_dastool_threshold"
+    widget: number_field
+    value: 0.5
+    step: 1
+    help: "Specify single-copy gene score threshold for bin refinement."
+
+  postbinning_input:
+    label: "postbinning_input"
+    widget: select
+    options:
+      - ['raw_bins_only', 'raw_bins_only']
+      - ['refined_bins_only', 'refined_bins_only']
+      - ['both', 'both']
+    help: "Specify which binning output is sent for downstream annotation, taxonomic classification, bin quality control etc."
+
+  run_gunc:
+    label: "run_gunc"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on GUNC genome chimerism checks"
+
+  gunc_db:
+    label: "gunc_db"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Specify a path to a pre-downloaded GUNC dmnd database file"
+
+  gunc_database_type:
+    label: "gunc_database_type"
+    widget: select
+    options:
+      - ['progenomes', 'progenomes']
+      - ['gtdb', 'gtdb']
+    help: "Specify which database to auto-download if not supplying own"
+
+  gunc_save_db:
+    label: "gunc_save_db"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save the used GUNC reference files downloaded when not using --gunc_db parameter."
+
+  ancient_dna_assembly:
+    label: "Ancient DNA assembly"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-ancient_dna-when-un-checked: true
+        hide-pydamage_accuracy-when-un-checked: true
+        hide-skip_ancient_damagecorrection-when-un-checked: true
+        hide-freebayes_ploidy-when-un-checked: true
+        hide-freebayes_min_basequality-when-un-checked: true
+        hide-freebayes_minallelefreq-when-un-checked: true
+        hide-bcftools_view_high_variant_quality-when-un-checked: true
+        hide-bcftools_view_medium_variant_quality-when-un-checked: true
+        hide-bcftools_view_minimal_allelesupport-when-un-checked: true
+    help: "Performs ancient DNA assembly validation and contig consensus sequence recalling."
+
+  ancient_dna:
+    label: "ancient_dna"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Turn on/off the ancient DNA subworfklow"
+
+  pydamage_accuracy:
+    label: "pydamage_accuracy"
+    widget: number_field
+    value: 0.5
+    step: 1
+    help: "PyDamage accuracy threshold"
+
+  skip_ancient_damagecorrection:
+    label: "skip_ancient_damagecorrection"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "deactivate damage correction of ancient contigs using variant and consensus calling"
+
+  freebayes_ploidy:
+    label: "freebayes_ploidy"
+    widget: number_field
+    value: 1
+    step: 1
+    help: "Ploidy for variant calling"
+
+  freebayes_min_basequality:
+    label: "freebayes_min_basequality"
+    widget: number_field
+    value: 20
+    step: 1
+    help: "minimum base quality required for variant calling"
+
+  freebayes_minallelefreq:
+    label: "freebayes_minallelefreq"
+    widget: number_field
+    value: 0.33
+    step: 1
+    help: "minimum minor allele frequency for considering variants"
+
+  bcftools_view_high_variant_quality:
+    label: "bcftools_view_high_variant_quality"
+    widget: number_field
+    value: 30
+    step: 1
+    help: "minimum genotype quality for considering a variant high quality"
+
+  bcftools_view_medium_variant_quality:
+    label: "bcftools_view_medium_variant_quality"
+    widget: number_field
+    value: 20
+    step: 1
+    help: "minimum genotype quality for considering a variant medium quality"
+
+  bcftools_view_minimal_allelesupport:
+    label: "bcftools_view_minimal_allelesupport"
+    widget: number_field
+    value: 3
+    step: 1
+    help: "minimum number of bases supporting the alternative allele"
+
+
+form:
+  - bc_num_hours
+  - executor
+  - partition
+  - num_cores
+  - num_memory
+  - workdir
+  - input_output_options
+  - input
+  - single_end
+  - assembly_input
+  - outdir
+  - multiqc_title
+  - reference_genome_options
+  - reproducibility_options
+  - megahit_fix_cpu1
+  - spades_fix_cpus
+  - spadeshybrid_fix_cpus
+  - metabat_rng_seed
+  - quality_control_for_short_reads_options
+  - clip_tool
+  - save_clipped_reads
+  - reads_minlength
+  - fastp_qualified_quality
+  - fastp_cut_mean_quality
+  - fastp_save_trimmed_fail
+  - fastp_trim_polyg
+  - adapterremoval_minquality
+  - adapterremoval_trim_quality_stretch
+  - adapterremoval_adapter1
+  - adapterremoval_adapter2
+  - host_genome
+  - host_fasta
+  - host_fasta_bowtieindex2
+  - host_removal_verysensitive
+  - host_removal_save_ids
+  - save_hostremoved_reads
+  - keep_phix
+  - phix_reference
+  - skip_clipping
+  - skip_shortread_qc
+  - save_phixremoved_reads
+  - bbnorm
+  - bbnorm_target
+  - bbnorm_min
+  - save_bbnorm_reads
+  - quality_control_for_long_reads_options
+  - skip_adapter_trimming
+  - skip_longread_filtering
+  - skip_longread_qc
+  - longreads_min_length
+  - longreads_min_quality
+  - longreads_keep_percent
+  - longreads_length_weight
+  - keep_lambda
+  - lambda_reference
+  - save_lambdaremoved_reads
+  - save_porechop_reads
+  - save_filtered_longreads
+  - longread_adaptertrimming_tool
+  - longread_filtering_tool
+  - taxonomic_profiling_options
+  - cat_db
+  - cat_db_generate
+  - save_cat_db
+  - cat_allow_unofficial_lineages
+  - cat_classify_unbinned
+  - cat_no_suggestive_asterisks
+  - skip_gtdbtk
+  - gtdb_db
+  - gtdbtk_min_completeness
+  - gtdbtk_max_contamination
+  - gtdbtk_min_perc_aa
+  - gtdbtk_min_af
+  - gtdbtk_pplacer_cpus
+  - gtdbtk_pplacer_useram
+  - gtdbtk_use_full_tree
+  - gtdbtk_skip_aniscreen
+  - assembly_options
+  - coassemble_group
+  - spades_options
+  - spades_downstreaminput
+  - megahit_options
+  - skip_spades
+  - skip_spadeshybrid
+  - skip_megahit
+  - skip_quast
+  - skip_metamdbg
+  - skip_flye
+  - gene_prediction_and_annotation_options
+  - skip_prodigal
+  - prokka_with_compliance
+  - prokka_compliance_centre
+  - skip_prokka
+  - prokka_fast_mode
+  - skip_metaeuk
+  - metaeuk_mmseqs_db
+  - metaeuk_db
+  - save_mmseqs_db
+  - virus_identification_options
+  - run_virus_identification
+  - genomad_db
+  - genomad_min_score
+  - genomad_splits
+  - binning_options
+  - binning_map_mode
+  - skip_binning
+  - skip_metabat2
+  - skip_maxbin2
+  - skip_concoct
+  - min_contig_size
+  - min_length_unbinned_contigs
+  - max_unbinned_contigs
+  - bin_min_size
+  - bin_max_size
+  - bin_concoct_chunksize
+  - bin_concoct_overlap
+  - bin_concoct_donotconcatlast
+  - bowtie2_mode
+  - save_assembly_mapped_reads
+  - bin_domain_classification
+  - tiara_min_length
+  - exclude_unbins_from_postbinning
+  - longread_percentidentity
+  - shortread_percentidentity
+  - bin_quality_check_options
+  - skip_binqc
+  - binqc_tool
+  - busco_db
+  - busco_db_lineage
+  - save_busco_db
+  - busco_clean
+  - checkm_db
+  - save_checkm_data
+  - checkm2_db
+  - checkm2_db_version
+  - save_checkm2_data
+  - refine_bins_dastool
+  - refine_bins_dastool_threshold
+  - postbinning_input
+  - run_gunc
+  - gunc_db
+  - gunc_database_type
+  - gunc_save_db
+  - ancient_dna_assembly
+  - ancient_dna
+  - pydamage_accuracy
+  - skip_ancient_damagecorrection
+  - freebayes_ploidy
+  - freebayes_min_basequality
+  - freebayes_minallelefreq
+  - bcftools_view_high_variant_quality
+  - bcftools_view_medium_variant_quality
+  - bcftools_view_minimal_allelesupport
+  - tower_access_token
+  - resume

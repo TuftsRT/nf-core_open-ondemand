@@ -1,0 +1,734 @@
+---
+cluster: "pax"
+
+attributes:
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/cpu_partition.yml").indent(2) %>
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/num_cores_generic.yml").indent(2) %>
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/num_memory_generic.yml").indent(2) %>
+
+  executor:
+    label: Which nextflow executor to use?
+    widget: select
+    options:
+    - [
+        "slurm", "slurm",
+        data-hide-partition: true,
+        data-hide-num-cores: true,
+        data-hide-num-memory: true
+      ]
+    - ["local", "local"]
+    help: |
+      With slurm, tasks will be distributed to different nodes, local means all tasks will run on a single node.
+
+  workdir:
+    label: "Working Directory"
+    widget: "path_selector"
+    directory: "/cluster/tufts"
+    required: false
+    label: Working directory
+    favorites:
+        - /cluster/tufts
+        - /cluster/home
+    
+  resume:
+    label: Resume
+    widget: check_box
+    checked_value: 1
+    unchecked_value: 0
+    help: |
+           Resume previous run if found
+
+  tower_access_token:
+    widget: "text_field"
+    required: false
+    label: "TOWER_ACCESS_TOKEN (Optional)"
+    help: "Your TOWER_ACCESS_TOKEN used to monitor runs on [Nextflow Tower](https://seqera.io)."
+
+
+
+  skip_steps:
+    label: "Skip steps"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-skip_qc-when-un-checked: true
+        hide-skip_vcf-when-un-checked: true
+        hide-skip_vis-when-un-checked: true
+    help: "Skip analysis steps"
+
+  skip_qc:
+    label: "skip_qc"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip QC steps"
+
+  skip_vcf:
+    label: "skip_vcf"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip vcf creation step"
+
+  skip_vis:
+    label: "skip_vis"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip visualisation steps"
+
+  input_output_options:
+    label: "Input/output options"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-input-when-un-checked: true
+        hide-outdir-when-un-checked: true
+        hide-multiqc_title-when-un-checked: true
+        hide-cosmic_username-when-un-checked: true
+        hide-cosmic_passwd-when-un-checked: true
+        hide-genomes_base-when-un-checked: true
+        hide-genomes_ignore-when-un-checked: true
+        hide-genome_gencode_version-when-un-checked: true
+        hide-tools-when-un-checked: true
+        hide-read_length-when-un-checked: true
+        hide-arriba_ref_blacklist-when-un-checked: true
+        hide-arriba_ref_cytobands-when-un-checked: true
+        hide-arriba_ref_known_fusions-when-un-checked: true
+        hide-arriba_ref_protein_domains-when-un-checked: true
+        hide-arriba_fusions-when-un-checked: true
+        hide-fusioncatcher_fusions-when-un-checked: true
+        hide-fusioncatcher_limitsjdbinsertnsj-when-un-checked: true
+        hide-fusioncatcher_ref-when-un-checked: true
+        hide-fusioninspector_limitsjdbinsertnsj-when-un-checked: true
+        hide-fusioninspector_fusions-when-un-checked: true
+        hide-fusionreport_ref-when-un-checked: true
+        hide-hgnc_ref-when-un-checked: true
+        hide-hgnc_date-when-un-checked: true
+        hide-qiagen-when-un-checked: true
+        hide-salmon_index-when-un-checked: true
+        hide-starfusion_fusions-when-un-checked: true
+        hide-starfusion_ref-when-un-checked: true
+        hide-ctatsplicing_cancer_introns-when-un-checked: true
+        hide-dfam_hmm-when-un-checked: true
+        hide-dfam_hf3-when-un-checked: true
+        hide-dfam_hi3-when-un-checked: true
+        hide-dfam_hm3-when-un-checked: true
+        hide-dfam_hp3-when-un-checked: true
+        hide-pfam_file-when-un-checked: true
+        hide-annot_filter_url-when-un-checked: true
+        hide-starindex_ref-when-un-checked: true
+        hide-tools_cutoff-when-un-checked: true
+        hide-whitelist-when-un-checked: true
+    help: "Define where the pipeline should find input data and save output data."
+
+  input:
+    label: "input"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to samplesheet file containing information about the samples in the experiment."
+
+  outdir:
+    label: "outdir"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure."
+
+  multiqc_title:
+    label: "multiqc_title"
+    widget: text_field
+    help: "MultiQC report title. Printed as page header, used for filename if not otherwise specified."
+
+  cosmic_username:
+    label: "cosmic_username"
+    widget: text_field
+    help: "COSMIC username"
+
+  cosmic_passwd:
+    label: "cosmic_passwd"
+    widget: text_field
+    help: "COSMIC password"
+
+  genomes_base:
+    label: "genomes_base"
+    widget: text_field
+    help: "Path to reference folder"
+
+  genomes_ignore:
+    label: "genomes_ignore"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Don't automatically assign reference parameters to the correct references in --genomes_base"
+
+  genome_gencode_version:
+    label: "genome_gencode_version"
+    widget: number_field
+    step: 1
+    help: "gencode version"
+
+  tools:
+    label: "tools"
+    widget: text_field
+    help: "Comma-delimited list of tools to run"
+
+  read_length:
+    label: "read_length"
+    widget: number_field
+    value: 100
+    step: 1
+    help: "The length of the reads provided to the pipeline. This is used for the `--sjdbOverhang` option of STAR as read_length - 1. Providing 1 to this option will disable overhang handling."
+
+  arriba_ref_blacklist:
+    label: "arriba_ref_blacklist"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to arriba reference blacklist"
+
+  arriba_ref_cytobands:
+    label: "arriba_ref_cytobands"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to arriba reference cytobands"
+
+  arriba_ref_known_fusions:
+    label: "arriba_ref_known_fusions"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to arriba reference known fusions"
+
+  arriba_ref_protein_domains:
+    label: "arriba_ref_protein_domains"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to arriba reference protein domain"
+
+  arriba_fusions:
+    label: "arriba_fusions"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to arriba output"
+
+  fusioncatcher_fusions:
+    label: "fusioncatcher_fusions"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to fusioncatcher output"
+
+  fusioncatcher_limitsjdbinsertnsj:
+    label: "fusioncatcher_limitSjdbInsertNsj"
+    widget: number_field
+    value: 2000000
+    step: 1
+    help: "Use limitSjdbInsertNsj with int for fusioncatcher"
+
+  fusioncatcher_ref:
+    label: "fusioncatcher_ref"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to fusioncatcher references"
+
+  fusioninspector_limitsjdbinsertnsj:
+    label: "fusioninspector_limitSjdbInsertNsj"
+    widget: number_field
+    value: 1000000
+    step: 1
+    help: "Use limitSjdbInsertNsj with int for fusioninspector STAR process"
+
+  fusioninspector_fusions:
+    label: "fusioninspector_fusions"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to a fusion list file built with format GENE1--GENE2"
+
+  fusionreport_ref:
+    label: "fusionreport_ref"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to fusionreport references"
+
+  hgnc_ref:
+    label: "hgnc_ref"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to HGNC database file"
+
+  hgnc_date:
+    label: "hgnc_date"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to HGNC timestamp file for database retrieval"
+
+  qiagen:
+    label: "qiagen"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Use QIAGEN instead of SANGER to download COSMIC database"
+
+  salmon_index:
+    label: "salmon_index"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to salmon index"
+
+  starfusion_fusions:
+    label: "starfusion_fusions"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to starfusion output"
+
+  starfusion_ref:
+    label: "starfusion_ref"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to starfusion references"
+
+  ctatsplicing_cancer_introns:
+    label: "ctatsplicing_cancer_introns"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to the cancer introns CSV file to create the CTAT-SPLICING reference with"
+
+  dfam_hmm:
+    label: "dfam_hmm"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to Dfam HMM database file"
+
+  dfam_hf3:
+    label: "dfam_h3f"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to Dfam H3F database file"
+
+  dfam_hi3:
+    label: "dfam_h3i"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to Dfam H3I database file"
+
+  dfam_hm3:
+    label: "dfam_h3m"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to Dfam H3M database file"
+
+  dfam_hp3:
+    label: "dfam_h3p"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to Dfam H3P database file"
+
+  pfam_file:
+    label: "pfam_file"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to Pfam database file"
+
+  annot_filter_url:
+    label: "annot_filter_url"
+    widget: text_field
+    value: "https://data.broadinstitute.org/Trinity/CTAT_RESOURCE_LIB/AnnotFilterRule.pm"
+    help: "URL to annotation filter rule file"
+
+  starindex_ref:
+    label: "starindex_ref"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to starindex references"
+
+  tools_cutoff:
+    label: "tools_cutoff"
+    widget: number_field
+    value: 1
+    step: 1
+    help: "Discard fusions identified by less than INT tools"
+
+  whitelist:
+    label: "whitelist"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to fusions to add to the input of fusioninspector"
+
+  read_trimming_options:
+    label: "Read trimming options"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-trim_tail-when-un-checked: true
+        hide-trim_tail_fusioncatcher-when-un-checked: true
+        hide-adapter_fasta-when-un-checked: true
+        hide-save_trimmed_fail-when-un-checked: true
+        hide-min_trimmed_reads-when-un-checked: true
+        hide-save_merged-when-un-checked: true
+    help: "Options to adjust read trimming criteria."
+
+  trim_tail:
+    label: "trim_tail"
+    widget: number_field
+    step: 1
+    help: "The amount of bases to trim at the tail of each read, none will be trimmed by default"
+
+  trim_tail_fusioncatcher:
+    label: "trim_tail_fusioncatcher"
+    widget: number_field
+    step: 1
+    help: "The amount of bases to trim at the tail of each read for fusioncatcher, none will be trimmed by default"
+
+  adapter_fasta:
+    label: "adapter_fasta"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to adapter fasta file: default: []"
+
+  save_trimmed_fail:
+    label: "save_trimmed_fail"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "FASTP: Specify true to save files that failed to pass trimming thresholds"
+
+  min_trimmed_reads:
+    label: "min_trimmed_reads"
+    widget: number_field
+    value: 1
+    step: 1
+    help: "FASTP: Inputs with fewer than this reads will be filtered out of the `reads` output channel"
+
+  save_merged:
+    label: "save_merged"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "FASTP: Specify true to save merged reads"
+
+  compression_options:
+    label: "Alignment compression options"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-cram-when-un-checked: true
+    help: "Option to compress BAM files to CRAM."
+
+  cram:
+    label: "cram"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Output CRAM files instead of BAM files."
+
+  reference_genome_options:
+    label: "Reference genome options"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-references_only-when-un-checked: true
+        hide-fasta-when-un-checked: true
+        hide-fai-when-un-checked: true
+        hide-genome-when-un-checked: true
+        hide-gtf-when-un-checked: true
+        hide-refflat-when-un-checked: true
+        hide-rrna_intervals-when-un-checked: true
+        hide-no_cosmic-when-un-checked: true
+        hide-fusion_annot_lib-when-un-checked: true
+        hide-species-when-un-checked: true
+        hide-dfam_version-when-un-checked: true
+        hide-pfam_version-when-un-checked: true
+    help: "Reference genome related files and options required for the workflow."
+
+  references_only:
+    label: "references_only"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip running the analysis, only builds the references"
+
+  fasta:
+    label: "fasta"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to FASTA genome file."
+
+  fai:
+    label: "fai"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to FASTA genome index file."
+
+  genome:
+    label: iGenomes
+    widget: select
+    required: false
+    options:
+      - ['None', ' ']
+      - ['GRCh37', 'GRCh37']
+      - ['GRCh38', 'GRCh38']
+      - ['GRCm38', 'GRCm38']
+      - ['TAIR10', 'TAIR10']
+      - ['EB2', 'EB2']
+      - ['UMD3.1', 'UMD3.1']
+      - ['WBcel235', 'WBcel235']
+      - ['CanFam3.1', 'CanFam3.1']
+      - ['GRCz10', 'GRCz10']
+      - ['BDGP6', 'BDGP6']
+      - ['EquCab2', 'EquCab2']
+      - ['EB1', 'EB1']
+      - ['Galgal4', 'Galgal4']
+      - ['Gm01', 'Gm01']
+      - ['Mmul_1', 'Mmul_1']
+      - ['IRGSP-1.0', 'IRGSP-1.0']
+      - ['CHIMP2.1.4', 'CHIMP2.1.4']
+      - ['Rnor_5.0', 'Rnor_5.0']
+      - ['Rnor_6.0', 'Rnor_6.0']
+      - ['R64-1-1', 'R64-1-1']
+      - ['EF2', 'EF2']
+      - ['Sbi1', 'Sbi1']
+      - ['Sscrofa10.2', 'Sscrofa10.2']
+      - ['AGPv3', 'AGPv3']
+      - ['hg38', 'hg38']
+      - ['hg19', 'hg19']
+      - ['mm10', 'mm10']
+      - ['bosTau8', 'bosTau8']
+      - ['ce10', 'ce10']
+      - ['canFam3', 'canFam3']
+      - ['danRer10', 'danRer10']
+      - ['dm6', 'dm6']
+      - ['equCab2', 'equCab2']
+      - ['galGal4', 'galGal4']
+      - ['panTro4', 'panTro4']
+      - ['rn6', 'rn6']
+      - ['sacCer3', 'sacCer3']
+      - ['susScr3', 'susScr3']
+    help: "Name of iGenomes reference."
+
+  gtf:
+    label: "gtf"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to GTF genome file."
+
+  refflat:
+    label: "refflat"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to GTF genome file."
+
+  rrna_intervals:
+    label: "rrna_intervals"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to ribosomal interval list."
+
+  no_cosmic:
+    label: "no_cosmic"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Avoid using Cosmic DB (for example in clinical case applications where a paid license applies."
+
+  fusion_annot_lib:
+    label: "fusion_annot_lib"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to Fusion Annotation Library to be used in STARFUSION_BUILD."
+
+  species:
+    label: "species"
+    widget: text_field
+    value: "homo_sapiens"
+    help: "Which species dfam should automatically download, default: homo_sapiens."
+
+  dfam_version:
+    label: "dfam_version"
+    widget: number_field
+    step: 1
+    help: "Version of dfam to use"
+
+  pfam_version:
+    label: "pfam_version"
+    widget: number_field
+    step: 1
+    help: "Version of pfam to use"
+
+
+form:
+  - bc_num_hours
+  - executor
+  - partition
+  - num_cores
+  - num_memory
+  - workdir
+  - skip_steps
+  - skip_qc
+  - skip_vcf
+  - skip_vis
+  - input_output_options
+  - input
+  - outdir
+  - multiqc_title
+  - cosmic_username
+  - cosmic_passwd
+  - genomes_base
+  - genomes_ignore
+  - genome_gencode_version
+  - tools
+  - read_length
+  - arriba_ref_blacklist
+  - arriba_ref_cytobands
+  - arriba_ref_known_fusions
+  - arriba_ref_protein_domains
+  - arriba_fusions
+  - fusioncatcher_fusions
+  - fusioncatcher_limitsjdbinsertnsj
+  - fusioncatcher_ref
+  - fusioninspector_limitsjdbinsertnsj
+  - fusioninspector_fusions
+  - fusionreport_ref
+  - hgnc_ref
+  - hgnc_date
+  - qiagen
+  - salmon_index
+  - starfusion_fusions
+  - starfusion_ref
+  - ctatsplicing_cancer_introns
+  - dfam_hmm
+  - dfam_hf3
+  - dfam_hi3
+  - dfam_hm3
+  - dfam_hp3
+  - pfam_file
+  - annot_filter_url
+  - starindex_ref
+  - tools_cutoff
+  - whitelist
+  - read_trimming_options
+  - trim_tail
+  - trim_tail_fusioncatcher
+  - adapter_fasta
+  - save_trimmed_fail
+  - min_trimmed_reads
+  - save_merged
+  - compression_options
+  - cram
+  - reference_genome_options
+  - references_only
+  - fasta
+  - fai
+  - genome
+  - gtf
+  - refflat
+  - rrna_intervals
+  - no_cosmic
+  - fusion_annot_lib
+  - species
+  - dfam_version
+  - pfam_version
+  - tower_access_token
+  - resume

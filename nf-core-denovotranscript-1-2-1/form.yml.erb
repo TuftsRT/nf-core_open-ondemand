@@ -1,0 +1,389 @@
+---
+cluster: "pax"
+
+attributes:
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/cpu_partition.yml").indent(2) %>
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/num_cores_generic.yml").indent(2) %>
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/num_memory_generic.yml").indent(2) %>
+
+  executor:
+    label: Which nextflow executor to use?
+    widget: select
+    options:
+    - [
+        "slurm", "slurm",
+        data-hide-partition: true,
+        data-hide-num-cores: true,
+        data-hide-num-memory: true
+      ]
+    - ["local", "local"]
+    help: |
+      With slurm, tasks will be distributed to different nodes, local means all tasks will run on a single node.
+
+  workdir:
+    label: "Working Directory"
+    widget: "path_selector"
+    directory: "/cluster/tufts"
+    required: false
+    label: Working directory
+    favorites:
+        - /cluster/tufts
+        - /cluster/home
+    
+  resume:
+    label: Resume
+    widget: check_box
+    checked_value: 1
+    unchecked_value: 0
+    help: |
+           Resume previous run if found
+
+  tower_access_token:
+    widget: "text_field"
+    required: false
+    label: "TOWER_ACCESS_TOKEN (Optional)"
+    help: "Your TOWER_ACCESS_TOKEN used to monitor runs on [Nextflow Tower](https://seqera.io)."
+
+
+
+  workflow_options:
+    label: "Partial run options"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-qc_only-when-un-checked: true
+        hide-skip_assembly-when-un-checked: true
+
+  qc_only:
+    label: "qc_only"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Whether the pipeline should only perform quality control, and skip assembly and quantification."
+
+  skip_assembly:
+    label: "skip_assembly"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Whether the pipeline should skip assembly steps, and only perform quality control of reads and quantification. --transcript_fasta must be provided if True."
+
+  input_output_options:
+    label: "Input/output options"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-input-when-un-checked: true
+        hide-outdir-when-un-checked: true
+        hide-transcript_fasta-when-un-checked: true
+        hide-multiqc_title-when-un-checked: true
+    help: "Define where the pipeline should find input data and save output data."
+
+  input:
+    label: "input"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to comma-separated file containing information about the samples in the experiment."
+
+  outdir:
+    label: "outdir"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure."
+
+  transcript_fasta:
+    label: "transcript_fasta"
+    widget: text_field
+    help: "Path to fasta file (not compressed) containing a transcriptome assembly. Only needed if `--skip_assembly` is `True`."
+
+  multiqc_title:
+    label: "multiqc_title"
+    widget: text_field
+    help: "MultiQC report title. Printed as page header, used for filename if not otherwise specified."
+
+  fastqc_fastp_options:
+    label: "FastQC/fastp options"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-adapter_fasta-when-un-checked: true
+        hide-save_trimmed_fail-when-un-checked: true
+        hide-save_merged-when-un-checked: true
+        hide-skip_fastp-when-un-checked: true
+        hide-skip_fastqc-when-un-checked: true
+        hide-extra_fastp_args-when-un-checked: true
+
+  adapter_fasta:
+    label: "adapter_fasta"
+    widget: text_field
+    help: "File in FASTA format containing possible adapters to remove. Accepted formats: *.{fasta,fna,fas,fa}"
+
+  save_trimmed_fail:
+    label: "save_trimmed_fail"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specify `true` to save files that failed to pass trimming thresholds ending in *.fail.fastq.gz"
+
+  save_merged:
+    label: "save_merged"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Specify true to save all merged reads to the a file ending in *.merged.fastq.gz"
+
+  skip_fastp:
+    label: "skip_fastp"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip the fastp process if `true`"
+
+  skip_fastqc:
+    label: "skip_fastqc"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip FastQC processes if `true`"
+
+  extra_fastp_args:
+    label: "extra_fastp_args"
+    widget: text_field
+    help: "Extra arguements for fastp. For example, `--trim_front1 15 --trim_front2 15 --trim_tail1 5 --trim_tail2 5{:bash}`"
+
+  sortmerna_options:
+    label: "SortMeRNA options"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-remove_ribo_rna-when-un-checked: true
+        hide-ribo_database_manifest-when-un-checked: true
+        hide-save_non_ribo_reads-when-un-checked: true
+
+  remove_ribo_rna:
+    label: "remove_ribo_rna"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Enable the removal of reads derived from ribosomal RNA using SortMeRNA."
+
+  ribo_database_manifest:
+    label: "ribo_database_manifest"
+    widget: text_field
+    value: "${projectDir}/assets/rrna-db-defaults.txt"
+    help: "Text file containing paths to fasta files (one per line) that will be used to create the database for SortMeRNA."
+
+  save_non_ribo_reads:
+    label: "save_non_ribo_reads"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "If this option is specified, intermediate FastQ files containing non-rRNA reads will be saved in the results directory."
+
+  assembly_options:
+    label: "Assembly options"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-assemblers-when-un-checked: true
+        hide-extra_trinity_args-when-un-checked: true
+        hide-soft_filtered_transcripts-when-un-checked: true
+        hide-hard_filtered_transcripts-when-un-checked: true
+        hide-ss-when-un-checked: true
+        hide-extra_traacds2_args-when-un-checked: true
+
+  assemblers:
+    label: "assemblers"
+    widget: text_field
+    value: "trinity,rnaspades"
+    help: "Assemblers to use. Possible options include `trinity`, `trinity_no_norm` (trinity without normalized reads), and `rnaspades`."
+
+  extra_trinity_args:
+    label: "extra_trinity_args"
+    widget: text_field
+    help: "Extra arguments to pass to Trinity command in addition to defaults. Applies to both trinity and trinity_no_norm."
+
+  soft_filtered_transcripts:
+    label: "soft_filtered_transcripts"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Include hard filtered transcripts (in addition to medium filtered transcripts) from rnaSPAdes in the input to EvidentialGene tr2aacds."
+
+  hard_filtered_transcripts:
+    label: "hard_filtered_transcripts"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Include soft filtered transcripts (in addition to the medium filtered transcripts) from rnaSPAdes in the input to EvidentialGene tr2aacds."
+
+  ss:
+    label: "ss"
+    widget: select
+    options:
+      - ['rf', 'rf']
+      - ['fr', 'fr']
+    help: "Set strand-specific type for rnaSPAdes. Use `rf` when first read in pair corresponds to reverse gene strand (antisense data, e.g. obtained via dUTP protocol) and `fr` otherwise (forward)."
+
+  extra_traacds2_args:
+    label: "extra_tr2aacds_args"
+    widget: text_field
+    help: "Extra arguments for tr2aacds.pl. For example, `-MINAA=20`"
+
+  busco_options:
+    label: "BUSCO options"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-busco_mode-when-un-checked: true
+        hide-busco_lineage-when-un-checked: true
+        hide-busco_lineages_path-when-un-checked: true
+        hide-busco_config-when-un-checked: true
+
+  busco_mode:
+    label: "busco_mode"
+    widget: select
+    options:
+      - ['transcriptome', 'transcriptome']
+      - ['genome', 'genome']
+      - ['proteins', 'proteins']
+    help: "The mode to run BUSCO in. One of genome, proteins, or transcriptome"
+
+  busco_lineage:
+    label: "busco_lineage"
+    widget: text_field
+    value: "auto"
+    help: "The BUSCO lineage to use, or `auto` to automatically select lineage"
+
+  busco_lineages_path:
+    label: "busco_lineages_path"
+    widget: text_field
+    help: "Path to local BUSCO lineages directory."
+
+  busco_config:
+    label: "busco_config"
+    widget: text_field
+    help: "Path to BUSCO config file."
+
+  rnaquast_options:
+    label: "rnaQUAST options"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-fasta-when-un-checked: true
+        hide-gtf-when-un-checked: true
+
+  fasta:
+    label: "fasta"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to FASTA genome file."
+
+  gtf:
+    label: "gtf"
+    widget: text_field
+    help: "File with gene coordinates in GTF/GFF format (needs information about parent relations). rnaQUAST authors recommend to use files downloaded from GENCODE or Ensembl."
+
+  transrate_options:
+    label: "TransRate options"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-transrate_reference-when-un-checked: true
+
+  transrate_reference:
+    label: "transrate_reference"
+    widget: text_field
+    help: "Path to FASTA file of reference set of proteins or transcripts from a related species"
+
+  salmon_options:
+    label: "Salmon options"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-lib_type-when-un-checked: true
+
+  lib_type:
+    label: "lib_type"
+    widget: text_field
+    value: "A"
+    help: "Override library type inferred based on strandedness defined in meta object. `A` for auto."
+
+  reference_genome_options:
+    label: "Reference genome options"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-genome-when-un-checked: true
+        hide-igenomes_base-when-un-checked: true
+        hide-igenomes_ignore-when-un-checked: true
+    help: "Reference genome related files and options required for the workflow."
+
+
+form:
+  - bc_num_hours
+  - executor
+  - partition
+  - num_cores
+  - num_memory
+  - workdir
+  - workflow_options
+  - qc_only
+  - skip_assembly
+  - input_output_options
+  - input
+  - outdir
+  - transcript_fasta
+  - multiqc_title
+  - fastqc_fastp_options
+  - adapter_fasta
+  - save_trimmed_fail
+  - save_merged
+  - skip_fastp
+  - skip_fastqc
+  - extra_fastp_args
+  - sortmerna_options
+  - remove_ribo_rna
+  - ribo_database_manifest
+  - save_non_ribo_reads
+  - assembly_options
+  - assemblers
+  - extra_trinity_args
+  - soft_filtered_transcripts
+  - hard_filtered_transcripts
+  - ss
+  - extra_traacds2_args
+  - busco_options
+  - busco_mode
+  - busco_lineage
+  - busco_lineages_path
+  - busco_config
+  - rnaquast_options
+  - fasta
+  - gtf
+  - transrate_options
+  - transrate_reference
+  - salmon_options
+  - lib_type
+  - reference_genome_options
+  - tower_access_token
+  - resume

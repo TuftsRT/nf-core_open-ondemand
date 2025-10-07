@@ -1,0 +1,155 @@
+---
+cluster: "pax"
+
+attributes:
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/cpu_partition.yml").indent(2) %>
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/num_cores_generic.yml").indent(2) %>
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/num_memory_generic.yml").indent(2) %>
+
+  executor:
+    label: Which nextflow executor to use?
+    widget: select
+    options:
+    - [
+        "slurm", "slurm",
+        data-hide-partition: true,
+        data-hide-num-cores: true,
+        data-hide-num-memory: true
+      ]
+    - ["local", "local"]
+    help: |
+      With slurm, tasks will be distributed to different nodes, local means all tasks will run on a single node.
+
+  workdir:
+    label: "Working Directory"
+    widget: "path_selector"
+    directory: "/cluster/tufts"
+    required: false
+    label: Working directory
+    favorites:
+        - /cluster/tufts
+        - /cluster/home
+    
+  resume:
+    label: Resume
+    widget: check_box
+    checked_value: 1
+    unchecked_value: 0
+    help: |
+           Resume previous run if found
+
+  tower_access_token:
+    widget: "text_field"
+    required: false
+    label: "TOWER_ACCESS_TOKEN (Optional)"
+    help: "Your TOWER_ACCESS_TOKEN used to monitor runs on [Nextflow Tower](https://seqera.io)."
+
+
+
+  input_output_options:
+    label: "Input/output options"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-input-when-un-checked: true
+        hide-ena_metadata_fields-when-un-checked: true
+        hide-sample_mapping_fields-when-un-checked: true
+        hide-nf_core_pipeline-when-un-checked: true
+        hide-nf_core_rnaseq_strandedness-when-un-checked: true
+        hide-download_method-when-un-checked: true
+        hide-skip_fastq_download-when-un-checked: true
+        hide-dbgap_key-when-un-checked: true
+        hide-outdir-when-un-checked: true
+    help: "Define where the pipeline should find input data and save output data."
+
+  input:
+    label: "input"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "File containing SRA/ENA/GEO/DDBJ identifiers one per line to download their associated metadata and FastQ files."
+
+  ena_metadata_fields:
+    label: "ena_metadata_fields"
+    widget: text_field
+    help: "Comma-separated list of ENA metadata fields to fetch before downloading data."
+
+  sample_mapping_fields:
+    label: "sample_mapping_fields"
+    widget: text_field
+    value: "experiment_accession,run_accession,sample_accession,experiment_alias,run_alias,sample_alias,experiment_title,sample_title,sample_description"
+    help: "Comma-separated list of ENA metadata fields used to create a separate `id_mappings.csv` and `multiqc_config.yml` with selected fields that can be used to rename samples in general and in MultiQC."
+
+  nf_core_pipeline:
+    label: "nf_core_pipeline"
+    widget: select
+    options:
+      - ['rnaseq', 'rnaseq']
+      - ['atacseq', 'atacseq']
+      - ['viralrecon', 'viralrecon']
+      - ['taxprofiler', 'taxprofiler']
+    help: "Name of supported nf-core pipeline e.g. `rnaseq`. A samplesheet for direct use with the pipeline will be created with the appropriate columns."
+
+  nf_core_rnaseq_strandedness:
+    label: "nf_core_rnaseq_strandedness"
+    widget: text_field
+    value: "auto"
+    help: "Value for `strandedness` entry added to samplesheet created when using `--nf_core_pipeline rnaseq`."
+
+  download_method:
+    label: "download_method"
+    widget: select
+    options:
+      - ['ftp', 'ftp']
+      - ['aspera', 'aspera']
+      - ['sratools', 'sratools']
+    help: "Method to download FastQ files. Available options are `aspera`, `ftp` or `sratools`. Default is `ftp`."
+
+  skip_fastq_download:
+    label: "skip_fastq_download"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Only download metadata for public data database ids and don't download the FastQ files."
+
+  dbgap_key:
+    label: "dbgap_key"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "dbGaP repository key."
+
+  outdir:
+    label: "outdir"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure."
+
+
+form:
+  - bc_num_hours
+  - executor
+  - partition
+  - num_cores
+  - num_memory
+  - workdir
+  - input_output_options
+  - input
+  - ena_metadata_fields
+  - sample_mapping_fields
+  - nf_core_pipeline
+  - nf_core_rnaseq_strandedness
+  - download_method
+  - skip_fastq_download
+  - dbgap_key
+  - outdir
+  - tower_access_token
+  - resume

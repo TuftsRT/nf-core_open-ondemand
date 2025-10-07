@@ -1,0 +1,1518 @@
+---
+cluster: "pax"
+
+attributes:
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/cpu_partition.yml").indent(2) %>
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/num_cores_generic.yml").indent(2) %>
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/num_memory_generic.yml").indent(2) %>
+
+  executor:
+    label: Which nextflow executor to use?
+    widget: select
+    options:
+    - [
+        "slurm", "slurm",
+        data-hide-partition: true,
+        data-hide-num-cores: true,
+        data-hide-num-memory: true
+      ]
+    - ["local", "local"]
+    help: |
+      With slurm, tasks will be distributed to different nodes, local means all tasks will run on a single node.
+
+  workdir:
+    label: "Working Directory"
+    widget: "path_selector"
+    directory: "/cluster/tufts"
+    required: false
+    label: Working directory
+    favorites:
+        - /cluster/tufts
+        - /cluster/home
+    
+  resume:
+    label: Resume
+    widget: check_box
+    checked_value: 1
+    unchecked_value: 0
+    help: |
+           Resume previous run if found
+
+  tower_access_token:
+    widget: "text_field"
+    required: false
+    label: "TOWER_ACCESS_TOKEN (Optional)"
+    help: "Your TOWER_ACCESS_TOKEN used to monitor runs on [Nextflow Tower](https://seqera.io)."
+
+
+
+  input_output_options:
+    label: "Input/output options"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-study_name-when-un-checked: true
+        hide-study_type-when-un-checked: true
+        hide-input-when-un-checked: true
+        hide-contrasts-when-un-checked: true
+        hide-outdir-when-un-checked: true
+        hide-study_abundance_type-when-un-checked: true
+    help: "Define where the pipeline should find input data and save output data."
+
+  study_name:
+    label: "study_name"
+    widget: text_field
+    value: "study"
+    help: "A string to identify results in the output directory"
+
+  study_type:
+    label: "study_type"
+    widget: select
+    options:
+      - ['rnaseq', 'rnaseq']
+      - ['affy_array', 'affy_array']
+      - ['maxquant', 'maxquant']
+      - ['geo_soft_file', 'geo_soft_file']
+    help: "A string identifying the technology used to produce the data"
+
+  input:
+    label: "input"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to comma-separated file containing information about the samples in the experiment."
+
+  contrasts:
+    label: "contrasts"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "A CSV file describing sample contrasts"
+
+  outdir:
+    label: "outdir"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure."
+
+  study_abundance_type:
+    label: "study_abundance_type"
+    widget: text_field
+    value: "counts"
+    help: "Type of abundance measure used, platform-dependent"
+
+  abundance_values:
+    label: "Abundance values"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-matrix-when-un-checked: true
+        hide-transcript_length_matrix-when-un-checked: true
+        hide-affy_cel_files_archive-when-un-checked: true
+        hide-querygse-when-un-checked: true
+    help: "Ways of providing your abundance values"
+
+  matrix:
+    label: "matrix"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "TSV-format abundance matrix"
+
+  transcript_length_matrix:
+    label: "transcript_length_matrix"
+    widget: text_field
+    help: "(RNA-seq only): optional transcript length matrix with samples and genes as the abundance matrix"
+
+  affy_cel_files_archive:
+    label: "affy_cel_files_archive"
+    widget: text_field
+    value: "null"
+    help: "Alternative to matrix: a compressed CEL files archive such as often found in GEO"
+
+  querygse:
+    label: "querygse"
+    widget: text_field
+    value: "null"
+    help: "Use SOFT files from GEO by providing the GSE study identifier"
+
+  observations_options:
+    label: "Observations (e.g. samples) options"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-observations_id_col-when-un-checked: true
+        hide-observations_type-when-un-checked: true
+        hide-observations_name_col-when-un-checked: true
+
+  observations_id_col:
+    label: "observations_id_col"
+    widget: text_field
+    value: "sample"
+    help: "Column in the samples sheet to be used as the primary sample identifier"
+
+  observations_type:
+    label: "observations_type"
+    widget: text_field
+    value: "sample"
+    help: "Type of observation"
+
+  observations_name_col:
+    label: "observations_name_col"
+    widget: text_field
+    help: "Column in the sample sheet to be used as the display identifier for observations. If unset, will use value of --observations_id_col."
+
+  features_options:
+    label: "Features options"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-features_id_col-when-un-checked: true
+        hide-features_name_col-when-un-checked: true
+        hide-features_type-when-un-checked: true
+        hide-sizefactors_from_controls-when-un-checked: true
+        hide-control_features-when-un-checked: true
+        hide-features_metadata_cols-when-un-checked: true
+        hide-features-when-un-checked: true
+        hide-features_gtf_feature_type-when-un-checked: true
+        hide-features_gtf_table_first_field-when-un-checked: true
+    help: "Options related to features"
+
+  features_id_col:
+    label: "features_id_col"
+    widget: text_field
+    value: "gene_id"
+    help: "Feature ID attribute in the abundance table as well as in the GTF file (e.g. the gene_id field)"
+
+  features_name_col:
+    label: "features_name_col"
+    widget: text_field
+    value: "gene_name"
+    help: "Feature name attribute in the abundance table as well as in the GTF file (e.g. the gene symbol field)"
+
+  features_type:
+    label: "features_type"
+    widget: text_field
+    value: "gene"
+    help: "Type of feature we have, often `gene`"
+
+  sizefactors_from_controls:
+    label: "sizefactors_from_controls"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "When set, use the control features in scaling/ normalisation"
+
+  control_features:
+    label: "control_features"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "A text file listing technical features (e.g. spikes)"
+
+  features_metadata_cols:
+    label: "features_metadata_cols"
+    widget: text_field
+    value: "gene_id,gene_name,gene_biotype"
+    help: "Comma-separated string, specifies feature metadata columns to be used for exploratory analysis, platform-specific"
+
+  features:
+    label: "features"
+    widget: text_field
+    help: "This parameter allows you to supply your own feature annotations. These can often be automatically derived from the GTF used upstream for RNA-seq, or from the Bioconductor annotation package (for affy arrays). "
+
+  features_gtf_feature_type:
+    label: "features_gtf_feature_type"
+    widget: text_field
+    value: "transcript"
+    help: "Where a GTF file is supplied, which feature type to use"
+
+  features_gtf_table_first_field:
+    label: "features_gtf_table_first_field"
+    widget: text_field
+    value: "gene_id"
+    help: "Where a GTF file is supplied, which field should go first in the converted output table"
+
+  affy_input_options:
+    label: "Affy input options"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-affy_file_name_col-when-un-checked: true
+        hide-affy_background-when-un-checked: true
+        hide-affy_bgversion-when-un-checked: true
+        hide-affy_destructive-when-un-checked: true
+        hide-affy_cdfname-when-un-checked: true
+        hide-affy_build_annotation-when-un-checked: true
+        hide-affy_rm_mask-when-un-checked: true
+        hide-affy_rm_outliers-when-un-checked: true
+        hide-affy_rm_extra-when-un-checked: true
+    help: "Options for processing of affy arrays with justRMA()"
+
+  affy_file_name_col:
+    label: "affy_file_name_col"
+    widget: text_field
+    value: "file"
+    help: "Column of the sample sheet containing the Affymetrix CEL file name"
+
+  affy_background:
+    label: "affy_background"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "logical value. If TRUE, then background correct using RMA background correction."
+
+  affy_bgversion:
+    label: "affy_bgversion"
+    widget: number_field
+    value: 2
+    step: 1
+    help: "integer value indicating which RMA background to use"
+
+  affy_destructive:
+    label: "affy_destructive"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "logical value. If TRUE, then works on the PM matrix in place as much as possible, good for large datasets."
+
+  affy_cdfname:
+    label: "affy_cdfname"
+    widget: text_field
+    value: "null"
+    help: "Used to specify the name of an alternative cdf package. If set to NULL, then the usual cdf package based on Affymetrix` mappings will be used."
+
+  affy_build_annotation:
+    label: "affy_build_annotation"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "logical value. If TRUE, a matrix of probe annotations will be derived."
+
+  affy_rm_mask:
+    label: "affy_rm_mask"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "should the spots marked as `MASKS` set to NA?"
+
+  affy_rm_outliers:
+    label: "affy_rm_outliers"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "should the spots marked as `OUTLIERS` set to NA?"
+
+  affy_rm_extra:
+    label: "affy_rm_extra"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "if TRUE, then overrides what is in rm.mask and rm.oultiers."
+
+  proteus_input_options:
+    label: "Proteus input options"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-proteus_measurecol_prefix-when-un-checked: true
+        hide-proteus_norm_function-when-un-checked: true
+        hide-proteus_plotsd_method-when-un-checked: true
+        hide-proteus_plotmv_loess-when-un-checked: true
+        hide-proteus_palette_name-when-un-checked: true
+    help: "Options for processing of proteomics MaxQuant tables with the Proteus R package"
+
+  proteus_measurecol_prefix:
+    label: "proteus_measurecol_prefix"
+    widget: text_field
+    value: "LFQ intensity"
+    help: "Prefix of the column names of the MaxQuant proteingroups table in which the intensity values are saved; the prefix has to be followed by the sample names that are also found in the samplesheet. Default: `LFQ intensity`; will search for both the prefix as entered and the prefix followed by one whitespace."
+
+  proteus_norm_function:
+    label: "proteus_norm_function"
+    widget: select
+    options:
+      - ['normalizeMedian', 'normalizeMedian']
+      - ['normalizeQuantiles', 'normalizeQuantiles']
+    help: "Normalization function to use on the MaxQuant intensities."
+
+  proteus_plotsd_method:
+    label: "proteus_plotsd_method"
+    widget: select
+    options:
+      - ['violin', 'violin']
+      - ['dist', 'dist']
+      - ['box', 'box']
+    help: "Which method to use for plotting sample distributions of the MaxQuant intensities; one of `violin`, `dist`, `box`."
+
+  proteus_plotmv_loess:
+    label: "proteus_plotmv_loess"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Should a loess line be added to the plot of mean-variance relationship of the conditions? Default: true."
+
+  proteus_palette_name:
+    label: "proteus_palette_name"
+    widget: text_field
+    value: "Set1"
+    help: "Valid R palette name"
+
+  filtering:
+    label: "Filtering"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-filtering_min_abundance-when-un-checked: true
+        hide-filtering_min_samples-when-un-checked: true
+        hide-filtering_min_proportion-when-un-checked: true
+        hide-filtering_grouping_var-when-un-checked: true
+        hide-filtering_min_proportion_not_na-when-un-checked: true
+        hide-filtering_min_samples_not_na-when-un-checked: true
+    help: "Options related to filtering upstream of differential analysis"
+
+  filtering_min_abundance:
+    label: "filtering_min_abundance"
+    widget: number_field
+    value: 1.0
+    step: 1
+    help: "Minimum abundance value"
+
+  filtering_min_samples:
+    label: "filtering_min_samples"
+    widget: number_field
+    value: 1.0
+    step: 1
+    help: "Minimum observations that must pass the threshold to retain the row/ feature (e.g. gene)."
+
+  filtering_min_proportion:
+    label: "filtering_min_proportion"
+    widget: number_field
+    step: 1
+    help: "A minimum proportion of observations, given as a number between 0 and 1, that must pass the threshold. Overrides  minimum_samples"
+
+  filtering_grouping_var:
+    label: "filtering_grouping_var"
+    widget: text_field
+    help: "An optional grouping variable to be used to calculate a min_samples value"
+
+  filtering_min_proportion_not_na:
+    label: "filtering_min_proportion_not_na"
+    widget: number_field
+    value: 0.5
+    step: 1
+    help: "A minimum proportion of observations, given as a number between 0 and 1, that must have a value (not NA) to retain the row/ feature (e.g. gene)."
+
+  filtering_min_samples_not_na:
+    label: "filtering_min_samples_not_na"
+    widget: number_field
+    step: 1
+    help: "Minimum observations that must have a value (not NA) to retain the row/ feature (e.g. gene). Overrides filtering_min_proportion_not_na."
+
+  exploratory_analysis:
+    label: "Exploratory analysis"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-exploratory_clustering_method-when-un-checked: true
+        hide-exploratory_cor_method-when-un-checked: true
+        hide-exploratory_n_features-when-un-checked: true
+        hide-exploratory_whisker_distance-when-un-checked: true
+        hide-exploratory_mad_threshold-when-un-checked: true
+        hide-exploratory_main_variable-when-un-checked: true
+        hide-exploratory_assay_names-when-un-checked: true
+        hide-exploratory_final_assay-when-un-checked: true
+        hide-exploratory_log2_assays-when-un-checked: true
+        hide-exploratory_palette_name-when-un-checked: true
+    help: "Options related to data exploration"
+
+  exploratory_clustering_method:
+    label: "exploratory_clustering_method"
+    widget: text_field
+    value: "ward.D2"
+    help: "Clustering method used in dendrogram creation"
+
+  exploratory_cor_method:
+    label: "exploratory_cor_method"
+    widget: text_field
+    value: "spearman"
+    help: "Correlation method used in dendrogram creation"
+
+  exploratory_n_features:
+    label: "exploratory_n_features"
+    widget: number_field
+    value: 500
+    step: 1
+    help: "Number of features selected before certain exploratory analyses. If -1, will use all features."
+
+  exploratory_whisker_distance:
+    label: "exploratory_whisker_distance"
+    widget: number_field
+    value: 1.5
+    step: 1
+    help: "Length of the whiskers in boxplots as multiple of IQR. Defaults to 1.5."
+
+  exploratory_mad_threshold:
+    label: "exploratory_mad_threshold"
+    widget: number_field
+    value: -5
+    step: 1
+    help: "Threshold on MAD score for outlier identification"
+
+  exploratory_main_variable:
+    label: "exploratory_main_variable"
+    widget: text_field
+    value: "auto_pca"
+    help: "How should the main grouping variable be selected? `auto_pca`, `contrasts`, or a valid column name from the observations table."
+
+  exploratory_log2_assays:
+    label: "exploratory_log2_assays"
+    widget: text_field
+    help: "Of which assays to compute the log2 during exploratory analysis. Not necessary for maxquant data as this is controlled by the pipeline."
+
+  exploratory_palette_name:
+    label: "exploratory_palette_name"
+    widget: text_field
+    value: "Set1"
+    help: "Valid R palette name"
+
+  differential_analysis:
+    label: "Differential analysis"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-differential_file_suffix-when-un-checked: true
+        hide-differential_feature_id_column-when-un-checked: true
+        hide-differential_fc_column-when-un-checked: true
+        hide-differential_pval_column-when-un-checked: true
+        hide-differential_qval_column-when-un-checked: true
+        hide-differential_min_fold_change-when-un-checked: true
+        hide-differential_max_pval-when-un-checked: true
+        hide-differential_max_qval-when-un-checked: true
+        hide-differential_feature_name_column-when-un-checked: true
+        hide-differential_foldchanges_logged-when-un-checked: true
+        hide-differential_palette_name-when-un-checked: true
+        hide-differential_subset_to_contrast_samples-when-un-checked: true
+    help: "Options related to differential operations"
+
+  differential_file_suffix:
+    label: "differential_file_suffix"
+    widget: text_field
+    help: "Advanced option: the suffix associated tabular differential results tables. Will by default use the appropriate suffix according to the study_type."
+
+  differential_feature_id_column:
+    label: "differential_feature_id_column"
+    widget: text_field
+    value: "gene_id"
+    help: "The feature identifier column in differential results tables"
+
+  differential_fc_column:
+    label: "differential_fc_column"
+    widget: text_field
+    value: "log2FoldChange"
+    help: "The fold change column in differential results tables"
+
+  differential_pval_column:
+    label: "differential_pval_column"
+    widget: text_field
+    value: "pvalue"
+    help: "The p value column in differential results tables"
+
+  differential_qval_column:
+    label: "differential_qval_column"
+    widget: text_field
+    value: "padj"
+    help: "The q value column in differential results tables."
+
+  differential_min_fold_change:
+    label: "differential_min_fold_change"
+    widget: number_field
+    value: 2.0
+    step: 1
+    help: "Minimum fold change used to calculate differential feature numbers"
+
+  differential_max_pval:
+    label: "differential_max_pval"
+    widget: number_field
+    value: 1.0
+    step: 1
+    help: "Maximum p value used to calculate differential feature numbers"
+
+  differential_max_qval:
+    label: "differential_max_qval"
+    widget: number_field
+    value: 0.05
+    step: 1
+    help: "Maximum q value used to calculate differential feature numbers"
+
+  differential_feature_name_column:
+    label: "differential_feature_name_column"
+    widget: text_field
+    value: "gene_name"
+    help: "Where a features file (GTF) has been provided, what attributed to use to name features"
+
+  differential_foldchanges_logged:
+    label: "differential_foldchanges_logged"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Indicate whether or not fold changes are on the log scale (default is to assume they are)"
+
+  differential_palette_name:
+    label: "differential_palette_name"
+    widget: text_field
+    value: "Set1"
+    help: "Valid R palette name"
+
+  differential_subset_to_contrast_samples:
+    label: "differential_subset_to_contrast_samples"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "In differential analysis (DEseq2 or Limma), subset to the contrast samples before modelling variance?"
+
+  deseq2_specific_options_rna_seq_only:
+    label: "DESeq2 specific options (RNA-seq only)"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-deseq2_test-when-un-checked: true
+        hide-deseq2_fit_type-when-un-checked: true
+        hide-deseq2_sf_type-when-un-checked: true
+        hide-deseq2_min_replicates_for_replace-when-un-checked: true
+        hide-deseq2_use_t-when-un-checked: true
+        hide-deseq2_independent_filtering-when-un-checked: true
+        hide-deseq2_lfc_threshold-when-un-checked: true
+        hide-deseq2_alt_hypothesis-when-un-checked: true
+        hide-deseq2_p_adjust_method-when-un-checked: true
+        hide-deseq2_alpha-when-un-checked: true
+        hide-deseq2_minmu-when-un-checked: true
+        hide-deseq2_vs_method-when-un-checked: true
+        hide-deseq2_shrink_lfc-when-un-checked: true
+        hide-deseq2_cores-when-un-checked: true
+        hide-deseq2_vs_blind-when-un-checked: true
+        hide-deseq2_vst_nsub-when-un-checked: true
+
+  deseq2_test:
+    label: "deseq2_test"
+    widget: select
+    options:
+      - ['Wald', 'Wald']
+      - ['LRT', 'LRT']
+    help: "`test` parameter passed to DESeq()"
+
+  deseq2_fit_type:
+    label: "deseq2_fit_type"
+    widget: select
+    options:
+      - ['parametric', 'parametric']
+      - ['local', 'local']
+      - ['mean', 'mean']
+      - ['glmGamPoi', 'glmGamPoi']
+    help: "`fitType` parameter passed to DESeq()"
+
+  deseq2_sf_type:
+    label: "deseq2_sf_type"
+    widget: select
+    options:
+      - ['ratio', 'ratio']
+      - ['poscounts', 'poscounts']
+      - ['iterate', 'iterate']
+    help: "`sfType` parameter passed to DESeq()"
+
+  deseq2_min_replicates_for_replace:
+    label: "deseq2_min_replicates_for_replace"
+    widget: number_field
+    value: 7
+    step: 1
+    help: "`minReplicatesForReplace` parameter passed to DESeq()"
+
+  deseq2_use_t:
+    label: "deseq2_use_t"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "`useT` parameter passed to DESeq2"
+
+  deseq2_independent_filtering:
+    label: "deseq2_independent_filtering"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "`independentFiltering` parameter passed to results()"
+
+  deseq2_lfc_threshold:
+    label: "deseq2_lfc_threshold"
+    widget: number_field
+    value: 0
+    step: 1
+    help: "`lfcThreshold` parameter passed to results()"
+
+  deseq2_alt_hypothesis:
+    label: "deseq2_alt_hypothesis"
+    widget: text_field
+    value: "greaterAbs"
+    help: "`altHypothesis` parameter passed to results()"
+
+  deseq2_p_adjust_method:
+    label: "deseq2_p_adjust_method"
+    widget: text_field
+    value: "BH"
+    help: "`pAdjustMethod` parameter passed to results()"
+
+  deseq2_alpha:
+    label: "deseq2_alpha"
+    widget: number_field
+    value: 0.1
+    step: 1
+    help: "`alpha` parameter passed to results()"
+
+  deseq2_minmu:
+    label: "deseq2_minmu"
+    widget: number_field
+    value: 0.5
+    step: 1
+    help: "`minmu` parameter passed to results()"
+
+  deseq2_vs_method:
+    label: "deseq2_vs_method"
+    widget: select
+    options:
+      - ['vst', 'vst']
+      - ['rlog', 'rlog']
+      - ['rlog,vst', 'rlog,vst']
+    help: "variance stabilisation method to use when making a variance stabilised matrix"
+
+  deseq2_shrink_lfc:
+    label: "deseq2_shrink_lfc"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Shink fold changes in results?"
+
+  deseq2_cores:
+    label: "deseq2_cores"
+    widget: number_field
+    value: 1
+    step: 1
+    help: "Number of cores"
+
+  deseq2_vs_blind:
+    label: "deseq2_vs_blind"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "`blind` parameter for rlog() and/ or vst()"
+
+  deseq2_vst_nsub:
+    label: "deseq2_vst_nsub"
+    widget: number_field
+    value: 1000
+    step: 1
+    help: "`nsub` parameter passed to vst()"
+
+  limma_specific_options_microarray_only:
+    label: "Limma specific options (microarray only)"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-limma_ndups-when-un-checked: true
+        hide-limma_spacing-when-un-checked: true
+        hide-limma_block-when-un-checked: true
+        hide-limma_correlation-when-un-checked: true
+        hide-limma_method-when-un-checked: true
+        hide-limma_proportion-when-un-checked: true
+        hide-limma_trend-when-un-checked: true
+        hide-limma_robust-when-un-checked: true
+        hide-limma_stdev_coef_lim-when-un-checked: true
+        hide-limma_winsor_tail_p-when-un-checked: true
+        hide-limma_lfc-when-un-checked: true
+        hide-limma_confint-when-un-checked: true
+        hide-limma_adjust_method-when-un-checked: true
+        hide-limma_p_value-when-un-checked: true
+
+  limma_ndups:
+    label: "limma_ndups"
+    widget: number_field
+    step: 1
+    help: "passed to lmFit(), positive integer giving the number of times each distinct probe is printed on each array."
+
+  limma_spacing:
+    label: "limma_spacing"
+    widget: text_field
+    value: "null"
+    help: "passed to lmFit(), positive integer giving the spacing between duplicate occurrences of the same probe, spacing=1 for consecutive rows."
+
+  limma_block:
+    label: "limma_block"
+    widget: text_field
+    value: "null"
+    help: "Sample sheet column to be used to derive a vector or factor specifying a blocking variable on the arrays"
+
+  limma_correlation:
+    label: "limma_correlation"
+    widget: text_field
+    value: "null"
+    help: "passed to lmFit(), the inter-duplicate or inter-technical replicate correlation"
+
+  limma_method:
+    label: "limma_method"
+    widget: select
+    options:
+      - ['ls', 'ls']
+      - ['robust', 'robust']
+    help: "passed to lmFit(), the fitting method"
+
+  limma_proportion:
+    label: "limma_proportion"
+    widget: number_field
+    value: 0.01
+    step: 1
+    help: "passed to eBayes(), a numeric value between 0 and 1, assumed proportion of genes which are differentially expressed"
+
+  limma_trend:
+    label: "limma_trend"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "passed to eBayes(), logical, should an intensity-dependent trend be allowed for the prior variance?"
+
+  limma_robust:
+    label: "limma_robust"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "passed to eBayes(), logical, should the estimation of df.prior and var.prior be robustified against outlier sample variances?"
+
+  limma_stdev_coef_lim:
+    label: "limma_stdev_coef_lim"
+    widget: text_field
+    value: "0.1,4"
+    help: "passed to eBayes, comma separated string of two values, assumed lower and upper limits for the standard deviation of log2-fold-changes for differentially expressed genes"
+
+  limma_winsor_tail_p:
+    label: "limma_winsor_tail_p"
+    widget: text_field
+    value: "0.05,0.1"
+    help: "passed to eBayes, comma separated string of length 1 or 2, giving left and right tail proportions of x to Winsorize. Used only when robust=TRUE."
+
+  limma_lfc:
+    label: "limma_lfc"
+    widget: number_field
+    value: 0
+    step: 1
+    help: "passed to topTable(), minimum absolute log2-fold-change required"
+
+  limma_confint:
+    label: "limma_confint"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "passed to topTable(), logical, should confidence 95% intervals be output for logFC? Alternatively, can take a numeric value between zero and one specifying the confidence level required."
+
+  limma_adjust_method:
+    label: "limma_adjust_method"
+    widget: select
+    options:
+      - ['BH', 'BH']
+      - ['holm', 'holm']
+      - ['hochberg', 'hochberg']
+      - ['hommel', 'hommel']
+      - ['bonferroni', 'bonferroni']
+      - ['BY', 'BY']
+      - ['fdr', 'fdr']
+      - ['null', 'null']
+    help: "passed to topTable(), method used to adjust the p-values for multiple testing."
+
+  limma_p_value:
+    label: "limma_p_value"
+    widget: number_field
+    value: 1.0
+    step: 1
+    help: "cutoff value for adjusted p-values. Only genes with lower p-values are listed."
+
+  gsea:
+    label: "GSEA"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-gsea_run-when-un-checked: true
+        hide-gsea_permute-when-un-checked: true
+        hide-gsea_nperm-when-un-checked: true
+        hide-gsea_scoring_scheme-when-un-checked: true
+        hide-gsea_metric-when-un-checked: true
+        hide-gsea_sort-when-un-checked: true
+        hide-gsea_order-when-un-checked: true
+        hide-gsea_set_max-when-un-checked: true
+        hide-gsea_set_min-when-un-checked: true
+        hide-gsea_norm-when-un-checked: true
+        hide-gsea_rnd_type-when-un-checked: true
+        hide-gsea_make_sets-when-un-checked: true
+        hide-gsea_median-when-un-checked: true
+        hide-gsea_num-when-un-checked: true
+        hide-gsea_plot_top_x-when-un-checked: true
+        hide-gsea_rnd_seed-when-un-checked: true
+        hide-gsea_save_rnd_lists-when-un-checked: true
+        hide-gsea_zip_report-when-un-checked: true
+
+  gsea_run:
+    label: "gsea_run"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Set to run GSEA to infer differential gene sets in contrasts"
+
+  gsea_permute:
+    label: "gsea_permute"
+    widget: select
+    options:
+      - ['phenotype', 'phenotype']
+      - ['gene_set', 'gene_set']
+    help: "Permutation type"
+
+  gsea_nperm:
+    label: "gsea_nperm"
+    widget: number_field
+    value: 1000
+    step: 1
+    help: "Number of permutations"
+
+  gsea_scoring_scheme:
+    label: "gsea_scoring_scheme"
+    widget: select
+    options:
+      - ['weighted', 'weighted']
+      - ['weighted_p2', 'weighted_p2']
+      - ['weighted_p1.5', 'weighted_p1.5']
+      - ['classic', 'classic']
+    help: "Enrichment statistic"
+
+  gsea_metric:
+    label: "gsea_metric"
+    widget: select
+    options:
+      - ['Signal2Noise', 'Signal2Noise']
+      - ['tTest', 'tTest']
+      - ['Ratio_of_Classes', 'Ratio_of_Classes']
+      - ['Diff_of_Classes', 'Diff_of_Classes']
+      - ['log2_Ratio_of_Classes', 'log2_Ratio_of_Classes']
+    help: "Metric for ranking genes"
+
+  gsea_sort:
+    label: "gsea_sort"
+    widget: select
+    options:
+      - ['real', 'real']
+      - ['absolute', 'absolute']
+    help: "Gene list sorting mode"
+
+  gsea_order:
+    label: "gsea_order"
+    widget: select
+    options:
+      - ['descending', 'descending']
+      - ['ascending', 'ascending']
+    help: "Gene list ordering mode"
+
+  gsea_set_max:
+    label: "gsea_set_max"
+    widget: number_field
+    value: 500
+    step: 1
+    help: "Max size: exclude larger sets"
+
+  gsea_set_min:
+    label: "gsea_set_min"
+    widget: number_field
+    value: 15
+    step: 1
+    help: "Min size: exclude smaller sets"
+
+  gsea_norm:
+    label: "gsea_norm"
+    widget: select
+    options:
+      - ['meandiv', 'meandiv']
+      - ['null', 'null']
+    help: "Normalisation mode"
+
+  gsea_rnd_type:
+    label: "gsea_rnd_type"
+    widget: select
+    options:
+      - ['no_balance', 'no_balance']
+      - ['equalize_and_balance', 'equalize_and_balance']
+    help: "Randomization mode"
+
+  gsea_make_sets:
+    label: "gsea_make_sets"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Make detailed geneset report?"
+
+  gsea_median:
+    label: "gsea_median"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Use median for class metrics"
+
+  gsea_num:
+    label: "gsea_num"
+    widget: number_field
+    value: 100
+    step: 1
+    help: "Number of markers"
+
+  gsea_plot_top_x:
+    label: "gsea_plot_top_x"
+    widget: number_field
+    value: 20
+    step: 1
+    help: "Plot graphs for the top sets of each phenotype"
+
+  gsea_rnd_seed:
+    label: "gsea_rnd_seed"
+    widget: text_field
+    value: "timestamp"
+    help: "Seed for permutation"
+
+  gsea_save_rnd_lists:
+    label: "gsea_save_rnd_lists"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save random ranked lists"
+
+  gsea_zip_report:
+    label: "gsea_zip_report"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Make a zipped file with all reports"
+
+  gprofiler2:
+    label: "gprofiler2"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-gprofiler2_run-when-un-checked: true
+        hide-gprofiler2_organism-when-un-checked: true
+        hide-gprofiler2_significant-when-un-checked: true
+        hide-gprofiler2_measure_underrepresentation-when-un-checked: true
+        hide-gprofiler2_correction_method-when-un-checked: true
+        hide-gprofiler2_sources-when-un-checked: true
+        hide-gprofiler2_evcodes-when-un-checked: true
+        hide-gprofiler2_max_qval-when-un-checked: true
+        hide-gprofiler2_token-when-un-checked: true
+        hide-gprofiler2_background_file-when-un-checked: true
+        hide-gprofiler2_background_column-when-un-checked: true
+        hide-gprofiler2_domain_scope-when-un-checked: true
+        hide-gprofiler2_min_diff-when-un-checked: true
+        hide-gprofiler2_palette_name-when-un-checked: true
+
+  gprofiler2_run:
+    label: "gprofiler2_run"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Set to run gprofiler2 and do a pathway enrichment analysis."
+
+  gprofiler2_organism:
+    label: "gprofiler2_organism"
+    widget: text_field
+    help: "Short name of the organism that is analyzed, e.g. hsapiens for homo sapiens."
+
+  gprofiler2_significant:
+    label: "gprofiler2_significant"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Should only significant enrichment results be considered?"
+
+  gprofiler2_measure_underrepresentation:
+    label: "gprofiler2_measure_underrepresentation"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Should underrepresentation be measured instead of overrepresentation?"
+
+  gprofiler2_correction_method:
+    label: "gprofiler2_correction_method"
+    widget: select
+    options:
+      - ['gSCS', 'gSCS']
+      - ['analytical', 'analytical']
+      - ['g_SCS', 'g_SCS']
+      - ['fdr', 'fdr']
+      - ['false_discovery_rate', 'false_discovery_rate']
+      - ['bonferroni', 'bonferroni']
+    help: "The method that should be used for multiple testing correction."
+
+  gprofiler2_sources:
+    label: "gprofiler2_sources"
+    widget: text_field
+    help: "On which source databases to run the gprofiler query"
+
+  gprofiler2_evcodes:
+    label: "gprofiler2_evcodes"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Whether to include evcodes in the results."
+
+  gprofiler2_max_qval:
+    label: "gprofiler2_max_qval"
+    widget: number_field
+    value: 0.05
+    step: 1
+    help: "Maximum q value used for significance testing."
+
+  gprofiler2_token:
+    label: "gprofiler2_token"
+    widget: text_field
+    help: "Token that should be used as a query."
+
+  gprofiler2_background_file:
+    label: "gprofiler2_background_file"
+    widget: text_field
+    help: "Path to CSV/TSV/TXT file that should be used as a background for the query; alternatively, `auto` (default) or `false`."
+
+  gprofiler2_background_column:
+    label: "gprofiler2_background_column"
+    widget: text_field
+    help: "Which column to use as gene IDs in the background matrix."
+
+  gprofiler2_domain_scope:
+    label: "gprofiler2_domain_scope"
+    widget: select
+    options:
+      - ['annotated', 'annotated']
+      - ['known', 'known']
+      - ['custom', 'custom']
+      - ['custom_annotated', 'custom_annotated']
+    help: "How to calculate the statistical domain size."
+
+  gprofiler2_min_diff:
+    label: "gprofiler2_min_diff"
+    widget: number_field
+    value: 1
+    step: 1
+    help: "How many genes must be differentially expressed in a pathway for it to be considered enriched? Default 1."
+
+  gprofiler2_palette_name:
+    label: "gprofiler2_palette_name"
+    widget: text_field
+    value: "Blues"
+    help: "Valid R palette name"
+
+  shiny_app_settings:
+    label: "Shiny app settings"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-shinyngs_build_app-when-un-checked: true
+        hide-shinyngs_deploy_to_shinyapps_io-when-un-checked: true
+        hide-shinyngs_shinyapps_account-when-un-checked: true
+        hide-shinyngs_shinyapps_app_name-when-un-checked: true
+        hide-shinyngs_guess_unlog_matrices-when-un-checked: true
+
+  shinyngs_build_app:
+    label: "shinyngs_build_app"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Should a Shiny app be built?"
+
+  shinyngs_deploy_to_shinyapps_io:
+    label: "shinyngs_deploy_to_shinyapps_io"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Should the app be deployed to shinyapps.io?"
+
+  shinyngs_shinyapps_account:
+    label: "shinyngs_shinyapps_account"
+    widget: text_field
+    value: "null"
+    help: "Your shinyapps.io account name"
+
+  shinyngs_shinyapps_app_name:
+    label: "shinyngs_shinyapps_app_name"
+    widget: text_field
+    value: "null"
+    help: "The name of the app to push to in your shinyapps.io account"
+
+  shinyngs_guess_unlog_matrices:
+    label: "shinyngs_guess_unlog_matrices"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Should we guess the log status of matrices and unlog for the app?"
+
+  gene_set_options:
+    label: "Options related to gene set analysis"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-gene_sets_files-when-un-checked: true
+    help: "Files and options used by gene set analysis modules."
+
+  gene_sets_files:
+    label: "gene_sets_files"
+    widget: text_field
+    value: "null"
+    help: "Gene sets in GMT or GMX-format; for GSEA: multiple comma-separated input files in either format are possible. For gprofiler2: A single file in GMT format is possible; this has lowest priority and will be overridden by --gprofiler2_token and --gprofiler2_organism."
+
+  reporting_options:
+    label: "Reporting options"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-report_file-when-un-checked: true
+        hide-logo_file-when-un-checked: true
+        hide-css_file-when-un-checked: true
+        hide-citations_file-when-un-checked: true
+        hide-report_title-when-un-checked: true
+        hide-report_author-when-un-checked: true
+        hide-report_contributors-when-un-checked: true
+        hide-report_description-when-un-checked: true
+        hide-report_scree-when-un-checked: true
+        hide-report_round_digits-when-un-checked: true
+
+  report_file:
+    label: "report_file"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Rmd report template from which to create the pipeline report"
+
+  logo_file:
+    label: "logo_file"
+    widget: text_field
+    value: "${projectDir}/docs/images/nf-core-differentialabundance_logo_light.png"
+    help: "A logo to display in the report instead of the generic pipeline logo"
+
+  css_file:
+    label: "css_file"
+    widget: text_field
+    value: "${projectDir}/assets/nf-core_style.css"
+    help: "CSS to use to style the output, in lieu of the default nf-core styling"
+
+  citations_file:
+    label: "citations_file"
+    widget: text_field
+    value: "${projectDir}/CITATIONS.md"
+    help: "A markdown file containing citations to include in the fiinal report"
+
+  report_title:
+    label: "report_title"
+    widget: text_field
+    value: "null"
+    help: "A title for reporting outputs"
+
+  report_author:
+    label: "report_author"
+    widget: text_field
+    value: "null"
+    help: "An author for reporting outputs"
+
+  report_contributors:
+    label: "report_contributors"
+    widget: text_field
+    help: "Semicolon-separated string of contributor info that should be listed in the report."
+
+  report_description:
+    label: "report_description"
+    widget: text_field
+    value: "null"
+    help: "A description for reporting outputs"
+
+  report_scree:
+    label: "report_scree"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Whether to generate a scree plot in the report"
+
+  report_round_digits:
+    label: "report_round_digits"
+    widget: number_field
+    value: 4
+    step: 1
+    help: "To how many digits should numeric output in different modules be rounded? If -1, will not round."
+
+  reference_genome_options:
+    label: "Reference genome options"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-genome-when-un-checked: true
+        hide-gtf-when-un-checked: true
+        hide-igenomes_ignore-when-un-checked: true
+    help: "Reference genome related files and options required for the workflow."
+
+  genome:
+    label: iGenomes
+    widget: select
+    required: false
+    options:
+      - ['None', ' ']
+      - ['GRCh37', 'GRCh37']
+      - ['GRCh38', 'GRCh38']
+      - ['GRCm38', 'GRCm38']
+      - ['TAIR10', 'TAIR10']
+      - ['EB2', 'EB2']
+      - ['UMD3.1', 'UMD3.1']
+      - ['WBcel235', 'WBcel235']
+      - ['CanFam3.1', 'CanFam3.1']
+      - ['GRCz10', 'GRCz10']
+      - ['BDGP6', 'BDGP6']
+      - ['EquCab2', 'EquCab2']
+      - ['EB1', 'EB1']
+      - ['Galgal4', 'Galgal4']
+      - ['Gm01', 'Gm01']
+      - ['Mmul_1', 'Mmul_1']
+      - ['IRGSP-1.0', 'IRGSP-1.0']
+      - ['CHIMP2.1.4', 'CHIMP2.1.4']
+      - ['Rnor_5.0', 'Rnor_5.0']
+      - ['Rnor_6.0', 'Rnor_6.0']
+      - ['R64-1-1', 'R64-1-1']
+      - ['EF2', 'EF2']
+      - ['Sbi1', 'Sbi1']
+      - ['Sscrofa10.2', 'Sscrofa10.2']
+      - ['AGPv3', 'AGPv3']
+      - ['hg38', 'hg38']
+      - ['hg19', 'hg19']
+      - ['mm10', 'mm10']
+      - ['bosTau8', 'bosTau8']
+      - ['ce10', 'ce10']
+      - ['canFam3', 'canFam3']
+      - ['danRer10', 'danRer10']
+      - ['dm6', 'dm6']
+      - ['equCab2', 'equCab2']
+      - ['galGal4', 'galGal4']
+      - ['panTro4', 'panTro4']
+      - ['rn6', 'rn6']
+      - ['sacCer3', 'sacCer3']
+      - ['susScr3', 'susScr3']
+    help: "Name of iGenomes reference."
+
+  gtf:
+    label: "gtf"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Genome annotation file in GTF format"
+
+
+form:
+  - bc_num_hours
+  - executor
+  - partition
+  - num_cores
+  - num_memory
+  - workdir
+  - input_output_options
+  - study_name
+  - study_type
+  - input
+  - contrasts
+  - outdir
+  - study_abundance_type
+  - abundance_values
+  - matrix
+  - transcript_length_matrix
+  - affy_cel_files_archive
+  - querygse
+  - observations_options
+  - observations_id_col
+  - observations_type
+  - observations_name_col
+  - features_options
+  - features_id_col
+  - features_name_col
+  - features_type
+  - sizefactors_from_controls
+  - control_features
+  - features_metadata_cols
+  - features
+  - features_gtf_feature_type
+  - features_gtf_table_first_field
+  - affy_input_options
+  - affy_file_name_col
+  - affy_background
+  - affy_bgversion
+  - affy_destructive
+  - affy_cdfname
+  - affy_build_annotation
+  - affy_rm_mask
+  - affy_rm_outliers
+  - affy_rm_extra
+  - proteus_input_options
+  - proteus_measurecol_prefix
+  - proteus_norm_function
+  - proteus_plotsd_method
+  - proteus_plotmv_loess
+  - proteus_palette_name
+  - filtering
+  - filtering_min_abundance
+  - filtering_min_samples
+  - filtering_min_proportion
+  - filtering_grouping_var
+  - filtering_min_proportion_not_na
+  - filtering_min_samples_not_na
+  - exploratory_analysis
+  - exploratory_clustering_method
+  - exploratory_cor_method
+  - exploratory_n_features
+  - exploratory_whisker_distance
+  - exploratory_mad_threshold
+  - exploratory_main_variable
+  - exploratory_log2_assays
+  - exploratory_palette_name
+  - differential_analysis
+  - differential_file_suffix
+  - differential_feature_id_column
+  - differential_fc_column
+  - differential_pval_column
+  - differential_qval_column
+  - differential_min_fold_change
+  - differential_max_pval
+  - differential_max_qval
+  - differential_feature_name_column
+  - differential_foldchanges_logged
+  - differential_palette_name
+  - differential_subset_to_contrast_samples
+  - deseq2_specific_options_rna_seq_only
+  - deseq2_test
+  - deseq2_fit_type
+  - deseq2_sf_type
+  - deseq2_min_replicates_for_replace
+  - deseq2_use_t
+  - deseq2_independent_filtering
+  - deseq2_lfc_threshold
+  - deseq2_alt_hypothesis
+  - deseq2_p_adjust_method
+  - deseq2_alpha
+  - deseq2_minmu
+  - deseq2_vs_method
+  - deseq2_shrink_lfc
+  - deseq2_cores
+  - deseq2_vs_blind
+  - deseq2_vst_nsub
+  - limma_specific_options_microarray_only
+  - limma_ndups
+  - limma_spacing
+  - limma_block
+  - limma_correlation
+  - limma_method
+  - limma_proportion
+  - limma_trend
+  - limma_robust
+  - limma_stdev_coef_lim
+  - limma_winsor_tail_p
+  - limma_lfc
+  - limma_confint
+  - limma_adjust_method
+  - limma_p_value
+  - gsea
+  - gsea_run
+  - gsea_permute
+  - gsea_nperm
+  - gsea_scoring_scheme
+  - gsea_metric
+  - gsea_sort
+  - gsea_order
+  - gsea_set_max
+  - gsea_set_min
+  - gsea_norm
+  - gsea_rnd_type
+  - gsea_make_sets
+  - gsea_median
+  - gsea_num
+  - gsea_plot_top_x
+  - gsea_rnd_seed
+  - gsea_save_rnd_lists
+  - gsea_zip_report
+  - gprofiler2
+  - gprofiler2_run
+  - gprofiler2_organism
+  - gprofiler2_significant
+  - gprofiler2_measure_underrepresentation
+  - gprofiler2_correction_method
+  - gprofiler2_sources
+  - gprofiler2_evcodes
+  - gprofiler2_max_qval
+  - gprofiler2_token
+  - gprofiler2_background_file
+  - gprofiler2_background_column
+  - gprofiler2_domain_scope
+  - gprofiler2_min_diff
+  - gprofiler2_palette_name
+  - shiny_app_settings
+  - shinyngs_build_app
+  - shinyngs_deploy_to_shinyapps_io
+  - shinyngs_shinyapps_account
+  - shinyngs_shinyapps_app_name
+  - shinyngs_guess_unlog_matrices
+  - gene_set_options
+  - gene_sets_files
+  - reporting_options
+  - report_title
+  - report_author
+  - report_contributors
+  - report_description
+  - report_scree
+  - report_round_digits
+  - reference_genome_options
+  - genome
+  - gtf
+  - tower_access_token
+  - resume

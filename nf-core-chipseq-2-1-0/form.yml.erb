@@ -1,0 +1,647 @@
+---
+cluster: "pax"
+
+attributes:
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/cpu_partition.yml").indent(2) %>
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/num_cores_generic.yml").indent(2) %>
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/num_memory_generic.yml").indent(2) %>
+
+  executor:
+    label: Which nextflow executor to use?
+    widget: select
+    options:
+    - [
+        "slurm", "slurm",
+        data-hide-partition: true,
+        data-hide-num-cores: true,
+        data-hide-num-memory: true
+      ]
+    - ["local", "local"]
+    help: |
+      With slurm, tasks will be distributed to different nodes, local means all tasks will run on a single node.
+
+  workdir:
+    label: "Working Directory"
+    widget: "path_selector"
+    directory: "/cluster/tufts"
+    required: false
+    label: Working directory
+    favorites:
+        - /cluster/tufts
+        - /cluster/home
+    
+  resume:
+    label: Resume
+    widget: check_box
+    checked_value: 1
+    unchecked_value: 0
+    help: |
+           Resume previous run if found
+
+  tower_access_token:
+    widget: "text_field"
+    required: false
+    label: "TOWER_ACCESS_TOKEN (Optional)"
+    help: "Your TOWER_ACCESS_TOKEN used to monitor runs on [Nextflow Tower](https://seqera.io)."
+
+
+
+  input_output_options:
+    label: "Input/output options"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-input-when-un-checked: true
+        hide-fragment_size-when-un-checked: true
+        hide-seq_center-when-un-checked: true
+        hide-read_length-when-un-checked: true
+        hide-outdir-when-un-checked: true
+        hide-multiqc_title-when-un-checked: true
+    help: "Define where the pipeline should find input data and save output data."
+
+  input:
+    label: "input"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to comma-separated file containing information about the samples in the experiment."
+
+  fragment_size:
+    label: "fragment_size"
+    widget: number_field
+    value: 200
+    step: 1
+    help: "Estimated fragment size used to extend single-end reads."
+
+  seq_center:
+    label: "seq_center"
+    widget: text_field
+    help: "Sequencing center information to be added to read group of BAM files."
+
+  read_length:
+    label: "read_length"
+    widget: select
+    options:
+      - ['50', '50']
+      - ['75', '75']
+      - ['100', '100']
+      - ['150', '150']
+      - ['200', '200']
+    help: "Read length used to calculate MACS3 genome size for peak calling if `--macs_gsize` isn't provided."
+
+  outdir:
+    label: "outdir"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure."
+
+  multiqc_title:
+    label: "multiqc_title"
+    widget: text_field
+    help: "MultiQC report title. Printed as page header, used for filename if not otherwise specified."
+
+  reference_genome_options:
+    label: "Reference genome options"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-genome-when-un-checked: true
+        hide-fasta-when-un-checked: true
+        hide-gtf-when-un-checked: true
+        hide-gff-when-un-checked: true
+        hide-bwa_index-when-un-checked: true
+        hide-bowtie2_index-when-un-checked: true
+        hide-chromap_index-when-un-checked: true
+        hide-star_index-when-un-checked: true
+        hide-gene_bed-when-un-checked: true
+        hide-macs_gsize-when-un-checked: true
+        hide-blacklist-when-un-checked: true
+        hide-save_reference-when-un-checked: true
+        hide-igenomes_base-when-un-checked: true
+        hide-igenomes_ignore-when-un-checked: true
+    help: "Reference genome related files and options required for the workflow."
+
+  genome:
+    label: iGenomes
+    widget: select
+    required: false
+    options:
+      - ['None', ' ']
+      - ['GRCh37', 'GRCh37']
+      - ['GRCh38', 'GRCh38']
+      - ['GRCm38', 'GRCm38']
+      - ['TAIR10', 'TAIR10']
+      - ['EB2', 'EB2']
+      - ['UMD3.1', 'UMD3.1']
+      - ['WBcel235', 'WBcel235']
+      - ['CanFam3.1', 'CanFam3.1']
+      - ['GRCz10', 'GRCz10']
+      - ['BDGP6', 'BDGP6']
+      - ['EquCab2', 'EquCab2']
+      - ['EB1', 'EB1']
+      - ['Galgal4', 'Galgal4']
+      - ['Gm01', 'Gm01']
+      - ['Mmul_1', 'Mmul_1']
+      - ['IRGSP-1.0', 'IRGSP-1.0']
+      - ['CHIMP2.1.4', 'CHIMP2.1.4']
+      - ['Rnor_5.0', 'Rnor_5.0']
+      - ['Rnor_6.0', 'Rnor_6.0']
+      - ['R64-1-1', 'R64-1-1']
+      - ['EF2', 'EF2']
+      - ['Sbi1', 'Sbi1']
+      - ['Sscrofa10.2', 'Sscrofa10.2']
+      - ['AGPv3', 'AGPv3']
+      - ['hg38', 'hg38']
+      - ['hg19', 'hg19']
+      - ['mm10', 'mm10']
+      - ['bosTau8', 'bosTau8']
+      - ['ce10', 'ce10']
+      - ['canFam3', 'canFam3']
+      - ['danRer10', 'danRer10']
+      - ['dm6', 'dm6']
+      - ['equCab2', 'equCab2']
+      - ['galGal4', 'galGal4']
+      - ['panTro4', 'panTro4']
+      - ['rn6', 'rn6']
+      - ['sacCer3', 'sacCer3']
+      - ['susScr3', 'susScr3']
+    help: "Name of iGenomes reference."
+
+  fasta:
+    label: "fasta"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to FASTA genome file."
+
+  gtf:
+    label: "gtf"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to GTF annotation file."
+
+  gff:
+    label: "gff"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to GFF3 annotation file."
+
+  bwa_index:
+    label: "bwa_index"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to directory or tar.gz archive for pre-built BWA index."
+
+  bowtie2_index:
+    label: "bowtie2_index"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to directory or tar.gz archive for pre-built Bowtie2 index."
+
+  chromap_index:
+    label: "chromap_index"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to directory or tar.gz archive for pre-built Chromap index."
+
+  star_index:
+    label: "star_index"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to directory or tar.gz archive for pre-built STAR index."
+
+  gene_bed:
+    label: "gene_bed"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to BED file containing gene intervals. This will be created from the GTF file if not specified."
+
+  macs_gsize:
+    label: "macs_gsize"
+    widget: number_field
+    step: 1
+    help: "Effective genome size parameter required by MACS3."
+
+  blacklist:
+    label: "blacklist"
+    widget: path_selector
+    directory: /cluster/tufts
+    favorites:
+      - /cluster/tufts
+      - /cluster/home 
+    help: "Path to blacklist regions in BED format, used for filtering alignments."
+
+  save_reference:
+    label: "save_reference"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "If generated by the pipeline save the BWA index in the results directory."
+
+  adapter_trimming_options:
+    label: "Adapter trimming options"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-clip_r1-when-un-checked: true
+        hide-clip_r2-when-un-checked: true
+        hide-three_prime_clip_r1-when-un-checked: true
+        hide-three_prime_clip_r2-when-un-checked: true
+        hide-trim_nextseq-when-un-checked: true
+        hide-skip_trimming-when-un-checked: true
+        hide-save_trimmed-when-un-checked: true
+    help: "Options to adjust adapter trimming criteria."
+
+  clip_r1:
+    label: "clip_r1"
+    widget: number_field
+    step: 1
+    help: "Instructs Trim Galore to remove bp from the 5` end of read 1 (or single-end reads)."
+
+  clip_r2:
+    label: "clip_r2"
+    widget: number_field
+    step: 1
+    help: "Instructs Trim Galore to remove bp from the 5` end of read 2 (paired-end reads only)."
+
+  three_prime_clip_r1:
+    label: "three_prime_clip_r1"
+    widget: number_field
+    step: 1
+    help: "Instructs Trim Galore to remove bp from the 3` end of read 1 AFTER adapter/quality trimming has been performed."
+
+  three_prime_clip_r2:
+    label: "three_prime_clip_r2"
+    widget: number_field
+    step: 1
+    help: "Instructs Trim Galore to remove bp from the 3` end of read 2 AFTER adapter/quality trimming has been performed."
+
+  trim_nextseq:
+    label: "trim_nextseq"
+    widget: number_field
+    step: 1
+    help: "Instructs Trim Galore to apply the --nextseq=X option, to trim based on quality after removing poly-G tails."
+
+  skip_trimming:
+    label: "skip_trimming"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip the adapter trimming step."
+
+  save_trimmed:
+    label: "save_trimmed"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save the trimmed FastQ files in the results directory."
+
+  alignment_options:
+    label: "Alignment options"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-aligner-when-un-checked: true
+        hide-keep_dups-when-un-checked: true
+        hide-keep_multi_map-when-un-checked: true
+        hide-bwa_min_score-when-un-checked: true
+        hide-save_align_intermeds-when-un-checked: true
+        hide-save_unaligned-when-un-checked: true
+        hide-bamtools_filter_pe_config-when-un-checked: true
+        hide-bamtools_filter_se_config-when-un-checked: true
+    help: "Options to adjust parameters and filtering criteria for read alignments."
+
+  aligner:
+    label: "aligner"
+    widget: select
+    options:
+      - ['bwa', 'bwa']
+      - ['bowtie2', 'bowtie2']
+      - ['chromap', 'chromap']
+      - ['star', 'star']
+    help: "Specifies the alignment algorithm to use - available options are `bwa`, `bowtie2` and `star`."
+
+  keep_dups:
+    label: "keep_dups"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Duplicate reads are not filtered from alignments."
+
+  keep_multi_map:
+    label: "keep_multi_map"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Reads mapping to multiple locations are not filtered from alignments."
+
+  bwa_min_score:
+    label: "bwa_min_score"
+    widget: number_field
+    step: 1
+    help: "Don’t output BWA MEM alignments with score lower than this parameter."
+
+  save_align_intermeds:
+    label: "save_align_intermeds"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save the intermediate BAM files from the alignment step."
+
+  save_unaligned:
+    label: "save_unaligned"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Save unaligned sequences to the output directory (only available for Bowtie 2 and STAR."
+
+  peak_calling_options:
+    label: "Peak calling options"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-narrow_peak-when-un-checked: true
+        hide-broad_cutoff-when-un-checked: true
+        hide-macs_fdr-when-un-checked: true
+        hide-macs_pvalue-when-un-checked: true
+        hide-min_reps_consensus-when-un-checked: true
+        hide-save_macs_pileup-when-un-checked: true
+        hide-skip_peak_qc-when-un-checked: true
+        hide-skip_peak_annotation-when-un-checked: true
+        hide-skip_consensus_peaks-when-un-checked: true
+    help: "Options to adjust peak calling criteria."
+
+  narrow_peak:
+    label: "narrow_peak"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Run MACS3 in narrowPeak mode."
+
+  broad_cutoff:
+    label: "broad_cutoff"
+    widget: number_field
+    value: 0.1
+    step: 1
+    help: "Specifies broad cutoff value for MACS3. Only used when --narrow_peak isnt specified."
+
+  macs_fdr:
+    label: "macs_fdr"
+    widget: number_field
+    step: 1
+    help: "Minimum FDR (q-value) cutoff for peak detection, --macs_fdr and --macs_pvalue are mutually exclusive."
+
+  macs_pvalue:
+    label: "macs_pvalue"
+    widget: number_field
+    step: 1
+    help: "p-value cutoff for peak detection, --macs_fdr and --macs_pvalue are mutually exclusive. If --macs_pvalue cutoff is set, q-value will not be calculated and reported as -1 in the final .xls file."
+
+  min_reps_consensus:
+    label: "min_reps_consensus"
+    widget: number_field
+    value: 1
+    step: 1
+    help: "Number of biological replicates required from a given condition for a peak to contribute to a consensus peak."
+
+  save_macs_pileup:
+    label: "save_macs_pileup"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Instruct MACS3 to create bedGraph files normalised to signal per million reads."
+
+  skip_peak_qc:
+    label: "skip_peak_qc"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip MACS3 peak QC plot generation."
+
+  skip_peak_annotation:
+    label: "skip_peak_annotation"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip annotation of MACS3 and consensus peaks with HOMER."
+
+  skip_consensus_peaks:
+    label: "skip_consensus_peaks"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip consensus peak generation, annotation and counting."
+
+  process_skipping_options:
+    label: "Process skipping options"
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-skip_fastqc-when-un-checked: true
+        hide-skip_picard_metrics-when-un-checked: true
+        hide-skip_preseq-when-un-checked: true
+        hide-deseq2_vst-when-un-checked: true
+        hide-skip_plot_profile-when-un-checked: true
+        hide-skip_plot_fingerprint-when-un-checked: true
+        hide-skip_spp-when-un-checked: true
+        hide-skip_deseq2_qc-when-un-checked: true
+        hide-skip_igv-when-un-checked: true
+        hide-skip_multiqc-when-un-checked: true
+        hide-skip_qc-when-un-checked: true
+    help: "Options to skip various steps within the workflow."
+
+  skip_fastqc:
+    label: "skip_fastqc"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip FastQC."
+
+  skip_picard_metrics:
+    label: "skip_picard_metrics"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip Picard CollectMultipleMetrics."
+
+  skip_preseq:
+    label: "skip_preseq"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip Preseq."
+
+  deseq2_vst:
+    label: "deseq2_vst"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Use vst transformation instead of rlog with DESeq2."
+
+  skip_plot_profile:
+    label: "skip_plot_profile"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip deepTools plotProfile."
+
+  skip_plot_fingerprint:
+    label: "skip_plot_fingerprint"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip deepTools plotFingerprint."
+
+  skip_spp:
+    label: "skip_spp"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip Phantompeakqualtools."
+
+  skip_deseq2_qc:
+    label: "skip_deseq2_qc"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip DESeq2 PCA and heatmap plotting."
+
+  skip_igv:
+    label: "skip_igv"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip IGV."
+
+  skip_multiqc:
+    label: "skip_multiqc"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip MultiQC."
+
+  skip_qc:
+    label: "skip_qc"
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: "Skip all QC steps except for MultiQC."
+
+
+form:
+  - bc_num_hours
+  - executor
+  - partition
+  - num_cores
+  - num_memory
+  - workdir
+  - input_output_options
+  - input
+  - fragment_size
+  - seq_center
+  - read_length
+  - outdir
+  - multiqc_title
+  - reference_genome_options
+  - genome
+  - fasta
+  - gtf
+  - gff
+  - bwa_index
+  - bowtie2_index
+  - chromap_index
+  - star_index
+  - gene_bed
+  - macs_gsize
+  - blacklist
+  - save_reference
+  - adapter_trimming_options
+  - clip_r1
+  - clip_r2
+  - three_prime_clip_r1
+  - three_prime_clip_r2
+  - trim_nextseq
+  - skip_trimming
+  - save_trimmed
+  - alignment_options
+  - aligner
+  - keep_dups
+  - keep_multi_map
+  - bwa_min_score
+  - save_align_intermeds
+  - save_unaligned
+  - peak_calling_options
+  - narrow_peak
+  - broad_cutoff
+  - macs_fdr
+  - macs_pvalue
+  - min_reps_consensus
+  - save_macs_pileup
+  - skip_peak_qc
+  - skip_peak_annotation
+  - skip_consensus_peaks
+  - process_skipping_options
+  - skip_fastqc
+  - skip_picard_metrics
+  - skip_preseq
+  - deseq2_vst
+  - skip_plot_profile
+  - skip_plot_fingerprint
+  - skip_spp
+  - skip_deseq2_qc
+  - skip_igv
+  - skip_multiqc
+  - skip_qc
+  - tower_access_token
+  - resume
