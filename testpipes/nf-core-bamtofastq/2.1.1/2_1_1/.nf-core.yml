@@ -1,4 +1,0 @@
-repository_type: pipeline
-lint:
-  files_unchanged:
-    - .github/CONTRIBUTING.md

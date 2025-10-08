@@ -1,202 +1,275 @@
-#!/bin/bash
-set -euo pipefail
-set +x
-IFS=$'\n\t'
+#!/usr/bin/env bash
+# --------------------------------------------------------------
+# nf-ood-mod.sh – Convert nf-core pipelines into OOD apps and Lmod modules
+# --------------------------------------------------------------
 
+set -euo pipefail        # abort on error, unset variable, or failed pipe
+set +x                   # turn off trace (remove/comment if you want debugging)
+IFS=$'\n\t'              # sane field separator for loops over file names
+
+# --------------------------------------------------------------
+# Helper: print an error message and exit
+# --------------------------------------------------------------
+die() {
+    printf 'ERROR: %s\n' "$1" >&2
+    exit 1
+}
+
+# -------------------------------------------------
+# locate_schema <pipeline> <version>
+# returns (echoes) the path to nextflow_schema.json or dies
+# -------------------------------------------------
+locate_schema() {
+    local pipeline=$1
+    local version=$2
+
+    local underscore="${version//./_}"
+
+    # candidate list (ordered by likeliness)
+    local candidates=(
+        "${input_dir}/${pipeline}/${version}/${underscore}/nextflow_schema.json"  # flat with underscore subdir
+        "${input_dir}/${pipeline}/${version}/nextflow_schema.json"               # version dir directly
+        "${input_dir}/${pipeline}/${underscore}/nextflow_schema.json"            # underscore dir directly
+        "${input_dir}/${pipeline}/nextflow_schema.json"                          # pipeline root
+    )
+
+    local candidate
+    for candidate in "${candidates[@]}"; do
+        if [[ -f "$candidate" ]]; then
+            printf '%s' "$candidate"
+            return 0
+        fi
+    done
+
+    die "Cannot find nextflow_schema.json for $pipeline $version (looked in: ${candidates[*]})"
+}
+
+# --------------------------------------------------------------
+# generate_module – create a single Lmod module file from a template
+# --------------------------------------------------------------
 generate_module() {
-    # generate_module $Pipeline $Version $lmod_out
-
     local pipeline=$1
     local ver=$2
     local output=$3
-    converted_version=$(echo "$ver" | sed 's/\./_/g')
-    # Initialize description and homepage variables
-    local homepage=""
+
+    local converted_version
+    converted_version=$(printf '%s' "$ver" | tr '.' '_')
+
+    local homepage=""       # (optional) could be used in the template
     local description=""
 
-    # Ensure template file exists
     local template_file="${TEMPLATE_DIR}/lmod_template.lua"
-    if [[ ! -f "$template_file" ]]; then
-        echo "Error: Template file '$template_file' not found."
-        return 1
-    fi
+    [[ -f "$template_file" ]] || die "Template file '$template_file' not found."
 
-    # Substitute placeholders in the template
-    local modulefile_content=$(sed -e "s|\${PIPELINE}|$pipeline|g" \
-                                   -e "s|\${VERSION}|$ver|g" \
-                                   -e "s|\${VERSION_}|$converted_version|g" \
-                                   "$template_file")
+    local modulefile_content
+    modulefile_content=$(sed -e "s|\${PIPELINE}|$pipeline|g" \
+                              -e "s|\${VERSION}|$ver|g" \
+                              -e "s|\${VERSION_}|$converted_version|g" \
+                              "$template_file")
 
-    # Output the generated modulefile
-    echo "$modulefile_content" > "$output" # Added quotes to $output
+    printf '%s\n' "$modulefile_content" > "$output"
 }
 
-
+# --------------------------------------------------------------
+# Determine the repository root (used for locating templates, etc.)
+# --------------------------------------------------------------
 parentfolder=$(git rev-parse --show-toplevel)
-input=""
-output=""
-TEMPLATE_DIR="$parentfolder/module_templates"
 
+# Default (empty) values for the command-line options
+input_dir=""
+output_dir=""
+module_outdir=""
+
+TEMPLATE_DIR="${parentfolder}/module_templates"
+
+# --------------------------------------------------------------
+# Parse command-line arguments
+# --------------------------------------------------------------
 while [[ $# -gt 0 ]]; do
-        case "$1" in
-                -i|--input)
-                        input_dir=$2
-                        shift 2
-                        ;;
-                -o|--output)
-                        output_dir=$2
-                        shift 2
-                        ;;
-                -m|--module)
-                        module_outdir=$2
-                        shift 2
-                        ;;
-                -h|--help)
-                        echo "Usage: nf-ood-mod -i/--input input -o/--output output -m/--module module_outdir"
-                        echo "This script will convert nf-core pipelines into OOD apps."
-                        echo "Arguments:"
-                        echo " -i/--input input   - The input directory where nf-core pipelines are stored"
-                        echo " -o/--output output  - The output directory where the OOD apps will be generated"
-                        echo " -m/--module module_outdir - The output directory where the module files will be generated"
-                        exit 0
-                        ;;
-                *)
-                        echo "Invalid argument: $1"
-                        exit 1
-                        ;;
-        esac
+    case "$1" in
+        -i|--input)   input_dir=$2; shift 2 ;;
+        -o|--output)  output_dir=$2; shift 2 ;;
+        -m|--module)  module_outdir=$2; shift 2 ;;
+        -h|--help)
+            cat <<EOF
+Usage: $(basename "$0") -i INPUT_DIR -o OUTPUT_DIR -m MODULE_OUTDIR
+Convert nf-core pipelines into OOD apps.
+
+  -i, --input   Directory that contains the nf-core pipelines
+  -o, --output  Directory where the generated OOD apps will be placed
+  -m, --module  Directory where the generated Lmod module files will be placed
+  -h, --help    Show this help message and exit
+EOF
+            exit 0
+            ;;
+        *) die "Invalid argument: $1" ;;
+    esac
 done
 
-# Remove existing output folder if it exists
-if [ -d "$output_dir" ]; then
-        echo "The output folder already exists. Do you want to continue and delete it? (y/n)"
-        read answer
-        if [ "$answer" == "y" ]; then
-                echo "Deleting the output folder..."
-                rm -r "$output_dir"
-                mkdir -p "$output_dir"
+# --------------------------------------------------------------
+# Validate mandatory arguments
+# --------------------------------------------------------------
+[[ -n "$input_dir" ]]   || die "Missing required argument: --input"
+[[ -n "$output_dir" ]]  || die "Missing required argument: --output"
+[[ -n "$module_outdir" ]] || die "Missing required argument: --module"
+
+# --------------------------------------------------------------
+# Create (or optionally delete) the output directories
+# --------------------------------------------------------------
+prepare_dir() {
+    local dir=$1
+    local description=$2   # e.g. "output" or "module"
+
+    if [[ -d "$dir" ]]; then
+        printf "The %s folder already exists. Delete it and start fresh? (y/n) " "$description"
+        read -r answer
+        if [[ $answer == [Yy] ]]; then
+            printf "Deleting existing %s folder…\n" "$description"
+            rm -rf "$dir"
         else
-                echo "Will use the existing output folder."
+            printf "Will reuse the existing %s folder.\n" "$description"
         fi
-else
-        mkdir -p "$output_dir" # Changed mkdir to mkdir -p
-fi
-
-# Remove existing module output folder if it exists
-if [ -d "$module_outdir" ]; then
-        echo "The module output folder already exists. Do you want to continue and delete it? (y/n)"
-        read answer
-        if [ "$answer" == "y" ]; then
-                echo "Deleting the module output folder..."
-                rm -r "$module_outdir"
-                mkdir -p "$module_outdir"
-        else
-                echo "Will use the existing module output folder."
-        fi
-else
-        mkdir -p "$module_outdir" # Changed mkdir to mkdir -p
-fi
-
-# Get list of pipelines in the input folder
-pipelines=$(ls "$input_dir")
-
-
-# Function to generate OOD app and module for a given pipeline version
-generate_pipeline() {
-    local PIPELINE=$1
-    local VERSION=$2
-    local CONVERTED_VERSION="${VERSION//./-}"
-    echo "Generating OOD app and modules for $PIPELINE v$VERSION"
-
-    # Copy template files
-    cp -r "${parentfolder}/nf-core_template" "${output_dir}/${PIPELINE}-${CONVERTED_VERSION}"
-
-    # Set input and output file paths
-    local OUTDIR=${output_dir}/${PIPELINE}-${CONVERTED_VERSION}
-    inputJson="${input_dir}/${PIPELINE}/${VERSION}/$(echo "${VERSION}" | tr '.' '_')/nextflow_schema.json"
-    formYmlOut="${OUTDIR}/form.yml.erb"
-    formJsOut="${OUTDIR}/form.js"
-    templateFile="${OUTDIR}/template.erb"
-    paramsJsonOut="${OUTDIR}/template/nf-params.json.erb"
-    # Run json2ood.py script
-    python "${parentfolder}/json2ood.py" "$inputJson" "$formYmlOut" "$templateFile" "$paramsJsonOut" "$formJsOut"
-
-    # Replace placeholders in template files
-    replace_placeholders "$PIPELINE" "$VERSION" "${OUTDIR}" "$formYmlOut" "$paramsJsonOut" # Added formYmlOut and paramsJsonOut
-    mkdir -p "${module_outdir}/${PIPELINE}"
-    generate_module "$PIPELINE" "$VERSION" "${module_outdir}/${PIPELINE}/${VERSION}.lua" #call generate_module
-}
-
-# Function to perform sed replacements
-perform_sed_replacement() {
-    local file="$1"
-    local pattern="$2"
-    local replacement="$3"
-    if [ ! -f "$file" ]; then
-        echo "File not found: $file" >&2
-        exit 1
     fi
-    sed -i -e "s#$pattern#$replacement#g" "$file"
+    mkdir -p "$dir"
 }
 
-# Function to replace placeholders in template files
+prepare_dir "$output_dir"   "output"
+prepare_dir "$module_outdir" "module"
+
+# --------------------------------------------------------------
+# Get the list of pipelines present in the input directory
+# uses find for robustness
+# --------------------------------------------------------------
+[[ -d "$input_dir" ]] || die "Input directory '$input_dir' does not exist."
+
+mapfile -t pipelines < <(find "$input_dir" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort)
+
+# --------------------------------------------------------------
+# perform_sed_replacement – safe wrapper around `sed -i`
+# Escapes delimiter characters in the replacement to avoid breaking sed.
+# --------------------------------------------------------------
+perform_sed_replacement() {
+    local file=$1
+    local pattern=$2
+    local replacement=$3
+
+    [[ -f "$file" ]] || die "File not found: $file"
+
+    # escape delimiter @ and backslashes and ampersands in replacement
+    local esc_replacement
+    esc_replacement=$(printf '%s' "$replacement" | sed -e 's/[\/&@]/\\&/g' -e 's/\\/\\\\/g')
+
+    sed -i -e "s@${pattern}@${esc_replacement}@g" "$file"
+}
+
+# --------------------------------------------------------------
+# replace_placeholders – substitute various tokens inside the generated OOD files
+# Now accepts templateFile path as a 6th parameter for cleanup
+# --------------------------------------------------------------
 replace_placeholders() {
     local PIPELINE=$1
     local VERSION=$2
+    local OUTDIR=$3
+    local FORM_YML=$4
+    local PARAMS_JSON=$5
+    local TEMPLATE_FILE=${6:-}   # optional
+
     local CONVERTED_VERSION="${VERSION//./_}"
     local COMBINED_VERSION="${VERSION}/${CONVERTED_VERSION}"
-    local OUTDIR=$3
     local MYAPP="${OUTDIR##*/}"
-    local formYmlOut=$4 # Added
-    local paramsJsonOut=$5 # Added
 
-    ## Group pipelines into subcategories
+    # Determine a subcategory for the manifest (used by OOD)
     case "$PIPELINE" in
-    nf-core-rnaseq | nf-core-differentialabundance)
-    SUBCATEGORY="rnaseq"
-    ;;
-    nf-core-pangenome | nf-core-sarek)
-    SUBCATEGORY="genomics"
-    ;;
-    nf-core-fetchngs)
-    SUBCATEGORY="ngs"
-    ;;
-    nf-core-ampliseq | nf-core-taxprofiler)
-    SUBCATEGORY="metagenomics"
-    ;;
-    nf-core-*)
-    SUBCATEGORY="${PIPELINE#nf-core-}"
-    ;;
-    *)
-    SUBCATEGORY="unknown"
-    ;;
+        nf-core-rnaseq|nf-core-differentialabundance|nf-core-denovotranscript)
+            SUBCATEGORY="rnaseq" ;;
+        nf-core-pangenome|nf-core-sarek|nf-core-funcscan|nf-core-proteinfamilies)
+            SUBCATEGORY="genomics" ;;
+        nf-core-fetchngs) SUBCATEGORY="ngs" ;;
+        nf-core-ampliseq|nf-core-taxprofiler|nf-core-mag)
+            SUBCATEGORY="metagenomics" ;;
+        nf-core-*) SUBCATEGORY="${PIPELINE#nf-core-}" ;;
+        *) SUBCATEGORY="unknown" ;;
     esac
-    # Perform substitutions
-    perform_sed_replacement "${OUTDIR}/submit.yml.erb" "PIPELINE" "${PIPELINE}"
-    perform_sed_replacement "${OUTDIR}/manifest.yml" "PIPELINE" "${PIPELINE##*-}"
-    perform_sed_replacement "${OUTDIR}/manifest.yml" "VERSION" "${VERSION}"
+
+    # Apply the replacements
+    perform_sed_replacement "${OUTDIR}/submit.yml.erb"    "PIPELINE"   "$PIPELINE"
+    perform_sed_replacement "${OUTDIR}/manifest.yml"    "PIPELINE"   "${PIPELINE##*-}"
+    perform_sed_replacement "${OUTDIR}/manifest.yml"    "VERSION"    "$VERSION"
     perform_sed_replacement "${OUTDIR}/template/script.sh.erb" "VERSION" "${COMBINED_VERSION}"
-    perform_sed_replacement "${OUTDIR}/template/script.sh.erb" "PIPELINE" "${PIPELINE}"
-    perform_sed_replacement "$formYmlOut" "PIPELINE" "${PIPELINE}"
-    perform_sed_replacement "${OUTDIR}/manifest.yml" "MYAPP" "${MYAPP}"
-    perform_sed_replacement "${OUTDIR}/manifest.yml" "SUBCATEGORY" "${SUBCATEGORY}"
-    sed -i '/- igenomes_base/d' "$formYmlOut"
-    sed -i "s/value: True/value: true/g" "$formYmlOut"
-    sed -i "s/value: False/value: false/g" "$formYmlOut"
+    perform_sed_replacement "${OUTDIR}/template/script.sh.erb" "PIPELINE" "$PIPELINE"
+    perform_sed_replacement "$FORM_YML"                  "PIPELINE"   "$PIPELINE"
+    perform_sed_replacement "${OUTDIR}/manifest.yml"    "MYAPP"      "$MYAPP"
+    perform_sed_replacement "${OUTDIR}/manifest.yml"    "SUBCATEGORY" "$SUBCATEGORY"
 
-    # TODO: update igenomes_base
-    sed -i -e 's$<%= context.igenomes_base %>$/cluster/tufts/biocontainers/datasets/igenomes$' "$paramsJsonOut"
+    # Small clean-ups
+    sed -i '/- igenomes_base/d' "$FORM_YML"
+    sed -i "s/value: True/value: true/g"  "$FORM_YML"
+    sed -i "s/value: False/value: false/g" "$FORM_YML"
 
-    # Remove template file
-    rm "$templateFile" # Assuming this is defined elsewhere
+    # Update the default value for `igenomes_base` inside the params JSON
+    sed -i -e "s|\<%= context\.igenomes_base %\>|/cluster/tufts/biocontainers/datasets/igenomes|g" "$PARAMS_JSON"
+
+    # Remove the generic template file if provided
+    if [[ -n "$TEMPLATE_FILE" && -f "$TEMPLATE_FILE" ]]; then
+        rm -f "$TEMPLATE_FILE"
+    fi
 }
 
-# Main loop to process each pipeline and version
-for PIPELINE in $pipelines; do
-    echo "Generating OOD app and modules for $PIPELINE"
+# --------------------------------------------------------------
+# generate_pipeline – build an OOD app and its Lmod module for one pipeline/version
+# --------------------------------------------------------------
+generate_pipeline() {
+    local PIPELINE=$1
+    local VERSION=$2
 
-    VersionArray=($(ls -1 "${input_dir}/${PIPELINE}/")) # Corrected input dir
-    for version in "${VersionArray[@]}"; do
-        generate_pipeline "$PIPELINE" "$version"
+    printf "Generating OOD app and modules for %s v%s\n" "$PIPELINE" "$VERSION"
+
+    # -----------------------------------------------------------------
+    # 1️⃣  Determine where the schema lives
+    # -----------------------------------------------------------------
+    local inputJson
+    inputJson=$(locate_schema "$PIPELINE" "$VERSION")   # will echo path or die
+
+    # -----------------------------------------------------------------
+    # 2️⃣  Rest of the function (unchanged, just use $inputJson)
+    # -----------------------------------------------------------------
+    local CONVERTED_VERSION="${VERSION//./-}"
+    local OUTDIR="${output_dir}/${PIPELINE}-${CONVERTED_VERSION}"
+    cp -r "${parentfolder}/nfcore_ood_template" "$OUTDIR"
+
+    local formYmlOut="${OUTDIR}/form.yml.erb"
+    local templateFile="${OUTDIR}/template.erb"
+    local paramsJsonOut="${OUTDIR}/template/nf-params.json.erb"
+
+    python "${parentfolder}/json2ood.py" "$inputJson" "$formYmlOut" "$templateFile" "$paramsJsonOut"
+
+    replace_placeholders "$PIPELINE" "$VERSION" "$OUTDIR" "$formYmlOut" "$paramsJsonOut" "$templateFile"
+
+    mkdir -p "${module_outdir}/${PIPELINE}"
+    generate_module "$PIPELINE" "$VERSION" "${module_outdir}/${PIPELINE}/${VERSION}.lua"
+}
+
+# --------------------------------------------------------------
+# MAIN – iterate over every pipeline and every version it contains
+# uses find() for versions too
+# --------------------------------------------------------------
+for PIPELINE in "${pipelines[@]}"; do
+    printf "Processing pipeline: %s\n" "$PIPELINE"
+
+    # List the version directories for this pipeline (ignore hidden dirs)
+    mapfile -t version_array < <(find "${input_dir}/${PIPELINE}" -mindepth 1 -maxdepth 1 -type d ! -name '.*' -printf '%f\n' | sort)
+
+    for VERSION in "${version_array[@]}"; do
+        # Skip internal folders or malformed version names (e.g., .nextflow, _work)
+        if [[ ! "$VERSION" =~ ^[0-9] ]]; then
+            printf "Skipping non-version folder: %s/%s\n" "$PIPELINE" "$VERSION"
+            continue
+        fi
+
+        generate_pipeline "$PIPELINE" "$VERSION"
     done
 done
+
+# --------------------------------------------------------------
+# End of script
+# --------------------------------------------------------------
