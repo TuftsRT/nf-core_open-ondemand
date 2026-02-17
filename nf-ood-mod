@@ -194,6 +194,8 @@ replace_placeholders() {
     # Apply the replacements
     perform_sed_replacement "${OUTDIR}/submit.yml.erb"    "PIPELINE"   "$PIPELINE"
     perform_sed_replacement "${OUTDIR}/manifest.yml"    "PIPELINE"   "${PIPELINE##*-}"
+    perform_sed_replacement "$FORM_YML"    "PIPELINE"   "${PIPELINE##*-}"
+    perform_sed_replacement "$FORM_YML"    "VERSION"    "$VERSION"
     perform_sed_replacement "${OUTDIR}/manifest.yml"    "VERSION"    "$VERSION"
     perform_sed_replacement "${OUTDIR}/template/script.sh.erb" "VERSION" "${COMBINED_VERSION}"
     perform_sed_replacement "${OUTDIR}/template/script.sh.erb" "PIPELINE" "$PIPELINE"
@@ -238,7 +240,7 @@ generate_pipeline() {
     cp -r "${parentfolder}/nfcore_ood_template" "$OUTDIR"
 
     local formYmlOut="${OUTDIR}/form.yml.erb"
-    local templateFile="${OUTDIR}/template.erb"
+    local templateFile="${OUTDIR}/form.template.erb"
     local paramsJsonOut="${OUTDIR}/template/nf-params.json.erb"
 
     python "${parentfolder}/json2ood.py" "$inputJson" "$formYmlOut" "$templateFile" "$paramsJsonOut"
