@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><%= CGI.escapeHTML(@title) %></title>
+    <style>
+      :root {
+        --bg: #f6f7f9;
+        --card: #ffffff;
+        --text: #16202a;
+        --muted: #5f6b77;
+        --border: #d8e0e7;
+        --brand: #005f73;
+        --brand-soft: #e6f2f5;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: "Source Sans Pro", "Helvetica Neue", Arial, sans-serif;
+        color: var(--text);
+        background: linear-gradient(180deg, #eff3f7 0%, var(--bg) 100%);
+      }
+
+      .container {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 32px 20px 48px;
+      }
+
+      h1 {
+        margin: 0 0 8px;
+        font-size: 2rem;
+      }
+
+      .lead {
+        margin: 0 0 28px;
+        color: var(--muted);
+        font-size: 1.05rem;
+        line-height: 1.5;
+      }
+
+      h2 {
+        margin: 28px 0 12px;
+        font-size: 1.3rem;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 14px;
+      }
+
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .card h3 {
+        margin: 0;
+        font-size: 1.06rem;
+      }
+
+      .actions {
+        margin-top: auto;
+        display: flex;
+        gap: 10px;
+        flex-direction: column;
+      }
+
+      .version-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .btn {
+        display: inline-block;
+        text-decoration: none;
+        border-radius: 8px;
+        padding: 8px 12px;
+        font-weight: 600;
+        border: 1px solid transparent;
+      }
+
+      .btn-launch {
+        background: var(--brand);
+        color: #fff;
+      }
+
+      .btn-secondary {
+        border-color: var(--border);
+        color: var(--text);
+        background: #fff;
+      }
+
+      .empty {
+        border: 1px dashed var(--border);
+        border-radius: 10px;
+        background: #fff;
+        padding: 14px;
+        color: var(--muted);
+      }
+    </style>
+  </head>
+  <body>
+    <main class="container">
+      <h1><%= CGI.escapeHTML(@title) %></h1>
+      <p class="lead"><%= CGI.escapeHTML(@description) %></p>
+
+      <% if @groups.empty? %>
+        <div class="empty">
+          No pipelines are configured yet. Add entries to the catalog and reload this page.
+        </div>
+      <% end %>
+
+      <% @groups.each do |group| %>
+        <section>
+          <h2><%= CGI.escapeHTML(group[:name]) %></h2>
+          <div class="grid">
+            <% group[:pipelines].each do |pipeline| %>
+              <article class="card">
+                <h3><%= CGI.escapeHTML(pipeline[:title]) %></h3>
+
+                <div class="actions">
+                  <div class="version-links">
+                    <% pipeline[:versions].each do |version| %>
+                      <a class="btn btn-launch" href="<%= launch_url(version[:app_name]) %>"><%= CGI.escapeHTML(version[:label]) %></a>
+                    <% end %>
+                  </div>
+                </div>
+              </article>
+            <% end %>
+          </div>
+        </section>
+      <% end %>
+    </main>
+  </body>
+</html>

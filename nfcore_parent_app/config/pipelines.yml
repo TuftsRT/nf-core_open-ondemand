@@ -1,0 +1,30 @@
+---
+title: nf-core Pipelines
+description: >
+  Choose a pipeline based on your project goal. Each launch button opens the
+  pipeline-specific form.
+groups:
+  - name: Recommended for Beginners
+    pipelines:
+      - title: RNA-seq
+        summary: Differential expression analysis for bulk RNA sequencing.
+        tags: [RNA, Beginner]
+        docs_url: https://nf-co.re/rnaseq
+        versions:
+          - app_name: nf-core-rnaseq-3-21-0
+            label: v3.21.0
+          - app_name: nf-core-rnaseq-3-22-2
+            label: v3.22.2
+      - app_name: nf-core-sarek-3-5-1
+        title: Sarek (Variant Calling)
+        summary: Germline and somatic variant calling workflows.
+        tags: [DNA, Beginner]
+        docs_url: https://nf-co.re/sarek
+
+  - name: Metagenomics
+    pipelines:
+      - app_name: nf-core-taxprofiler-1-2-3
+        title: Taxprofiler
+        summary: Taxonomic profiling from metagenomics samples.
+        tags: [Metagenomics, Intermediate]
+        docs_url: https://nf-co.re/taxprofiler
