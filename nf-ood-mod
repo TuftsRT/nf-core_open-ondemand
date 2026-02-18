@@ -178,15 +178,53 @@ replace_placeholders() {
     local COMBINED_VERSION="${VERSION}/${CONVERTED_VERSION}"
     local MYAPP="${OUTDIR##*/}"
 
-    # Determine a subcategory for the manifest (used by OOD)
+    # Determine a subcategory for the manifest (used by OOD).
+    # Updated from nf-co.re/pipelines.json (144 pipelines, 2026-02-18).
     case "$PIPELINE" in
-        nf-core-rnaseq|nf-core-differentialabundance|nf-core-denovotranscript)
+        nf-core-abotyper|nf-core-diseasemodulediscovery|nf-core-drugresponseeval|nf-core-longraredisease|nf-core-meerpipe|\
+        nf-core-oncoanalyser|nf-core-pacsomatic|nf-core-raredisease|nf-core-tumourevo|nf-core-variantprioritization)
+            SUBCATEGORY="clinical" ;;
+        nf-core-drop|nf-core-hadge|nf-core-marsseq|nf-core-mcmicro|nf-core-molkart|\
+        nf-core-panoramaseq|nf-core-pixelator|nf-core-scdownstream|nf-core-scflow|nf-core-scnanoseq|\
+        nf-core-scrnaseq|nf-core-smartseq2|nf-core-sopa|nf-core-spatialvi|nf-core-spatialxe)
+            SUBCATEGORY="singlecell" ;;
+        nf-core-alleleexpression|nf-core-cageseq|nf-core-circrna|nf-core-clipseq|nf-core-denovotranscript|\
+        nf-core-differentialabundance|nf-core-dualrnaseq|nf-core-evexplorer|nf-core-isoseq|nf-core-lncpipe|\
+        nf-core-nanostring|nf-core-nascent|nf-core-ribomsqc|nf-core-riboseq|nf-core-rnafusion|\
+        nf-core-rnaseq|nf-core-rnasplice|nf-core-rnavar|nf-core-slamseq|nf-core-smrnaseq|\
+        nf-core-spinningjenny|nf-core-tfactivity)
             SUBCATEGORY="rnaseq" ;;
-        nf-core-pangenome|nf-core-sarek|nf-core-funcscan|nf-core-proteinfamilies)
-            SUBCATEGORY="genomics" ;;
-        nf-core-fetchngs) SUBCATEGORY="ngs" ;;
-        nf-core-ampliseq|nf-core-taxprofiler|nf-core-mag)
+        nf-core-atacseq|nf-core-callingcards|nf-core-chipseq|nf-core-cutandrun|nf-core-hic|\
+        nf-core-hicar|nf-core-methylarray|nf-core-methylong|nf-core-methylseq|nf-core-mnaseseq|\
+        nf-core-sammyseq|nf-core-ssds)
+            SUBCATEGORY="epigenomics" ;;
+        nf-core-ampliseq|nf-core-coproid|nf-core-createtaxdb|nf-core-detaxizer|nf-core-eager|\
+        nf-core-funcscan|nf-core-mag|nf-core-magmap|nf-core-metapep|nf-core-metatdenovo|\
+        nf-core-pathogensurveillance|nf-core-phageannotator|nf-core-proteinfamilies|nf-core-taxprofiler|nf-core-troughgraph|\
+        nf-core-vipr|nf-core-viralintegration|nf-core-viralmetagenome|nf-core-viralrecon)
             SUBCATEGORY="metagenomics" ;;
+        nf-core-ddamsproteomics|nf-core-diaproteomics|nf-core-mhcquant|nf-core-proteinannotator|nf-core-proteinfold|\
+        nf-core-proteogenomicsdb|nf-core-proteomicslfq|nf-core-quantms)
+            SUBCATEGORY="proteomics" ;;
+        nf-core-metaboigniter)
+            SUBCATEGORY="metabolomics" ;;
+        nf-core-cellpainting|nf-core-imcyto|nf-core-liverctanalysis|nf-core-lsmquant|nf-core-rangeland)
+            SUBCATEGORY="imaging" ;;
+        nf-core-airrflow|nf-core-epitopeprediction|nf-core-hlatyping)
+            SUBCATEGORY="immunology" ;;
+        nf-core-bacass|nf-core-bactmap|nf-core-circdna|nf-core-createpanelrefs|nf-core-crisprseq|\
+        nf-core-crisprvar|nf-core-deepmodeloptim|nf-core-deepmutscan|nf-core-deepvariant|nf-core-denovohybrid|\
+        nf-core-exoseq|nf-core-genomeannotator|nf-core-genomeassembler|nf-core-genomeqc|nf-core-genomeskim|\
+        nf-core-genomicrelatedness|nf-core-gwas|nf-core-hgtseq|nf-core-mitodetect|nf-core-multiplesequencealign|\
+        nf-core-neutronstar|nf-core-omicsgenetraitassociation|nf-core-pacvar|nf-core-pairgenomealign|nf-core-pangenome|\
+        nf-core-phaseimpute|nf-core-phyloplace|nf-core-radseq|nf-core-rarevariantburden|nf-core-references|\
+        nf-core-reportho|nf-core-rnadnavar|nf-core-sarek|nf-core-seqinspector|nf-core-stableexpression|\
+        nf-core-tbanalyzer|nf-core-variantbenchmarking|nf-core-variantcatalogue)
+            SUBCATEGORY="genomics" ;;
+        nf-core-bamtofastq|nf-core-datasync|nf-core-demo|nf-core-demultiplex|nf-core-fastqrepair|\
+        nf-core-fastquorum|nf-core-fetchngs|nf-core-kmermaid|nf-core-nanoseq|nf-core-readsimulator|\
+        nf-core-seqsubmit)
+            SUBCATEGORY="utility" ;;
         nf-core-*) SUBCATEGORY="${PIPELINE#nf-core-}" ;;
         *) SUBCATEGORY="unknown" ;;
     esac

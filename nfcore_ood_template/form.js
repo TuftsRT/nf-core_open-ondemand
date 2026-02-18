@@ -1,227 +1,214 @@
-const iconMap = {
-  "number of hours": "fa fa-fw me-2 fa-regular fa-clock",
-  "working directory": "fa fa-fw me-2 fa-folder-open svelte-1jrxhr2",
-  "number of cores": "fa fa-fw me-2 fas fa-regular fa-microchip",
-  "amount of memory (gb)": " fa fa-fw me-2 fas fa-microchip svelte-1jrxhr2",
-  "cellranger options": " fa fa-fw me-2 fas fa-chart-bar svelte-1jrxhr2",
-  "cellranger arc options": " fa fa-fw me-2 fas fa-layer-group svelte-1jrxhr2",
-  "cellranger multi options": " fa fa-fw me-2 fas fa-cubes svelte-1jrxhr2",
-  "which nextflow executor to use?": "fa fa-fw me-2 fas fa-regular fa-gears",
-  partition: "fa fa-fw me-2 fas fa-duotone fa-solid fa-server",
-  resume: "fa fa-fw me-2 fas fa-play",
-  "skip steps": "fa fa-fw me-2 fas fa-fast-forward svelte-1jrxhr2",
-  "skip pipeline steps": "fa fa-fw me-2 fas fa-fast-forward svelte-1jrxhr2",
-  "process skipping options":
-    "fa fa-fw me-2 fas fa-fast-forward svelte-1jrxhr2",
-  "input/output options": "fa fa-fw me-2 fas fa-terminal svelte-1jrxhr2",
-  "read trimming options": "fa fa-fw me-2 fas fa-cut svelte-1jrxhr2",
-  "adapter trimming options": "fa fa-fw me-2 fas fa-cut svelte-1jrxhr2",
-  "adapter trimming": "fa fa-fw me-2 fas fa-cut svelte-1jrxhr2",
-  "read filtering options": "fa fa-fw me-2 fas fa-trash-alt svelte-1jrxhr2",
-  "umi options": "fa fa-fw me-2 fas fa-barcode svelte-1jrxhr2",
-  "alignment compression options":
-    "fa fa-fw me-2 fas fa-map-signs svelte-1jrxhr2",
-  "alignment options": "fa fa-fw me-2 fas fa-braille svelte-1jrxhr2",
-  "reference genome options": "fa fa-fw me-2 fas fa-dna svelte-1jrxhr2",
-  "generic options": "fa fa-fw me-2 fas fa-file-import svelte-1jrxhr2",
-  "fastq options": "fa fa-fw me-2 fas fa-file svelte-1jrxhr2",
-  "cell barcode options": "fa fa-fw me-2 fas fa-microscope svelte-1jrxhr2",
-  mapping: "fa fa-fw me-2 far fa-map svelte-1jrxhr2",
-  "analysis options": "fa fa-fw me-2 fas fa-search svelte-1jrxhr2",
-  "quality control": "fa fa-fw me-2 fas fa-check-circle svelter-1jrxhr2",
-  "quality control options":
-    "fa fa-fw me-2 fas fa-check-circle svelter-1jrxhr2",
-  "peak calling options": "fa fa-fw me-2 fas fa-chart-area svelte-1jrxhr2",
-  "preprocessing general qc options":
-    "fa fa-fw me-2 fas fa-users-cog svelte-1jrxhr2",
-  "preprocessing short-read qc options":
-    "fa fa-fw me-2 fas fa-compress-alt svelte-1jrxhr2",
-  "preprocessing long-read qc options":
-    "fa fa-fw me-2 fas fa-compress-alt svelte-1jrxhr2",
-  "redundancy estimation": "fa fa-fw me-2 fas fa-chart-line svelte-1jrxhr2",
-  "preprocessing host removal options":
-    "fa fa-fw me-2 fas fa-user-times svelte-1jrxhr2",
-  "preprocessing run merging options":
-    "fa fa-fw me-2 fas fa-clipboard-check svelte-1jrxhr2",
-  "profiling options": "fa fa-fw me-2 fas fa-align-center svelte-1jrxhr2",
-  "postprocessing and visualisation options":
-    "fa fa-fw me-2 fas fa-chart-line svelte-1jrxhr2",
-  "save intermediate files": "fa fa-fw me-2 fas fa-save svelte-1jrxhr2",
-  "special library options":
-    "fa fa-fw me-2 fas fa-prescription-bottle svelte-1jrxhr2",
-  "bismark options": "fa fa-fw me-2 fas fa-circle svelte-1jrxhr2",
-  "bwa-meth options": "fa fa-fw me-2 far fa-circle svelte-1jrxhr2",
-  "qualimap options": "fa fa-fw me-2 fas fa-chart-pie svelte-1jrxhr2",
-  "targeted sequencing analysis options":
-    "fa fa-fw me-2 fas fa-bullseye svelte-1jrxhr2",
-  "run pipeline steps": "fa fa-fw me-2 fas fa-fast-forward svelte-1jrxhr2",
-  "preprocessing of alignment": "fa fa-fw me-2 fas fa-toolbox svelte-1jrxhr2",
-  "postprocessing of alignment": "fa fa-fw me-2 fas fa-toolbox svelte-1jrxhr2",
-  "variant calling": "fa fa-fw me-2 fas fa-barcode svelte-1jrxhr2",
-  "variant filtering": "fa fa-fw me-2 fas fa-filter svelte-1jrxhr2",
-  "variant annotation": "fa fa-fw me-2 fas fa-pen-nib svelte-1jrxhr2",
-  "pipeline stage options": "fa fa-fw me-2 fas fa-cogs svelte-1jrxhr2",
-  "general reference genome options": "fa fa-fw me-2 fas fa-dna svelte-1jrxhr2",
-  "indexing options": "fa fa-fw me-2 fas fa-file-code svelte-1jrxhr2",
-  "dotplot parameters": "fa fa-fw me-2 fas fa-th svelte-1jrxhr2",
-  "mandatory arguments":
-    "fa fa-fw me-2 fas fa-exclamation-circle svelte-1jrxhr2",
-  "skip tools": "fa fa-fw me-2 fas fa-fast-forward svelte-1jrxhr2",
-  "simpleaf options": "fa fa-fw me-2 fas fa-microscope svelte-1jrxhr2",
-  "starsolo options": "fa fa-fw me-2 fas fa-star svelte-1jrxhr2",
-  "kallisto/bus options": "fa fa-fw me-2 fas fa-rainbow svelte-1jrxhr2",
-  "special library types":
-    "fa fa-fw me-2 fas fa-prescription-bottle svelte-1jrxhr2",
-  "sequencing input": "fa fa-fw me-2 fas fa-align-justify svelte-1jrxhr2",
-  "primer removal": "fa fa-fw me-2 fas fa-align-left svelte-1jrxhr2",
-  "read trimming and quality filtering":
-    "fa fa-fw me-2 fas fa-ban svelte-1jrxhr2",
-  "amplicon sequence variants(asv) calculation":
-    "fa fa-fw me-2 fas fa-braille svelte-1jrxhr2",
-  "taxonmoic database": "fa fa-fw me-2 fas fa-braille svelte-1jrxhr2",
-  "multi-region taxonomic database":
-    "fa fa-fw me-2 fas fa-braille svelte-1jrxhr2",
-  "asv filtering": "fa fa-fw me-2 fas fa-filter svelte-1jrxhr2",
-  "downstream analysis": "fa fa-fw me-2 fas fa-bacteria svelte-1jrxhr2",
-  "differential abundance analysis":
-    "fa fa-fw me-2 fas fa-bacteria svelte-1jrxhr2",
-  "pipeline summary report": "fa fa-fw me-2 fas fa-book-open svelte-1jrxhr2",
-  "skipping specified steps":
-    "fa fa-fw me-2 fas fa-fast-forward svelte-1jrxhr2",
-  "main options": "fa fa-fw me-2 fas fa-user-cogs svelte-1jrxhr2",
-  "fastq preprocessing": "fa fa-fw me-2 fas fa-cut svelte-1jrxhr2",
-  preprocessing: "fa fa-fw me-2 fas fa-plus svelte-1jrxhr2",
-  annotation: "fa fa-fw me-2 fas fa-plus svelte-1jrxhr2",
-  "optional outputs": "fa fa-fw me-2 fas fa-file-alt svelte-1jrxhr2",
-  "tower_access_token (optional)": "fa fa-fw me-2 fas fa-key svelte-1jrxhr2",
-  "Screening type activation": "fa fa-fw me-2 fa fa-list svelte-1jrxhr2",
-  "Taxonomic classification: general options":
-    "fa fa-fw me-2 fas fa-tag svelte-1jrxhr2",
-  "Taxonomic classification: MMseqs2 databases":
-    "fa fa-fw me-2 fas fa-tag svelte-1jrxhr2",
-  "Taxonomic classification: MMseqs2 taxonomy":
-    "fa fa-fw me-2 fas fa-tag svelte-1jrxhr2",
-  "Annotation: general options":
-    "fa fa-fw me-2 fas fa-file-signature svelte-1jrxhr2",
-  "Annotation: BAKTA": "fa fa-fw me-2 fas fa-file-signature svelte-1jrxhr2",
-  "Annotation: Prokka": "fa fa-fw me-2 fas fa-file-signature svelte-1jrxhr2",
-  "Annotation: Pyrodigal": "fa fa-fw me-2 fas fa-file-signature svelte-1jrxhr2",
-  "Annotation: Prodigal": "fa fa-fw me-2 fas fa-file-signature svelte-1jrxhr2",
-  "Protein Annotation: INTERPROSCAN":
-    "fa fa-fw me-2 fas fa-file-signature svelte-1jrxhr2",
-  "Database downloading options":
-    "fa fa-fw me-2 fas fa-database svelte-1jrxhr2",
-  "AMP: AMPlify": "fa fa-fw me-2 fas fa-plus svelte-1jrxhr2",
-  "AMP: ampir": "fa fa-fw me-2 fas fa-plus svelte-1jrxhr2",
-  "AMP: hmmsearch": "fa fa-fw me-2 fas fa-plus svelte-1jrxhr2",
-  "AMP: Macrel": "fa fa-fw me-2 fas fa-plus svelte-1jrxhr2",
-  "AMP: ampcombi2 parsetables": "fa fa-fw me-2 fas fa-plus svelte-1jrxhr2",
-  "AMP: ampcombi2 cluster": "fa fa-fw me-2 fas fa-plus svelte-1jrxhr2",
-  "ARG: AMRFinderPlus": "fa fa-fw me-2 fas fa-bacteria svelte-1jrxhr2",
-  "ARG: DeepARG": "fa fa-fw me-2 fas fa-bacteria svelte-1jrxhr2",
-  "ARG: fARGene": "fa fa-fw me-2 fas fa-bacteria svelte-1jrxhr2",
-  "ARG: RGI": "fa fa-fw me-2 fas fa-bacteria svelte-1jrxhr2",
-  "ARG: ABRicate": "fa fa-fw me-2 fas fa-bacteria svelte-1jrxhr2",
-  "ARG: hAMRonization": "fa fa-fw me-2 fas fa-bacteria svelte-1jrxhr2",
-  "ARG: argNorm": "fa fa-fw me-2 fas fa-bacteria svelte-1jrxhr2",
-  "BGC: general options":
-    "fa fa-fw me-2 fas fa-angle-double-right svelte-1jrxhr2",
-  "BGC: antiSMASH": "fa fa-fw me-2 fas fa-angle-double-right svelte-1jrxhr2",
-  "BGC: DeepBGC": "fa fa-fw me-2 fas fa-angle-double-right svelte-1jrxhr2",
-  "BGC: GECCO": "fa fa-fw me-2 fas fa-angle-double-right svelte-1jrxhr2",
-  "BGC: hmmsearch": "fa fa-fw me-2 fas fa-angle-double-right svelte-1jrxhr2",
-  "Features options": "fa fa-fw me-2 fas fa-sitemap svelte-1jrxhr2",
-  "Abundance values": "fa fa-fw me-2 fas fa-chart-bar svelte-1jrxhr2",
-  "Observations (e.g. samples) options":
-    "fa fa-fw me-2 fas fa-eye svelte-1jrxhr2",
-  "Affy input options": "fa fa-fw me-2 fas fa-table svelte-1jrxhr2",
-  "Proteus input options": "fa fa-fw me-2 fas fa-table svelte-1jrxhr2",
-  Filtering: "fa fa-fw me-2 fas fa-filter svelte-1jrxhr2",
-  "Exploratory analysis": "fa fa-fw me-2 fas fa-chart-area svelte-1jrxhr2",
-  "Differential analysis": "fa fa-fw me-2 fas fa-adjust svelte-1jrxhr2",
-  "DESeq2 specific options (RNA-seq only)":
-    "fa fa-fw me-2 fas fa-adjust svelte-1jrxhr2",
-  "Limma specific options (microarray only)":
-    "fa fa-fw me-2 fas fa-border-all svelte-1jrxhr2",
-  GSEA: "fa fa-fw me-2 fas fa-layer-group svelte-1jrxhr2",
-  gprofiler2: "fa fa-fw me-2 fas fa-layer-group svelte-1jrxhr2",
-  "Shiny app settings": "fa fa-fw me-2 fab fa-app-store-ios svelte-1jrxhr2",
-  "Options related to gene set analysis":
-    "fa fa-fw me-2 fas fa-cogs svelte-1jrxhr2",
-  "Reporting options": "fa fa-fw me-2 fas fa-chart-line svelte-1jrxhr2",
-  "Partial run options":
-    "fa fa-fw me-2 fas fa-angle-double-right svelte-1jrxhr2",
-  "FastQC/fastp options": "fa fa-fw me-2 fas fa-cut svelte-1jrxhr2",
-  "SortMeRNA options": "fa fa-fw me-2 fas fa-filter svelte-1jrxhr2",
-  "Assembly options": "fa fa-fw me-2 fas fa-puzzle-piece svelte-1jrxhr2",
-  "BUSCO options": "fa fa-fw me-2 fas fa-chart-pie svelte-1jrxhr2",
-  "rnaQUAST options": "fa fa-fw me-2 fas fa-ruler svelte-1jrxhr2",
-  "transRate options": "fa fa-fw me-2 fas fa-align-center svelte-1jrxhr2",
-  "salmon options": "fa fa-fw me-2 fas fa-fish svelte-1jrxhr2",
-  "main arguments": "fa fa-fw me-2 fas fa-terminal svelte-1jrxhr2",
-  "Sequencing input": "fa fa-fw me-2 fas fa-align-justify svelte-1jrxhr2",
-  "primer removal": "fa fa-fw me-2 fas fa-align-left svelte-1jrxhr2",
-  "Read trimming and quality filtering":
-    "fa fa-fw me-2 fas fa-ban svelte-1jrxhr2",
-  "Amplicon Sequence Variants (ASV) calculation":
-    "fa fa-fw me-2 fas fa-braille svelte-1jrxhr2",
-  "ASV post processing": "fa fa-fw me-2 fas fa-filter svelte-1jrxhr2",
-  "Taxonomic assignment": "fa fa-fw me-2 fas fa-database svelte-1jrxhr2",
-  "Multi-region taxonomic database":
-    "fa fa-fw me-2 fas fa-database svelte-1jrxhr2",
-  "ASV filtering": "fa fa-fw me-2 fas fa-filter svelte-1jrxhr2",
-  "Downstream analysis": "fa fa-fw me-2 fas fa-bacteria svelte-1jrxhr2",
-  "Differential abundance analysis":
-    "fa fa-fw me-2 fas fa-bacteria svelte-1jrxhr2",
-  "Pipeline summary report": "fa fa-fw me-2 fas fa-book-open svelte-1jrxhr2",
-  "Skipping specific steps": "fa fa-fw me-2 fas fa-hand-paper svelte-1jrxhr2",
-  "Reproducibility options": "fa fa-fw me-2 fas fa-lock svelte-1jrxhr2",
-  "Quality control for short reads options":
-    "fa fa-fw me-2 fas fa-check-circle svelte-1jrxhr2",
-  "Quality control for long reads options":
-    "fa fa-fw me-2 fas fa-check-circle svelte-1jrxhr2",
-  "Taxonomic profiling options": "fa fa-fw me-2 fas fa-tag svelte-1jrxhr2",
-  "Assembly options": "fa fa-fw me-2 fas fa-puzzle-piece svelte-1jrxhr2",
-  "Gene prediction and annotation options":
-    "fa fa-fw me-2 fas fa-file-signature svelte-1jrxhr2",
-  "Virus identification options": "fa fa-fw me-2 fas fa-virus svelte-1jrxhr2",
-  "Binning options": "fa fa-fw me-2 fas fa-cubes svelte-1jrxhr2",
-  "Bin quality check options": "fa fa-fw me-2 fas fa-thumbs-up svelte-1jrxhr2",
-  "Ancient DNA assembly": "fa fa-fw me-2 fas fa-landmark svelte-1jrxhr2",
-  "Quality check parameters":
-    "fa fa-fw me-2 fas fa-check-circle svelte-1jrxhr2",
-      "Clustering parameters":
-    "fa fa-fw me-2 fas fa-project-diagram svelte-1jrxhr2",
-    "Alignment parameters": "fa fa-fw me-2 fas fa-braille svelte-1jrxhr2",
-    "Redundancy removal parameters": "fa fa-fw me-2 fas fa-filter svelte-1jrxhr2"
-
+const ICONS = {
+  clock: "fa fa-fw me-2 fas fa-clock",
+  folder: "fa fa-fw me-2 fas fa-folder-open",
+  chip: "fa fa-fw me-2 fas fa-microchip",
+  gears: "fa fa-fw me-2 fas fa-cogs",
+  server: "fa fa-fw me-2 fas fa-server",
+  play: "fa fa-fw me-2 fas fa-play",
+  skip: "fa fa-fw me-2 fas fa-forward",
+  terminal: "fa fa-fw me-2 fas fa-terminal",
+  cut: "fa fa-fw me-2 fas fa-cut",
+  filter: "fa fa-fw me-2 fas fa-filter",
+  barcode: "fa fa-fw me-2 fas fa-barcode",
+  map: "fa fa-fw me-2 fas fa-map",
+  dna: "fa fa-fw me-2 fas fa-dna",
+  file: "fa fa-fw me-2 fas fa-file",
+  search: "fa fa-fw me-2 fas fa-search",
+  qc: "fa fa-fw me-2 fas fa-check-circle",
+  chart: "fa fa-fw me-2 fas fa-chart-line",
+  bacteria: "fa fa-fw me-2 fas fa-bacteria",
+  save: "fa fa-fw me-2 fas fa-save",
+  target: "fa fa-fw me-2 fas fa-bullseye",
+  annotate: "fa fa-fw me-2 fas fa-file-signature",
+  index: "fa fa-fw me-2 fas fa-file-code",
+  warning: "fa fa-fw me-2 fas fa-exclamation-circle",
+  star: "fa fa-fw me-2 fas fa-star",
+  table: "fa fa-fw me-2 fas fa-table",
+  app: "fa fa-fw me-2 fas fa-mobile-alt",
+  lock: "fa fa-fw me-2 fas fa-lock",
+  tag: "fa fa-fw me-2 fas fa-tag",
+  database: "fa fa-fw me-2 fas fa-database",
+  layer: "fa fa-fw me-2 fas fa-layer-group",
+  virus: "fa fa-fw me-2 fas fa-virus",
+  cubes: "fa fa-fw me-2 fas fa-cubes",
+  bin: "fa fa-fw me-2 fas fa-boxes",
+  image: "fa fa-fw me-2 fas fa-image",
+  microscope: "fa fa-fw me-2 fas fa-microscope",
+  vial: "fa fa-fw me-2 fas fa-vial",
+  puzzle: "fa fa-fw me-2 fas fa-puzzle-piece",
+  key: "fa fa-fw me-2 fas fa-key",
 };
 
-// Create a lowercase version of the iconMap automatically
+const iconMap = {
+  "number of hours": ICONS.clock,
+  "working directory": ICONS.folder,
+  "number of cores": ICONS.chip,
+  "amount of memory (gb)": ICONS.chip,
+  "which nextflow executor to use?": ICONS.gears,
+  partition: ICONS.server,
+  resume: ICONS.play,
+  "save intermediate files": ICONS.save,
+  "input/output options": ICONS.terminal,
+  "main options": ICONS.gears,
+  "main arguments": ICONS.terminal,
+  "mandatory arguments": ICONS.warning,
+  "optional outputs": ICONS.file,
+  "pipeline stage options": ICONS.gears,
+  "pipeline summary report": ICONS.chart,
+  "reporting options": ICONS.chart,
+  "quality control": ICONS.qc,
+  "quality control options": ICONS.qc,
+  "quality check parameters": ICONS.qc,
+  "qualimap options": ICONS.qc,
+  "reference genome options": ICONS.dna,
+  "general reference genome options": ICONS.dna,
+  "reference genome": ICONS.dna,
+  "indexing options": ICONS.index,
+  "alignment options": ICONS.map,
+  "alignment compression options": ICONS.map,
+  "variant calling": ICONS.vial,
+  "variant filtering": ICONS.filter,
+  "variant annotation": ICONS.annotate,
+  "targeted sequencing analysis options": ICONS.target,
+  "peak calling options": ICONS.chart,
+  "analysis options": ICONS.search,
+  "exploratory analysis": ICONS.chart,
+  "differential analysis": ICONS.chart,
+  "differential abundance analysis": ICONS.bacteria,
+  "read trimming options": ICONS.cut,
+  "adapter trimming options": ICONS.cut,
+  "read filtering options": ICONS.filter,
+  "umi options": ICONS.barcode,
+  "fastq options": ICONS.file,
+  "fastq preprocessing": ICONS.cut,
+  "sequencing input": ICONS.file,
+  "cell barcode options": ICONS.barcode,
+  "taxonomic profiling options": ICONS.tag,
+  "taxonomic assignment": ICONS.tag,
+  "database downloading options": ICONS.database,
+  "assembly options": ICONS.puzzle,
+  "binning options": ICONS.bin,
+  "gene prediction and annotation options": ICONS.annotate,
+  "virus identification options": ICONS.virus,
+  "cellranger options": ICONS.chart,
+  "cellranger arc options": ICONS.layer,
+  "cellranger multi options": ICONS.cubes,
+  "starsolo options": ICONS.star,
+  "simpleaf options": ICONS.microscope,
+  "shiny app settings": ICONS.app,
+  "reproducibility options": ICONS.lock,
+  "tower_access_token (optional)": ICONS.key,
+};
+
+const prefixIconMap = {
+  amp: ICONS.vial,
+  arg: ICONS.bacteria,
+  bgc: ICONS.layer,
+  annotation: ICONS.annotate,
+  "protein annotation": ICONS.annotate,
+  "taxonomic classification": ICONS.tag,
+  cellranger: ICONS.layer,
+  "quality control": ICONS.qc,
+  "differential abundance": ICONS.chart,
+};
+
+const keywordRules = [
+  { regex: /\b(hour|time|duration|walltime)\b/, icon: ICONS.clock },
+  { regex: /\b(memory|ram|core|cpu|threads?|parallel)\b/, icon: ICONS.chip },
+  { regex: /\b(work|scratch|outdir|directory|folder|path)\b/, icon: ICONS.folder },
+  { regex: /\b(executor|profile|config|engine|queue|partition|cluster|slurm|pbs|lsf)\b/, icon: ICONS.server },
+  { regex: /\b(resume|retry|run|launch|start)\b/, icon: ICONS.play },
+  { regex: /\b(skip|exclude|disable)\b/, icon: ICONS.skip },
+  { regex: /\b(input|output|io|channel)\b/, icon: ICONS.terminal },
+  { regex: /\b(read|trim|adapter|primer|cutadapt|fastp)\b/, icon: ICONS.cut },
+  { regex: /\b(filter|qcfilter|remove)\b/, icon: ICONS.filter },
+  { regex: /\b(umi|barcode)\b/, icon: ICONS.barcode },
+  { regex: /\b(map|mapping|align|alignment|bwa|star|hisat|minimap)\b/, icon: ICONS.map },
+  { regex: /\b(reference|genome|fasta|gtf|gff|transcriptome|igenomes)\b/, icon: ICONS.dna },
+  { regex: /\b(fastq|bam|cram|vcf|bed|tsv|csv|file|manifest)\b/, icon: ICONS.file },
+  { regex: /\b(qc|quality|multiqc|fastqc|qualimap|check)\b/, icon: ICONS.qc },
+  { regex: /\b(analysis|detect|discovery|search|inspect)\b/, icon: ICONS.search },
+  { regex: /\b(report|visual|plot|chart|summary|dashboard)\b/, icon: ICONS.chart },
+  { regex: /\b(variant|snv|indel|sv|cnv|mutat)\b/, icon: ICONS.vial },
+  { regex: /\b(annotation|annotator|annotate)\b/, icon: ICONS.annotate },
+  { regex: /\b(index|indexing)\b/, icon: ICONS.index },
+  { regex: /\b(database|db|taxonomy|kraken|metaphlan)\b/, icon: ICONS.database },
+  { regex: /\b(metagenom|microbiome|amplicon|taxonomic|profiling)\b/, icon: ICONS.bacteria },
+  { regex: /\b(antismash|gecco|deepbgc|amp|arg|amrfinder|fargene|rgi|abricate)\b/, icon: ICONS.bacteria },
+  { regex: /\b(assembly|assembler|contig|scaffold)\b/, icon: ICONS.puzzle },
+  { regex: /\b(bin|binning|bins)\b/, icon: ICONS.bin },
+  { regex: /\b(virus|viral|virome)\b/, icon: ICONS.virus },
+  { regex: /\b(cellranger|single[- ]?cell|scrna|spatial)\b/, icon: ICONS.layer },
+  { regex: /\b(image|imaging|microscopy|segment)\b/, icon: ICONS.image },
+  { regex: /\b(protein|proteomics|peptide|openms)\b/, icon: ICONS.microscope },
+  { regex: /\b(motif|fimo|macs2|chromhmm|chip|atac|dmr)\b/, icon: ICONS.chart },
+  { regex: /\b(demux|demultiplex|hashed|freemuxlet|htodemux|hashsolo)\b/, icon: ICONS.cubes },
+  { regex: /\b(cluster|clustering|integration|umap|tsne|dimensionality)\b/, icon: ICONS.layer },
+  { regex: /\b(consensus|dedup|refine|collapse|normaliz)\b/, icon: ICONS.filter },
+  { regex: /\b(ont|nanopore|hifi|pacbio|long[- ]?read)\b/, icon: ICONS.map },
+  { regex: /\b(hla|epitope|immune|immuno)\b/, icon: ICONS.microscope },
+  { regex: /\b(community|developer|deprecated|additional|optional|global|generic|general)\b/, icon: ICONS.gears },
+  { regex: /\b(token|apikey|secret|password|credential)\b/, icon: ICONS.key },
+  { regex: /\b(reproduc|lock|determin)\b/, icon: ICONS.lock },
+];
+
+function normalizeLabel(text) {
+  return text
+    .trim()
+    .replace(/^["']|["']$/g, "")
+    .replace(/\s+/g, " ")
+    .replace(/:+$/, "")
+    .toLowerCase();
+}
+
+function compactLabel(text) {
+  return text.replace(/[^a-z0-9]/g, "");
+}
+
 const normalizedIconMap = Object.fromEntries(
-  Object.entries(iconMap).map(([key, value]) => [key.toLowerCase(), value])
+  Object.entries(iconMap).map(([k, v]) => [normalizeLabel(k), v])
 );
+
+const compactIconMap = Object.fromEntries(
+  Object.entries(normalizedIconMap).map(([k, v]) => [compactLabel(k), v])
+);
+
+function resolveIconClass(rawLabel) {
+  const label = normalizeLabel(rawLabel);
+  const compact = compactLabel(label);
+
+  if (normalizedIconMap[label]) return normalizedIconMap[label];
+  if (compactIconMap[compact]) return compactIconMap[compact];
+
+  const labelNoParens = label.replace(/\([^)]*\)/g, "").trim();
+  if (normalizedIconMap[labelNoParens]) return normalizedIconMap[labelNoParens];
+
+  const prefix = labelNoParens.includes(":")
+    ? labelNoParens.split(":", 1)[0].trim()
+    : "";
+  if (prefix && prefixIconMap[prefix]) return prefixIconMap[prefix];
+
+  for (const rule of keywordRules) {
+    if (rule.regex.test(label)) return rule.icon;
+  }
+
+  // Never leave a section/parameter unlabeled.
+  return ICONS.gears;
+}
 
 document.addEventListener("DOMContentLoaded", function () {
   document.querySelectorAll("label").forEach((label) => {
-    const labelText = label.textContent
-      .trim()
-      .replace(/^["']|["']$/g, "")
-      .toLowerCase(); // normalize to lowercase
+    const iconClass = resolveIconClass(label.textContent || "");
+    const icon = document.createElement("i");
+    icon.className = iconClass;
 
-    const iconClass = normalizedIconMap[labelText];
-    if (iconClass) {
-      const icon = document.createElement("i");
-      icon.className = iconClass;
+    label.style.color = "green";
+    label.style.fontWeight = "bold";
+    label.style.fontSize = "1.1rem";
+    icon.style.color = "green";
+    icon.style.fontWeight = "bold";
+    icon.style.fontSize = "1.3rem";
 
-      label.style.color = "green";
-      label.style.fontWeight = "bold";
-      label.style.fontSize = "1.1rem";
-      icon.style.color = "green";
-      icon.style.fontWeight = "bold";
-      icon.style.fontSize = "1.3rem";
-
-      label.prepend(icon);
-    }
+    label.prepend(icon);
   });
 });
