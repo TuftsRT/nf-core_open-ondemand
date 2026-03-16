@@ -1,0 +1,49 @@
+pipeline	image
+coproid	https://raw.githubusercontent.com/nf-core/coproid/2.0.1//docs/images/coproid_workflow.jpg?raw=true
+taxprofiler	https://raw.githubusercontent.com/nf-core/taxprofiler/1.2.6//docs/images/taxprofiler_tube.png
+pathogensurveillance	https://raw.githubusercontent.com/nf-core/pathogensurveillance/1.1.0//docs/images/pipeline_diagram.png
+sarek	https://raw.githubusercontent.com/nf-core/sarek/3.8.1//docs/images/sarek_workflow.png
+createtaxdb	https://raw.githubusercontent.com/nf-core/createtaxdb/2.1.0//assets/createtaxdb-metromap-diagram-light.png
+rnavar	
+proteinannotator	https://raw.githubusercontent.com/nf-core/proteinannotator/1.0.0//docs/images/proteinannotator_metromap_light.png
+airrflow	https://raw.githubusercontent.com/nf-core/airrflow/5.0.0//docs/images/airrflow_workflow_overview.png
+mag	https://raw.githubusercontent.com/nf-core/mag/5.4.0//docs/images/mag_metromap_light.png
+hlatyping	
+nanostring	https://raw.githubusercontent.com/nf-core/nanostring/1.3.3//assets/nf-core_nanostring_tubemap.png
+demo	https://raw.githubusercontent.com/nf-core/demo/1.1.0//docs/images/nf-core-demo-subway.png
+pairgenomealign	https://raw.githubusercontent.com/nf-core/pairgenomealign/2.2.2//docs/images/pairgenomealign-tubemap.png
+viralmetagenome	https://raw.githubusercontent.com/nf-core/viralmetagenome/1.1.0//docs/images/metromap_style_pipeline_workflow_viralmetagenome.png
+ampliseq	https://raw.githubusercontent.com/nf-core/ampliseq/2.16.1//docs/images/ampliseq_workflow.png
+drugresponseeval	https://raw.githubusercontent.com/nf-core/drugresponseeval/1.2.0//assets/dreval_summary.svg
+pixelator	https://raw.githubusercontent.com/nf-core/pixelator/2.3.1//docs/images/nf-core-pixelator-metromap.svg
+mhcquant	https://raw.githubusercontent.com/nf-core/mhcquant/3.1.0//assets/mhcquant_subway.png
+smrnaseq	
+proteinfamilies	https://raw.githubusercontent.com/nf-core/proteinfamilies/2.2.0//docs/images/proteinfamilies_workflow_light.png
+methylseq	https://raw.githubusercontent.com/nf-core/methylseq/4.2.0//docs/images/4.2.0_metromap.png
+rnaseq	https://raw.githubusercontent.com/nf-core/rnaseq/3.23.0//docs/images/nf-core-rnaseq_metro_map_grey_animated.svg
+oncoanalyser	https://raw.githubusercontent.com/nf-core/oncoanalyser/2.3.0//docs/images/oncoanalyser_pipeline.png
+variantbenchmarking	https://raw.githubusercontent.com/nf-core/variantbenchmarking/1.4.0//docs/images/variantbenchmarking_metromap.png
+riboseq	https://raw.githubusercontent.com/nf-core/riboseq/1.2.0//docs/images/nf-core-riboseq_metro_map.png
+phaseimpute	https://raw.githubusercontent.com/nf-core/phaseimpute/1.1.0//docs/images/metro/MetroMap_animated.svg
+magmap	https://raw.githubusercontent.com/nf-core/magmap/1.0.0//docs/images/metromap-magmap.png
+epitopeprediction	
+scrnaseq	https://raw.githubusercontent.com/nf-core/scrnaseq/4.1.0//docs/images/scrnaseq_pipeline_V3.0-metro_clean.png
+chipseq	https://raw.githubusercontent.com/nf-core/chipseq/2.1.0//docs/images/nf-core-chipseq_metro_map_grey.png
+atacseq	https://raw.githubusercontent.com/nf-core/atacseq/2.1.2//docs/images/nf-core-atacseq_metro_map_grey.png
+nanoseq	https://raw.githubusercontent.com/nf-core/nanoseq/3.1.0//docs/images/nanoseq_subwaymap_v3.1.png
+eager	https://raw.githubusercontent.com/nf-core/eager/2.5.3//docs/images/usage/eager2_workflow.png
+fetchngs	https://raw.githubusercontent.com/nf-core/fetchngs/1.12.0//docs/images/nf-core-fetchngs_metro_map_grey.png
+rnafusion	https://raw.githubusercontent.com/nf-core/rnafusion/3.0.1b//docs/images/nf-core-rnafusion_metro_map.png
+viralrecon	https://raw.githubusercontent.com/nf-core/viralrecon/3.0.0//docs/images/nf-core-viralrecon_metro_map_illumina.png
+raredisease	https://raw.githubusercontent.com/nf-core/raredisease/2.6.0//docs/images/raredisease_metromap_light.png
+differentialabundance	https://raw.githubusercontent.com/nf-core/differentialabundance/1.5.0//docs/images/workflow.png
+funcscan	https://raw.githubusercontent.com/nf-core/funcscan/3.0.0//docs/images/funcscan_metro_workflow.png
+hic	
+pangenome	https://raw.githubusercontent.com/nf-core/pangenome/1.1.3//docs/images/pangenome_workflow.png
+oncoanalyser	https://raw.githubusercontent.com/nf-core/oncoanalyser/2.3.0//docs/images/oncoanalyser_pipeline.png
+proteinfold	https://raw.githubusercontent.com/nf-core/proteinfold/1.1.1//docs/images/nf-core-proteinfold_metro_map_1.1.0.png?raw=true
+scdownstream	https://raw.githubusercontent.com/nf-core/scdownstream/dev//docs/images/metromap.png
+bacass	
+scnanoseq	https://raw.githubusercontent.com/nf-core/scnanoseq/1.2.1//assets/scnanoseq_tube_map.png
+viralmetagenome	https://raw.githubusercontent.com/nf-core/viralmetagenome/1.1.0//docs/images/metromap_style_pipeline_workflow_viralmetagenome.png
+genomeassembler	https://raw.githubusercontent.com/nf-core/genomeassembler/1.1.0//docs/images/genomeassembler.light.png
