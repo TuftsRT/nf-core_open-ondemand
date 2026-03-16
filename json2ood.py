@@ -27,6 +27,7 @@ hidden_list = [
     "report_logo",
     "report_css",
 ]
+always_include_keys = {"igenomes_base", "igenomes_ignore"}
 number_field_list = []
 boolean_field_list = []
 
@@ -76,13 +77,6 @@ def move_digits_to_end(prop: str) -> str:
     return "_".join(new_parts)
 
 
-def write_options(outfile, options):
-    """Write a list of ``options`` to *outfile* (used for the iGenomes block)."""
-    for option in options:
-        if option:  # skip empty / None values
-            outfile.write(f"      - ['{option}', '{option}']\n")
-
-
 def write_help(outfile, help_text):
     """Write a ``help:`` line if *help_text* is non‑empty."""
     if help_text:
@@ -98,9 +92,15 @@ def write_widget(outfile, widget, value):
 
     if widget == "check_box":
         outfile.write("    widget: select\n")
+        if isinstance(default_value, bool):
+            outfile.write(f"    value: {'true' if default_value else 'false'}\n")
         outfile.write("    options:\n")
-        outfile.write("      - ['false', 'false']\n")
-        outfile.write("      - ['true', 'true']\n")
+        if default_value is True:
+            outfile.write("      - ['true', 'true']\n")
+            outfile.write("      - ['false', 'false']\n")
+        else:
+            outfile.write("      - ['false', 'false']\n")
+            outfile.write("      - ['true', 'true']\n")
 
     elif widget == "text_field":
         outfile.write("    widget: text_field\n")
@@ -109,6 +109,8 @@ def write_widget(outfile, widget, value):
 
     elif widget == "path_selector":
         outfile.write("    widget: path_selector\n")
+        if default_value:
+            outfile.write(f'    value: "{default_value}"\n')
         outfile.write("    directory: /cluster/tufts\n")
         outfile.write("    favorites:\n")
         outfile.write("      - /cluster/tufts\n")
@@ -123,11 +125,15 @@ def write_widget(outfile, widget, value):
     elif widget == "select":
         outfile.write("    widget: select\n")
         outfile.write("    options:\n")
-        enum_vals = value.get("enum", [])
+        enum_vals = list(value.get("enum", []))
         default_val = value.get("default")
-        # put the default first (if it exists in the enum list)
-        if default_val is not None and default_val in enum_vals:
+
+        if default_val is None:
+            outfile.write("      - ['', '']\n")
+        else:
             outfile.write(f"      - ['{default_val}', '{default_val}']\n")
+
+        if default_val in enum_vals:
             enum_vals.remove(default_val)
         for opt in enum_vals:
             outfile.write(f"      - ['{opt}', '{opt}']\n")
@@ -164,25 +170,6 @@ def generate_parent_options(name, definition):
 
     lines.append("")   # blank line for separation
     return "\n".join(lines)
-
-
-def process_genome(outfile):
-    """Write the hard‑coded iGenomes selector."""
-    outfile.write("  genome:\n")
-    outfile.write("    label: iGenomes\n")
-    outfile.write("    widget: select\n")
-    outfile.write("    required: false\n")
-    outfile.write("    options:\n")
-    outfile.write("      - ['None', ' ']\n")
-    genomes = [
-        "GRCh37", "GRCh38", "GRCm38", "TAIR10", "EB2", "UMD3.1", "WBcel235",
-        "CanFam3.1", "GRCz10", "BDGP6", "EquCab2", "EB1", "Galgal4", "Gm01",
-        "Mmul_1", "IRGSP-1.0", "CHIMP2.1.4", "Rnor_5.0", "Rnor_6.0", "R64-1-1",
-        "EF2", "Sbi1", "Sscrofa10.2", "AGPv3", "hg38", "hg19", "mm10",
-        "bosTau8", "ce10", "canFam3", "danRer10", "dm6", "equCab2",
-        "galGal4", "panTro4", "rn6", "sacCer3", "susScr3",
-    ]
-    write_options(outfile, genomes)
 
 
 def determine_widget_type(key, value):
@@ -226,20 +213,14 @@ def determine_widget_type(key, value):
 def process_properties(outfile, properties):
     """
     Walk through a definition's ``properties`` dict and write the YAML for each
-    field (except the special ``genome`` field, which is handled separately).
+    field.
     """
     for key, value in properties.items():
-        if key in {"email", "igenomes_ignore"}:
+        if key == "email":
             continue
 
-        if value.get("hidden", False):
+        if value.get("hidden", False) and key not in always_include_keys:
             hidden_list.append(key)
-            continue
-
-        if key == "genome":
-            process_genome(outfile)
-            write_help(outfile, value.get("description", "").split("\n")[0])
-            outfile.write("\n")
             continue
 
         fixed_key = move_digits_to_end(key)
@@ -340,14 +321,12 @@ def main():
     form_out.write("\n".join(f"  - {field}" for field in default_form_fields) + "\n")
 
     # ------------------------------------------------------------------
-    # Build the params JSON (used later by OOD)
+    # Build the params JSON ERB template (used later by OOD)
     # ------------------------------------------------------------------
-    params_out.write("{\n")
     hidden_set = set(hidden_list)
     number_set = set(number_field_list)
     boolean_set = set(boolean_field_list)
-
-    first_entry = True  # for comma handling
+    params_entries = []
 
     for name, definition in definitions.items():
         if name in {
@@ -363,28 +342,68 @@ def main():
 
         properties = definition.get("properties", {})
         for key in properties:
-            if key in {"email", "igenomes_ignore"} or key in hidden_set:
+            if key == "email":
+                continue
+            if key in hidden_set and key not in always_include_keys:
                 continue
 
             # write each field name (lower‑cased, digits moved to the end)
             fixed_key = move_digits_to_end(key)
             form_out.write(f"  - {fixed_key}\n")
 
-            # ----------------- JSON entry -----------------
-            if not first_entry:
-                params_out.write(",\n")
-            else:
-                first_entry = False
-
             if key in number_set or key in boolean_set:
-                # raw (no quotes) for numbers / booleans
-                params_out.write(f'    "{key}": <%= context.{fixed_key} %>')
+                if key in boolean_set:
+                    params_entries.append(f'    "{key}": to_bool.call(context.{fixed_key})')
+                else:
+                    params_entries.append(f'    "{key}": to_number.call(context.{fixed_key})')
             else:
-                # strings need to be quoted inside the ERB template
-                params_out.write(f'    "{key}": "<%= context.{fixed_key} %>"')
+                params_entries.append(f'    "{key}": context.{fixed_key}')
 
-    # close the JSON object
-    params_out.write("\n}")
+    params_out.write(
+        """<%
+require "json"
+
+to_bool = lambda do |value|
+  case value
+  when true, false
+    value
+  when String
+    normalized = value.strip.downcase
+    next true if %w[true 1 yes y on].include?(normalized)
+    next false if %w[false 0 no n off].include?(normalized)
+    value
+  else
+    value
+  end
+end
+
+to_number = lambda do |value|
+  case value
+  when Integer, Float
+    value
+  when String
+    stripped = value.strip
+    next value if stripped.empty?
+    next stripped.to_i if stripped.match?(/\\A[+-]?\\d+\\z/)
+    next stripped.to_f if stripped.match?(/\\A[+-]?(?:\\d+\\.?\\d*|\\.\\d+)(?:[eE][+-]?\\d+)?\\z/)
+    value
+  else
+    value
+  end
+end
+
+params = {
+"""
+    )
+    params_out.write(",\n".join(params_entries))
+    params_out.write(
+        """
+}
+
+params.reject! { |_k, v| v.is_a?(String) && v.strip.empty? }
+%><%= JSON.pretty_generate(params) %>
+"""
+    )
 
     # ------------------------------------------------------------------
     # Append the final two static fields (same as original script)

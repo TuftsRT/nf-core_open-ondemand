@@ -44,6 +44,48 @@ locate_schema() {
     die "Cannot find nextflow_schema.json for $pipeline $version (looked in: ${candidates[*]})"
 }
 
+# -------------------------------------------------
+# resolve_pipeline_image_url <pipeline> <version>
+# Returns an image URL for the pipeline banner/logo.
+# Priority:
+#   1) TSV mapping file (pipeline2image.tsv by default)
+#      - if entry exists with empty URL, no image is rendered
+#      - if TSV exists but entry is missing, no image is rendered
+#   2) If no TSV file exists at all, fallback to GitHub raw metro map URL pattern
+# -------------------------------------------------
+resolve_pipeline_image_url() {
+    local pipeline=$1
+    local version=$2
+    local slug="${pipeline#nf-core-}"
+
+    if [[ -n "${IMAGE_MAP_TSV:-}" && -f "$IMAGE_MAP_TSV" ]]; then
+        local key url key_l slug_l
+        slug_l=$(printf '%s' "$slug" | tr '[:upper:]' '[:lower:]')
+        while IFS=$'\t' read -r key url _; do
+            key=${key//$'\r'/}
+            url=${url//$'\r'/}
+
+            [[ -z "${key//[[:space:]]/}" ]] && continue
+            [[ "${key:0:1}" == "#" ]] && continue
+            key_l=$(printf '%s' "$key" | tr '[:upper:]' '[:lower:]')
+            [[ "$key_l" == "pipeline" || "$key_l" == "pipeline_name" ]] && continue
+
+            key_l="${key_l#nf-core-}"
+            if [[ "$key_l" == "$slug_l" ]]; then
+                printf '%s' "$url"
+                return 0
+            fi
+        done < "$IMAGE_MAP_TSV"
+
+        # TSV exists but no mapping found: do not render an image.
+        printf ''
+        return 0
+    fi
+
+    # Best-effort fallback when no TSV file exists at all.
+    printf 'https://raw.githubusercontent.com/nf-core/%s/%s/docs/images/%s_metro_map.png' "$slug" "$version" "$slug"
+}
+
 # --------------------------------------------------------------
 # generate_module – create a single Lmod module file from a template
 # --------------------------------------------------------------
@@ -81,6 +123,7 @@ output_dir=""
 module_outdir=""
 
 TEMPLATE_DIR="${parentfolder}/module_templates"
+IMAGE_MAP_TSV="${parentfolder}/pipeline2image.tsv"
 
 # --------------------------------------------------------------
 # Parse command-line arguments
@@ -90,14 +133,16 @@ while [[ $# -gt 0 ]]; do
         -i|--input)   input_dir=$2; shift 2 ;;
         -o|--output)  output_dir=$2; shift 2 ;;
         -m|--module)  module_outdir=$2; shift 2 ;;
+        --image-map)  IMAGE_MAP_TSV=$2; shift 2 ;;
         -h|--help)
             cat <<EOF
-Usage: $(basename "$0") -i INPUT_DIR -o OUTPUT_DIR -m MODULE_OUTDIR
+Usage: $(basename "$0") -i INPUT_DIR -o OUTPUT_DIR -m MODULE_OUTDIR [--image-map TSV]
 Convert nf-core pipelines into OOD apps.
 
   -i, --input   Directory that contains the nf-core pipelines
   -o, --output  Directory where the generated OOD apps will be placed
   -m, --module  Directory where the generated Lmod module files will be placed
+  --image-map   TSV mapping: <pipeline_name>\\t<image_url> (default: ./pipeline2image.tsv)
   -h, --help    Show this help message and exit
 EOF
             exit 0
@@ -177,6 +222,8 @@ replace_placeholders() {
     local CONVERTED_VERSION="${VERSION//./_}"
     local COMBINED_VERSION="${VERSION}/${CONVERTED_VERSION}"
     local MYAPP="${OUTDIR##*/}"
+    local PIPELINE_IMAGE_URL
+    PIPELINE_IMAGE_URL=$(resolve_pipeline_image_url "$PIPELINE" "$VERSION")
 
     # Determine a subcategory for the manifest (used by OOD).
     # Updated from nf-co.re/pipelines.json (144 pipelines, 2026-02-18).
@@ -237,17 +284,20 @@ replace_placeholders() {
     perform_sed_replacement "${OUTDIR}/manifest.yml"    "VERSION"    "$VERSION"
     perform_sed_replacement "${OUTDIR}/template/script.sh.erb" "VERSION" "${COMBINED_VERSION}"
     perform_sed_replacement "${OUTDIR}/template/script.sh.erb" "PIPELINE" "$PIPELINE"
+    if [[ -n "$PIPELINE_IMAGE_URL" ]]; then
+        perform_sed_replacement "$FORM_YML"              "__BANNER_IMAGE_URL__" "$PIPELINE_IMAGE_URL"
+    else
+        # Remove the image HTML element when TSV URL is empty/missing.
+        sed -i '/<img src="__BANNER_IMAGE_URL__"/,+2d' "$FORM_YML"
+    fi
     perform_sed_replacement "$FORM_YML"                  "PIPELINE"   "$PIPELINE"
+    perform_sed_replacement "$FORM_YML"                  "MYAPP"      "$MYAPP"
     perform_sed_replacement "${OUTDIR}/manifest.yml"    "MYAPP"      "$MYAPP"
     perform_sed_replacement "${OUTDIR}/manifest.yml"    "SUBCATEGORY" "$SUBCATEGORY"
 
     # Small clean-ups
-    sed -i '/- igenomes_base/d' "$FORM_YML"
     sed -i "s/value: True/value: true/g"  "$FORM_YML"
     sed -i "s/value: False/value: false/g" "$FORM_YML"
-
-    # Update the default value for `igenomes_base` inside the params JSON
-    sed -i -e "s|\<%= context\.igenomes_base %\>|/cluster/tufts/biocontainers/datasets/igenomes|g" "$PARAMS_JSON"
 
     # Remove the generic template file if provided
     if [[ -n "$TEMPLATE_FILE" && -f "$TEMPLATE_FILE" ]]; then

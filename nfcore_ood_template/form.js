@@ -1,3 +1,47 @@
+function resetBatchConnectFormOnce() {
+  const url = new URL(window.location.href);
+  const needsReset = url.searchParams.get("cache_reset") === "1" || url.searchParams.has("cache_reset_reload");
+  if (!needsReset) return;
+
+  const clearFields = () => {
+    document.querySelectorAll("input, textarea, select").forEach((field) => {
+      const type = (field.getAttribute("type") || "").toLowerCase();
+      if (["hidden", "submit", "button", "image", "file"].includes(type)) return;
+      if (field.disabled) return;
+
+      if (field.tagName === "SELECT") {
+        field.selectedIndex = 0;
+        field.dispatchEvent(new Event("change", { bubbles: true }));
+        return;
+      }
+
+      if (type === "checkbox" || type === "radio") {
+        field.checked = false;
+        field.dispatchEvent(new Event("change", { bubbles: true }));
+        return;
+      }
+
+      field.value = "";
+      field.dispatchEvent(new Event("input", { bubbles: true }));
+      field.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+
+    url.searchParams.delete("cache_reset");
+    url.searchParams.delete("cache_reset_at");
+    if (url.searchParams.has("cache_reset_reload")) {
+      url.searchParams.delete("cache_reset_reload");
+      window.history.replaceState({}, document.title, url.toString());
+    } else {
+      url.searchParams.set("cache_reset_reload", Date.now().toString());
+      window.location.replace(url.toString());
+    }
+  };
+
+  window.requestAnimationFrame(() => setTimeout(clearFields, 50));
+}
+
+document.addEventListener("DOMContentLoaded", resetBatchConnectFormOnce);
+
 const ICONS = {
   clock: "fa fa-fw me-2 fas fa-clock",
   folder: "fa fa-fw me-2 fas fa-folder-open",
@@ -5,6 +49,7 @@ const ICONS = {
   gears: "fa fa-fw me-2 fas fa-cogs",
   server: "fa fa-fw me-2 fas fa-server",
   play: "fa fa-fw me-2 fas fa-play",
+  resume: "fa fa-fw me-2 fas fa-history",
   skip: "fa fa-fw me-2 fas fa-forward",
   terminal: "fa fa-fw me-2 fas fa-terminal",
   cut: "fa fa-fw me-2 fas fa-cut",
@@ -46,7 +91,7 @@ const iconMap = {
   "amount of memory (gb)": ICONS.chip,
   "which nextflow executor to use?": ICONS.gears,
   partition: ICONS.server,
-  resume: ICONS.play,
+  resume: ICONS.resume,
   "save intermediate files": ICONS.save,
   "input/output options": ICONS.terminal,
   "main options": ICONS.gears,
@@ -196,9 +241,82 @@ function resolveIconClass(rawLabel) {
   return ICONS.gears;
 }
 
+function toKeyToken(text) {
+  return (text || "")
+    .toLowerCase()
+    // OOD data-hide attributes use hyphens while schema keys often use underscores.
+    .replace(/[_-]/g, "")
+    .replace(/[^a-z0-9]/g, "");
+}
+
+function getLabelFieldKey(label) {
+  if (label.htmlFor) {
+    const target = document.getElementById(label.htmlFor);
+    if (target) {
+      return toKeyToken(target.name || target.id || "");
+    }
+  }
+
+  const fieldRoot = label.closest(".form-group, .form-item, .row, li, div");
+  if (!fieldRoot) return "";
+
+  const target = fieldRoot.querySelector("input, select, textarea");
+  if (!target) return "";
+
+  return toKeyToken(target.name || target.id || "");
+}
+
+function hasDataHideAttribute(el) {
+  return Array.from(el.attributes || []).some((attr) =>
+    attr.name.startsWith("data-hide-")
+  );
+}
+
+function isFirstLevelControllerLabel(label) {
+  let target = null;
+  if (label.htmlFor) {
+    target = document.getElementById(label.htmlFor);
+  }
+
+  const fieldRoot = label.closest(".form-group, .form-item, .row, li, div");
+  if (!target && fieldRoot) {
+    target = fieldRoot.querySelector("input, select, textarea");
+  }
+  if (!target) return false;
+
+  if (hasDataHideAttribute(target)) return true;
+
+  // OOD often stores conditional wiring on option elements.
+  if (target.tagName === "SELECT") {
+    if (Array.from(target.options || []).some((opt) => hasDataHideAttribute(opt))) {
+      return true;
+    }
+  }
+
+  if (!fieldRoot) return false;
+  return Array.from(fieldRoot.querySelectorAll("*")).some((el) =>
+    hasDataHideAttribute(el)
+  );
+}
+
+function isAlwaysIconLabel(labelText) {
+  const normalized = normalizeLabel(labelText);
+  return /\b(cores?|cpus?|memory|ram|hours?|time|walltime|resume|tower_access_token|tower access token|workdir|working directory)\b/.test(normalized);
+}
+
 document.addEventListener("DOMContentLoaded", function () {
   document.querySelectorAll("label").forEach((label) => {
-    const iconClass = resolveIconClass(label.textContent || "");
+    const labelText = label.textContent || "";
+    const fieldKey = getLabelFieldKey(label);
+    const isFirstLevel = isFirstLevelControllerLabel(label);
+    const isCommonOOD = isAlwaysIconLabel(labelText);
+
+    // Icons only for first-level controller fields, plus common OOD resource fields.
+    if (!isFirstLevel && !isCommonOOD) {
+      return;
+    }
+
+    const iconClass = resolveIconClass(labelText);
     const icon = document.createElement("i");
     icon.className = iconClass;
 
@@ -211,4 +329,112 @@ document.addEventListener("DOMContentLoaded", function () {
 
     label.prepend(icon);
   });
+});
+
+// Resize header images (nf-core pipeline logos) if they are too large
+document.addEventListener("DOMContentLoaded", () => {
+  // Match any <img alt="nf-core-...">
+  const imgs = document.querySelectorAll('img[alt^="nf-core-"]');
+
+  console.log(`Found ${imgs.length} nf-core header image(s)`);
+
+  imgs.forEach((img) => {
+    // Constrain size but keep aspect ratio
+    img.style.setProperty("height", "auto", "important");
+    img.style.setProperty("max-height", "300px", "important");
+    img.style.setProperty("width", "auto", "important");
+    img.style.setProperty("max-width", "600px", "important");
+
+    // Center it
+    img.style.setProperty("display", "block", "important");
+    img.style.setProperty("margin", "0 auto 10px auto", "important");
+  });
+});
+
+function styleSavedFormNotice() {
+  const blockquotes = Array.from(document.querySelectorAll("blockquote"));
+  const notice = blockquotes.find((el) =>
+    /saved form values/i.test(el.textContent || "") && /cache reset utility/i.test(el.textContent || "")
+  );
+  if (!notice) return;
+
+  notice.style.background = "linear-gradient(135deg, #eef6ff 0%, #f8fbff 100%)";
+  notice.style.borderLeft = "4px solid #3b82f6";
+  notice.style.borderRadius = "10px";
+  notice.style.padding = "14px 16px";
+  notice.style.margin = "18px 0 22px";
+  notice.style.boxShadow = "0 6px 18px rgba(59, 130, 246, 0.08)";
+  notice.style.color = "#16324f";
+
+  const paragraphs = notice.querySelectorAll("p");
+  paragraphs.forEach((p, index) => {
+    p.style.margin = index === 0 ? "0 0 2px" : "4px 0 0";
+    p.style.lineHeight = "1.3";
+    p.style.color = "#16324f";
+  });
+
+  const strong = notice.querySelector("strong");
+  if (strong) {
+    strong.style.fontSize = "1rem";
+    strong.style.letterSpacing = "0.01em";
+    strong.style.color = "#0f2f57";
+  }
+
+  notice.querySelectorAll("a").forEach((link) => {
+    link.style.display = "inline-block";
+    link.style.marginTop = "4px";
+    link.style.padding = "6px 12px";
+    link.style.borderRadius = "8px";
+    link.style.background = "#0b6bcb";
+    link.style.color = "#ffffff";
+    link.style.textDecoration = "none";
+    link.style.fontWeight = "700";
+  });
+}
+
+function resetBatchConnectFormOnce() {
+  const url = new URL(window.location.href);
+  const needsReset = url.searchParams.get("cache_reset") === "1" || url.searchParams.has("cache_reset_reload");
+  if (!needsReset) return;
+
+  const clearFields = () => {
+    document.querySelectorAll("input, textarea, select").forEach((field) => {
+      const type = (field.getAttribute("type") || "").toLowerCase();
+      if (["hidden", "submit", "button", "image", "file"].includes(type)) return;
+      if (field.disabled) return;
+
+      if (field.tagName === "SELECT") {
+        field.selectedIndex = 0;
+        field.dispatchEvent(new Event("change", { bubbles: true }));
+        return;
+      }
+
+      if (type === "checkbox" || type === "radio") {
+        field.checked = false;
+        field.dispatchEvent(new Event("change", { bubbles: true }));
+        return;
+      }
+
+      field.value = "";
+      field.dispatchEvent(new Event("input", { bubbles: true }));
+      field.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+
+    url.searchParams.delete("cache_reset");
+    url.searchParams.delete("cache_reset_at");
+    if (url.searchParams.has("cache_reset_reload")) {
+      url.searchParams.delete("cache_reset_reload");
+      window.history.replaceState({}, document.title, url.toString());
+    } else {
+      url.searchParams.set("cache_reset_reload", Date.now().toString());
+      window.location.replace(url.toString());
+    }
+  };
+
+  window.requestAnimationFrame(() => setTimeout(clearFields, 50));
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  resetBatchConnectFormOnce();
+  styleSavedFormNotice();
 });

@@ -12,12 +12,76 @@ module list
 
 # Set the working directory
 workdir="<%= context.workdir %>"
+pipeline_name="PIPELINE"
+pipeline_version_label="VERSION"
+monitor_registry_dir="${HOME}/.local/share/nf-ood-monitor/runs"
+run_id="$(date +%Y%m%dT%H%M%S)-$$"
+job_id="${SLURM_JOB_ID:-${PBS_JOBID:-${LSB_JOBID:-}}}"
+metadata_file=""
+registry_file=""
+monitor_finalized=0
 
 # Ensure the working directory exists
 if [[ ! -d "$workdir" ]]; then
     echo "Creating working directory: $workdir"
     mkdir -p "$workdir" || { echo "Error: Failed to create $workdir"; exit 1; }
 fi
+
+mkdir -p "$monitor_registry_dir" || { echo "Error: Failed to create $monitor_registry_dir"; exit 1; }
+metadata_file="$workdir/.ood_nf_run.json"
+registry_file="$monitor_registry_dir/${run_id}.json"
+
+write_monitor_metadata() {
+    local status="$1"
+    local exit_code="${2:-}"
+    local completed_at="${3:-}"
+
+    RUN_ID="$run_id" \
+    PIPELINE_NAME="$pipeline_name" \
+    PIPELINE_VERSION="$pipeline_version_label" \
+    WORKDIR="$workdir" \
+    JOB_ID="$job_id" \
+    STARTED_AT="${STARTED_AT:-}" \
+    STATUS="$status" \
+    EXIT_CODE="$exit_code" \
+    COMPLETED_AT="$completed_at" \
+    METADATA_FILE="$metadata_file" \
+    REGISTRY_FILE="$registry_file" \
+    ruby -rjson -e '
+      payload = {
+        run_id: ENV.fetch("RUN_ID"),
+        pipeline: ENV.fetch("PIPELINE_NAME"),
+        version: ENV.fetch("PIPELINE_VERSION"),
+        workdir: ENV.fetch("WORKDIR"),
+        job_id: ENV["JOB_ID"],
+        started_at: ENV["STARTED_AT"],
+        status: ENV.fetch("STATUS"),
+        exit_code: ENV["EXIT_CODE"],
+        completed_at: ENV["COMPLETED_AT"]
+      }
+      json = JSON.pretty_generate(payload)
+      File.write(ENV.fetch("METADATA_FILE"), json)
+      File.write(ENV.fetch("REGISTRY_FILE"), json)
+    '
+}
+
+STARTED_AT="$(date -Iseconds)"
+write_monitor_metadata "running"
+
+finalize_monitor_metadata() {
+    local exit_code="${1:-$?}"
+    [[ "$monitor_finalized" -eq 1 ]] && return
+
+    if [[ "$exit_code" -eq 0 ]]; then
+        write_monitor_metadata "completed" "$exit_code" "$(date -Iseconds)"
+    else
+        write_monitor_metadata "failed" "$exit_code" "$(date -Iseconds)"
+    fi
+
+    monitor_finalized=1
+}
+
+trap 'finalize_monitor_metadata "$?"' EXIT
 
 # Copy necessary files and change to the working directory
 cp nf-params.json "$workdir/" || { echo "Error: Failed to copy nf-params.json"; exit 1; }
@@ -60,11 +124,25 @@ num_memory="<%= context.num_memory %>"
 num_core="<%= context.num_cores %>"
 
 # Build Nextflow command
-nextflow_command=("nextflow run $pipeline_version -params-file nf-params.json")
+nextflow_command=(
+    "nextflow"
+    "run"
+    "$pipeline_version"
+    "-params-file"
+    "nf-params.json"
+    "-with-report"
+    "nf-report.html"
+    "-with-timeline"
+    "nf-timeline.html"
+    "-with-trace"
+    "nf-trace.txt"
+    "-with-dag"
+    "nf-dag.html"
+)
 
 if [[ "<%= context.executor %>" == "slurm" ]]; then
     echo "Using Tufts profile (Slurm execution)."  # TODO
-    nextflow_command+=("-profile tufts")
+    nextflow_command+=("-profile" "tufts")
 else
     echo "Running in local mode (single-node execution)."
 
@@ -81,7 +159,7 @@ process {
 EOF
 
     echo "custom.config file created with cpus=$num_core and memory=$num_memory."
-    nextflow_command+=("-profile singularity" "-c custom.config")
+    nextflow_command+=("-profile" "singularity" "-c" "custom.config")
 fi
 
 # Append optional flags
@@ -90,4 +168,11 @@ fi
 
 # Output and execute the command
 echo "Executing command: ${nextflow_command[*]}"
-eval "${nextflow_command[*]}"
+set +e
+"${nextflow_command[@]}"
+nextflow_exit_code=$?
+set -e
+
+finalize_monitor_metadata "$nextflow_exit_code"
+
+exit "$nextflow_exit_code"
