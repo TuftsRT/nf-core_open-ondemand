@@ -1,3 +1,25 @@
 <%# Offers a quick link to the user's working directory via the OnDemand interface.
 This will appear once the job begins running. %>
-<p>The pipeline does not offer an interactive interface. <a href= "/pun/sys/files/fs/<%= working_path %>">You can find your output files here.</a></p>
+<%
+log_tail = []
+
+if output_log_path.to_s != "" && File.file?(output_log_path)
+  File.open(output_log_path, "r") do |file|
+    log_tail = file.each_line.to_a.last(15)
+  end
+end
+%>
+<p>The pipeline does not offer an interactive interface. <a href="/pun/sys/files/fs/<%= working_path %>">You can find your output files here.</a></p>
+
+<div class="ood-appkit-card">
+  <h3>Running log</h3>
+  <% if output_log_path.to_s != "" %>
+    <p><a href="/pun/sys/files/fs<%= output_log_path %>">Open output.log</a></p>
+  <% end %>
+  <% if log_tail.empty? %>
+    <p><code>output.log</code> is not available yet.</p>
+  <% else %>
+    <p>Showing the last <%= log_tail.length %> lines from <code>output.log</code>.</p>
+    <pre><%= ERB::Util.html_escape(log_tail.join) %></pre>
+  <% end %>
+</div>
