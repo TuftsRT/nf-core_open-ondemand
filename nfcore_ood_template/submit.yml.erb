@@ -6,24 +6,26 @@ batch_connect:
     - output_log_path
 
 script:
-  email_on_started: true
-  email_on_terminated: true
-  email: <%= ENV["USER"] %>@tufts.edu
-  job_name: "OnDemand/nf-core_PIPELINE"
+  email_on_started: false
+  email_on_terminated: false
+  job_name: "OnDemand/__PIPELINE_NAME__"
   native:
     - "--time"
-    - "<%= bc_num_hours %>:0:0"
+    - "<%= bc_num_hours %>:00:00"
     - "--nodes"
     - "1"
     <%- if executor == "slurm" -%>
     - "-n"
     - "2"
-    - "--mem=8G"
+    - "--mem"
+    - "8G"
     <%- elsif executor == "local" -%>
     - "-n"
     - "<%= num_cores %>"
     - "--mem"
     - "<%= num_memory %>G"
+    <%- if partition.to_s.strip != "" -%>
     - "-p"
-    - <%= partition %>
-    <%- end -%>                         
+    - "<%= partition %>"
+    <%- end -%>
+    <%- end -%>

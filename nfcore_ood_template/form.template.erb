@@ -1,57 +1,76 @@
 ---
-cluster: "pax"
+cluster: "__NF2OOD_CLUSTER__"
 form_header: |
+  <!-- NF2OOD_BANNER_START -->
   <div style="text-align: center; margin-bottom: 20px;">
     <img src="__BANNER_IMAGE_URL__"
-         alt="nf-core-PIPELINE"
-         style="max-width: 600px; height: auto; margin-bottom: 10px;">
+         alt="__PIPELINE_NAME__"
+         style="max-width: 600px; max-height: 600px; height: auto; margin-bottom: 10px;">
   </div>
+  <!-- NF2OOD_BANNER_END -->
 
   > **Saved form values**
   >
   > This app automatically saves your form inputs between sessions.
   >
-  > To clear the saved form values for this app, use the [cache reset utility](/pun/sys/cache_reset/?app_slug=MYAPP&return_url=/pun/sys/dashboard/batch_connect/sys/MYAPP/session_contexts/new).
+  > To clear the saved form values for this app, use the [cache reset utility](/pun/sys/cache_reset/?app_slug=__APP_SLUG__&return_url=/pun/sys/dashboard/batch_connect/sys/__APP_SLUG__/session_contexts/new).
 
 attributes:
-<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/cpu_partition.yml").indent(2) %>
-<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/num_cores_generic.yml").indent(2) %>
-<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/num_memory_generic.yml").indent(2) %>
+  bc_num_hours:
+    label: Number of hours
+    widget: number_field
+    value: 8
+    min: 1
+    step: 1
+    help: Requested walltime for the launch job.
+
+<%= File.read("__NF2OOD_PARTITION_YML__").indent(2) %>
+
+  num_cores:
+    label: Number of cores
+    widget: number_field
+    value: 4
+    min: 1
+    step: 1
+    help: CPU count used for single-node local execution.
+
+  num_memory:
+    label: Amount of memory (GB)
+    widget: number_field
+    value: 8
+    min: 1
+    step: 1
+    help: Memory requested for single-node local execution.
 
   executor:
-    label: Which nextflow executor to use?
+    label: Which Nextflow executor should be used?
     widget: select
     options:
-    - [
-        "slurm", "slurm",
-        data-hide-partition: true,
-        data-hide-num-cores: true,
-        data-hide-num-memory: true
-      ]
-    - ["local", "local"]
+      - ["slurm", "slurm", data-hide-partition: true, data-hide-num-cores: true, data-hide-num-memory: true]
+      - ["local", "local"]
     help: |
-      With slurm, tasks will be distributed to different nodes, local means all tasks will run on a single node.
+      With `slurm`, the pipeline uses its configured scheduler profile.
+      With `local`, tasks run on the submitted node using a generated config.
 
   workdir:
-    label: "Working Directory"
-    widget: "path_selector"
-    directory: "/cluster/tufts"
-    required: false
     label: Working directory
+    widget: path_selector
+    required: false
+    directory: "__NF2OOD_DEFAULT_DIRECTORY__"
     favorites:
-        - /cluster/tufts
-        - /cluster/home
-    
+      - "__NF2OOD_DEFAULT_DIRECTORY__"
+    help: Directory where the Nextflow launch should run.
+
   resume:
-    label: Resume
+    label: Resume previous run
     widget: check_box
     checked_value: 1
     unchecked_value: 0
-    help: |
-           Resume previous run if found
+    help: Resume a previous run if a matching Nextflow work directory exists.
 
   tower_access_token:
-    widget: "text_field"
+    widget: text_field
     required: false
-    label: "TOWER_ACCESS_TOKEN (Optional)"
-    help: "Your TOWER_ACCESS_TOKEN used to monitor runs on [Nextflow Tower](https://seqera.io)."
+    label: Nextflow Tower access token (optional)
+    help: |
+      Optional Seqera Platform or Tower access token used with `-with-tower`.

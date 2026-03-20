@@ -1,0 +1,408 @@
+#!/usr/bin/env bash
+
+# Generate Open OnDemand batch-connect apps from locally downloaded nf-core
+# pipelines. This tool intentionally focuses on app generation only.
+
+set -euo pipefail
+IFS=$'\n\t'
+
+readonly SCRIPT_NAME="$(basename "$0")"
+
+log() {
+  printf '[%s] %s\n' "$SCRIPT_NAME" "$*"
+}
+
+die() {
+  printf '[%s] ERROR: %s\n' "$SCRIPT_NAME" "$*" >&2
+  exit 1
+}
+
+usage() {
+  cat <<'EOF'
+Usage: nf2ood --input INPUT_DIR --output OUTPUT_DIR [--image-map TSV] [--force]
+
+Generate Open OnDemand apps from nf-core pipeline downloads.
+
+Required arguments:
+  -i, --input       Directory containing nf-core pipeline directories
+  -o, --output      Directory where generated Open OnDemand apps will be written
+
+Optional arguments:
+  --image-map       TSV mapping of pipeline name to image URL
+                    Format: <pipeline_name>\t<image_url>
+                    Default: ./pipeline2image.tsv when present
+  -f, --force       Delete the existing output directory before generating apps
+  -h, --help        Show this help message
+
+The input directory is expected to contain one directory per pipeline, with one
+subdirectory per version. For example:
+
+  INPUT_DIR/
+    nf-core-rnaseq/
+      3.18.0/
+        3_18_0/nextflow_schema.json
+EOF
+}
+
+config_value() {
+  local variable_name=$1
+  local default_value=$2
+  printf '%s\n' "${!variable_name:-$default_value}"
+}
+
+require_command() {
+  command -v "$1" >/dev/null 2>&1 || die "Required command not found: $1"
+}
+
+repo_root() {
+  local script_dir
+  script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  printf '%s\n' "$script_dir"
+}
+
+prepare_output_dir() {
+  local target_dir=$1
+  local force=$2
+
+  if [[ -e "$target_dir" && ! -d "$target_dir" ]]; then
+    die "Output path exists and is not a directory: $target_dir"
+  fi
+
+  if [[ -d "$target_dir" ]]; then
+    if [[ "$force" == "true" ]]; then
+      log "Removing existing output directory: $target_dir"
+      rm -rf "$target_dir"
+    else
+      printf "Output directory '%s' already exists. Delete it and regenerate? [y/N] " "$target_dir"
+      read -r answer
+      if [[ "$answer" =~ ^[Yy]$ ]]; then
+        rm -rf "$target_dir"
+      else
+        die "Refusing to reuse an existing output directory without confirmation."
+      fi
+    fi
+  fi
+
+  mkdir -p "$target_dir"
+}
+
+list_pipelines() {
+  local input_dir=$1
+  find "$input_dir" -mindepth 1 -maxdepth 1 -type d ! -name '.*' -exec basename {} \; | sort
+}
+
+list_versions() {
+  local pipeline_dir=$1
+  find "$pipeline_dir" -mindepth 1 -maxdepth 1 -type d ! -name '.*' -exec basename {} \; | sort
+}
+
+locate_schema() {
+  local input_dir=$1
+  local pipeline_name=$2
+  local pipeline_version=$3
+  local version_underscored="${pipeline_version//./_}"
+  local candidates=(
+    "${input_dir}/${pipeline_name}/${pipeline_version}/${version_underscored}/nextflow_schema.json"
+    "${input_dir}/${pipeline_name}/${pipeline_version}/nextflow_schema.json"
+    "${input_dir}/${pipeline_name}/${version_underscored}/nextflow_schema.json"
+    "${input_dir}/${pipeline_name}/nextflow_schema.json"
+  )
+
+  local candidate
+  for candidate in "${candidates[@]}"; do
+    if [[ -f "$candidate" ]]; then
+      printf '%s\n' "$candidate"
+      return 0
+    fi
+  done
+
+  die "Could not find nextflow_schema.json for ${pipeline_name} ${pipeline_version}"
+}
+
+resolve_pipeline_image_url() {
+  local image_map_tsv=$1
+  local pipeline_name=$2
+  local pipeline_version=$3
+  local pipeline_slug="${pipeline_name#nf-core-}"
+  local normalized_slug
+  normalized_slug="$(printf '%s' "$pipeline_slug" | tr '[:upper:]' '[:lower:]')"
+
+  if [[ -n "$image_map_tsv" && -f "$image_map_tsv" ]]; then
+    local row_key row_url normalized_key
+    while IFS=$'\t' read -r row_key row_url _; do
+      row_key=${row_key//$'\r'/}
+      row_url=${row_url//$'\r'/}
+
+      [[ -z "${row_key//[[:space:]]/}" ]] && continue
+      [[ "${row_key:0:1}" == "#" ]] && continue
+
+      normalized_key="$(printf '%s' "$row_key" | tr '[:upper:]' '[:lower:]')"
+      [[ "$normalized_key" == "pipeline" || "$normalized_key" == "pipeline_name" ]] && continue
+      normalized_key="${normalized_key#nf-core-}"
+
+      if [[ "$normalized_key" == "$normalized_slug" ]]; then
+        printf '%s\n' "$row_url"
+        return 0
+      fi
+    done < "$image_map_tsv"
+
+    printf '\n'
+    return 0
+  fi
+
+  printf 'https://raw.githubusercontent.com/nf-core/%s/%s/docs/images/%s_metro_map.png\n' \
+    "$pipeline_slug" "$pipeline_version" "$pipeline_slug"
+}
+
+determine_subcategory() {
+  local pipeline_name=$1
+
+  case "$pipeline_name" in
+    nf-core-abotyper|nf-core-diseasemodulediscovery|nf-core-drugresponseeval|nf-core-longraredisease|nf-core-meerpipe|\
+    nf-core-oncoanalyser|nf-core-pacsomatic|nf-core-raredisease|nf-core-tumourevo|nf-core-variantprioritization)
+      printf 'clinical\n' ;;
+    nf-core-drop|nf-core-hadge|nf-core-marsseq|nf-core-mcmicro|nf-core-molkart|\
+    nf-core-panoramaseq|nf-core-pixelator|nf-core-scdownstream|nf-core-scflow|nf-core-scnanoseq|\
+    nf-core-scrnaseq|nf-core-smartseq2|nf-core-sopa|nf-core-spatialvi|nf-core-spatialxe)
+      printf 'singlecell\n' ;;
+    nf-core-alleleexpression|nf-core-cageseq|nf-core-circrna|nf-core-clipseq|nf-core-denovotranscript|\
+    nf-core-differentialabundance|nf-core-dualrnaseq|nf-core-evexplorer|nf-core-isoseq|nf-core-lncpipe|\
+    nf-core-nanostring|nf-core-nascent|nf-core-ribomsqc|nf-core-riboseq|nf-core-rnafusion|\
+    nf-core-rnaseq|nf-core-rnasplice|nf-core-rnavar|nf-core-slamseq|nf-core-smrnaseq|\
+    nf-core-spinningjenny|nf-core-tfactivity)
+      printf 'rnaseq\n' ;;
+    nf-core-atacseq|nf-core-callingcards|nf-core-chipseq|nf-core-cutandrun|nf-core-hic|\
+    nf-core-hicar|nf-core-methylarray|nf-core-methylong|nf-core-methylseq|nf-core-mnaseseq|\
+    nf-core-sammyseq|nf-core-ssds)
+      printf 'epigenomics\n' ;;
+    nf-core-ampliseq|nf-core-coproid|nf-core-createtaxdb|nf-core-detaxizer|nf-core-eager|\
+    nf-core-funcscan|nf-core-mag|nf-core-magmap|nf-core-metapep|nf-core-metatdenovo|\
+    nf-core-pathogensurveillance|nf-core-phageannotator|nf-core-proteinfamilies|nf-core-taxprofiler|nf-core-troughgraph|\
+    nf-core-vipr|nf-core-viralintegration|nf-core-viralmetagenome|nf-core-viralrecon)
+      printf 'metagenomics\n' ;;
+    nf-core-ddamsproteomics|nf-core-diaproteomics|nf-core-mhcquant|nf-core-proteinannotator|nf-core-proteinfold|\
+    nf-core-proteogenomicsdb|nf-core-proteomicslfq|nf-core-quantms)
+      printf 'proteomics\n' ;;
+    nf-core-metaboigniter)
+      printf 'metabolomics\n' ;;
+    nf-core-cellpainting|nf-core-imcyto|nf-core-liverctanalysis|nf-core-lsmquant|nf-core-rangeland)
+      printf 'imaging\n' ;;
+    nf-core-airrflow|nf-core-epitopeprediction|nf-core-hlatyping)
+      printf 'immunology\n' ;;
+    nf-core-bacass|nf-core-bactmap|nf-core-circdna|nf-core-createpanelrefs|nf-core-crisprseq|\
+    nf-core-crisprvar|nf-core-deepmodeloptim|nf-core-deepmutscan|nf-core-deepvariant|nf-core-denovohybrid|\
+    nf-core-exoseq|nf-core-genomeannotator|nf-core-genomeassembler|nf-core-genomeqc|nf-core-genomeskim|\
+    nf-core-genomicrelatedness|nf-core-gwas|nf-core-hgtseq|nf-core-mitodetect|nf-core-multiplesequencealign|\
+    nf-core-neutronstar|nf-core-omicsgenetraitassociation|nf-core-pacvar|nf-core-pairgenomealign|nf-core-pangenome|\
+    nf-core-phaseimpute|nf-core-phyloplace|nf-core-radseq|nf-core-rarevariantburden|nf-core-references|\
+    nf-core-reportho|nf-core-rnadnavar|nf-core-sarek|nf-core-seqinspector|nf-core-stableexpression|\
+    nf-core-tbanalyzer|nf-core-variantbenchmarking|nf-core-variantcatalogue)
+      printf 'genomics\n' ;;
+    nf-core-bamtofastq|nf-core-datasync|nf-core-demo|nf-core-demultiplex|nf-core-fastqrepair|\
+    nf-core-fastquorum|nf-core-fetchngs|nf-core-kmermaid|nf-core-nanoseq|nf-core-readsimulator|\
+    nf-core-seqsubmit)
+      printf 'utility\n' ;;
+    nf-core-*)
+      printf '%s\n' "${pipeline_name#nf-core-}" ;;
+    *)
+      printf 'bioinformatics\n' ;;
+  esac
+}
+
+replace_literal_in_file() {
+  local file_path=$1
+  local needle=$2
+  local replacement=$3
+
+  [[ -f "$file_path" ]] || die "Cannot replace text in missing file: $file_path"
+  FILE_PATH="$file_path" NEEDLE="$needle" REPLACEMENT="$replacement" perl -0pi -e 's/\Q$ENV{NEEDLE}\E/$ENV{REPLACEMENT}/g' "$file_path"
+}
+
+remove_banner_block() {
+  local form_file=$1
+  [[ -f "$form_file" ]] || die "Cannot update missing file: $form_file"
+  perl -0pi -e 's@\n  <!-- NF2OOD_BANNER_START -->.*?<!-- NF2OOD_BANNER_END -->\n@@s' "$form_file"
+}
+
+generate_app_readme() {
+  local template_root=$1
+  local app_dir=$2
+  local pipeline_name=$3
+  local pipeline_version=$4
+  local pipeline_slug="${pipeline_name#nf-core-}"
+  local display_name="nf-core/${pipeline_slug}"
+  local source_url="https://nf-co.re/${pipeline_slug}"
+  local repo_url="https://github.com/nf-core/${pipeline_slug}"
+
+  cp "${template_root}/README.md" "${app_dir}/README.md"
+
+  replace_literal_in_file "${app_dir}/README.md" "__PIPELINE_NAME__" "$pipeline_name"
+  replace_literal_in_file "${app_dir}/README.md" "__PIPELINE_SLUG__" "$pipeline_slug"
+  replace_literal_in_file "${app_dir}/README.md" "__PIPELINE_DISPLAY_NAME__" "$display_name"
+  replace_literal_in_file "${app_dir}/README.md" "__PIPELINE_VERSION__" "$pipeline_version"
+  replace_literal_in_file "${app_dir}/README.md" "__PIPELINE_SOURCE_URL__" "$source_url"
+  replace_literal_in_file "${app_dir}/README.md" "__PIPELINE_REPOSITORY_URL__" "$repo_url"
+}
+
+customize_generated_app() {
+  local app_dir=$1
+  local pipeline_name=$2
+  local pipeline_version=$3
+  local image_map_tsv=$4
+  local image_url subcategory app_slug version_path
+  local rendered_cluster rendered_default_directory rendered_module_name
+  local rendered_pipeline_root rendered_singularity_cache rendered_slurm_profile
+  local rendered_container_module
+  local rendered_partition_partial
+  local rendered_env_file
+
+  app_slug="$(basename "$app_dir")"
+  version_path="${pipeline_version}/${pipeline_version//./_}"
+  image_url="$(resolve_pipeline_image_url "$image_map_tsv" "$pipeline_name" "$pipeline_version")"
+  subcategory="$(determine_subcategory "$pipeline_name")"
+  rendered_cluster="$(config_value NF2OOD_CLUSTER "cluster")"
+  rendered_default_directory="$(config_value NF2OOD_DEFAULT_DIRECTORY "$HOME")"
+  rendered_partition_partial="$(config_value NF2OOD_PARTITION_YML "/etc/ood/config/apps/dashboard/batch_connect/partials/cpu_partition.yml")"
+  rendered_module_name="$(config_value NF2OOD_MODULE_NAME "nextflow")"
+  rendered_container_module="$(config_value NF2OOD_CONTAINER_MODULE "singularity")"
+  rendered_pipeline_root="$(config_value NF2OOD_PIPELINE_ROOT "/cluster/tufts/apps/container/biocontainers/nf-core/pipelines")"
+  rendered_singularity_cache="$(config_value NF2OOD_SINGULARITY_CACHEDIR "/cluster/tufts/apps/container/biocontainers/nf-core/singularity-images")"
+  rendered_slurm_profile="$(config_value NF2OOD_SLURM_PROFILE "tufts")"
+  rendered_env_file="$(config_value NF2OOD_ENV_FILE "")"
+
+  replace_literal_in_file "${app_dir}/submit.yml.erb" "__PIPELINE_NAME__" "$pipeline_name"
+  replace_literal_in_file "${app_dir}/manifest.yml" "__PIPELINE_NAME__" "$pipeline_name"
+  replace_literal_in_file "${app_dir}/manifest.yml" "__PIPELINE_VERSION__" "$pipeline_version"
+  replace_literal_in_file "${app_dir}/manifest.yml" "__PIPELINE_SLUG__" "${pipeline_name#nf-core-}"
+  replace_literal_in_file "${app_dir}/manifest.yml" "__SUBCATEGORY__" "$subcategory"
+  replace_literal_in_file "${app_dir}/form.yml.erb" "__PIPELINE_NAME__" "$pipeline_name"
+  replace_literal_in_file "${app_dir}/form.yml.erb" "__APP_SLUG__" "$app_slug"
+  replace_literal_in_file "${app_dir}/form.yml.erb" "__NF2OOD_CLUSTER__" "$rendered_cluster"
+  replace_literal_in_file "${app_dir}/form.yml.erb" "__NF2OOD_DEFAULT_DIRECTORY__" "$rendered_default_directory"
+  replace_literal_in_file "${app_dir}/form.yml.erb" "__NF2OOD_PARTITION_YML__" "$rendered_partition_partial"
+  replace_literal_in_file "${app_dir}/template/script.sh.erb" "__PIPELINE_NAME__" "$pipeline_name"
+  replace_literal_in_file "${app_dir}/template/script.sh.erb" "__PIPELINE_VERSION_PATH__" "$version_path"
+  replace_literal_in_file "${app_dir}/template/script.sh.erb" "__NF2OOD_ENV_FILE__" "$rendered_env_file"
+  replace_literal_in_file "${app_dir}/template/script.sh.erb" "__NF2OOD_MODULE_NAME__" "$rendered_module_name"
+  replace_literal_in_file "${app_dir}/template/script.sh.erb" "__NF2OOD_CONTAINER_MODULE__" "$rendered_container_module"
+  replace_literal_in_file "${app_dir}/template/script.sh.erb" "__NF2OOD_PIPELINE_ROOT__" "$rendered_pipeline_root"
+  replace_literal_in_file "${app_dir}/template/script.sh.erb" "__NF2OOD_SINGULARITY_CACHEDIR__" "$rendered_singularity_cache"
+  replace_literal_in_file "${app_dir}/template/script.sh.erb" "__NF2OOD_SLURM_PROFILE__" "$rendered_slurm_profile"
+
+  if [[ -n "$image_url" ]]; then
+    replace_literal_in_file "${app_dir}/form.yml.erb" "__BANNER_IMAGE_URL__" "$image_url"
+  else
+    remove_banner_block "${app_dir}/form.yml.erb"
+  fi
+
+  # Keep the generated YAML compatible with OOD expectations.
+  replace_literal_in_file "${app_dir}/form.yml.erb" "value: True" "value: true"
+  replace_literal_in_file "${app_dir}/form.yml.erb" "value: False" "value: false"
+
+  generate_app_readme "$TEMPLATE_ROOT" "$app_dir" "$pipeline_name" "$pipeline_version"
+}
+
+generate_app() {
+  local input_dir=$1
+  local output_dir=$2
+  local image_map_tsv=$3
+  local pipeline_name=$4
+  local pipeline_version=$5
+  local schema_path app_dir rendered_version base_form generated_form params_template
+
+  rendered_version="${pipeline_version//./-}"
+  app_dir="${output_dir}/${pipeline_name}-${rendered_version}"
+  schema_path="$(locate_schema "$input_dir" "$pipeline_name" "$pipeline_version")"
+  base_form="${app_dir}/form.template.erb"
+  generated_form="${app_dir}/form.yml.erb"
+  params_template="${app_dir}/template/nf-params.json.erb"
+
+  log "Generating ${pipeline_name} ${pipeline_version}"
+  cp -R "$TEMPLATE_ROOT" "$app_dir"
+
+  python3 "$REPO_ROOT/json2ood.py" \
+    "$schema_path" \
+    "$generated_form" \
+    "$base_form" \
+    "$params_template"
+
+  rm -f "$base_form"
+  customize_generated_app "$app_dir" "$pipeline_name" "$pipeline_version" "$image_map_tsv"
+}
+
+parse_args() {
+  INPUT_DIR=""
+  OUTPUT_DIR=""
+  IMAGE_MAP_TSV=""
+  FORCE_OVERWRITE="false"
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -i|--input)
+        [[ $# -ge 2 ]] || die "Missing value for $1"
+        INPUT_DIR=$2
+        shift 2
+        ;;
+      -o|--output)
+        [[ $# -ge 2 ]] || die "Missing value for $1"
+        OUTPUT_DIR=$2
+        shift 2
+        ;;
+      --image-map)
+        [[ $# -ge 2 ]] || die "Missing value for $1"
+        IMAGE_MAP_TSV=$2
+        shift 2
+        ;;
+      -f|--force)
+        FORCE_OVERWRITE="true"
+        shift
+        ;;
+      -h|--help)
+        usage
+        exit 0
+        ;;
+      *)
+        die "Unknown argument: $1"
+        ;;
+    esac
+  done
+
+  [[ -n "$INPUT_DIR" ]] || die "Missing required argument: --input"
+  [[ -n "$OUTPUT_DIR" ]] || die "Missing required argument: --output"
+  [[ -d "$INPUT_DIR" ]] || die "Input directory does not exist: $INPUT_DIR"
+}
+
+main() {
+  parse_args "$@"
+
+  require_command python3
+  require_command perl
+
+  REPO_ROOT="$(repo_root)"
+  TEMPLATE_ROOT="${REPO_ROOT}/nfcore_ood_template"
+
+  if [[ -z "$IMAGE_MAP_TSV" ]]; then
+    IMAGE_MAP_TSV="${REPO_ROOT}/pipeline2image.tsv"
+  fi
+
+  [[ -d "$TEMPLATE_ROOT" ]] || die "Template directory not found: $TEMPLATE_ROOT"
+  prepare_output_dir "$OUTPUT_DIR" "$FORCE_OVERWRITE"
+
+  local pipeline_name pipeline_version
+  while IFS= read -r pipeline_name; do
+    [[ -n "$pipeline_name" ]] || continue
+    log "Scanning pipeline: $pipeline_name"
+
+    while IFS= read -r pipeline_version; do
+      [[ -n "$pipeline_version" ]] || continue
+      if [[ ! "$pipeline_version" =~ ^[0-9] ]]; then
+        log "Skipping non-version directory: ${pipeline_name}/${pipeline_version}"
+        continue
+      fi
+
+      generate_app "$INPUT_DIR" "$OUTPUT_DIR" "$IMAGE_MAP_TSV" "$pipeline_name" "$pipeline_version"
+    done < <(list_versions "${INPUT_DIR}/${pipeline_name}")
+  done < <(list_pipelines "$INPUT_DIR")
+}
+
+main "$@"

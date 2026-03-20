@@ -1,24 +1,26 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
-"""
-Generate an OOD form YAML file and a parameters JSON file from a JSON schema.
+"""Convert nf-core JSON schema files into Open OnDemand form fragments."""
 
-The script keeps the same overall structure as the original version you posted,
-but fixes syntax errors, improves readability and adds a few safety checks.
-"""
+from __future__ import annotations
 
 import argparse
 import json
-import os
 import re
-import shutil
 import sys
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Any
 
-# ----------------------------------------------------------------------
-# Global collections (they are filled while the schema is processed)
-# ----------------------------------------------------------------------
-hidden_list = [
+
+SKIPPED_DEFINITION_NAMES = {
+    "institutional_config_options",
+    "generic_options",
+    "max_job_request_options",
+    "deprecated_options",
+}
+
+DEFAULT_HIDDEN_PROPERTY_NAMES = {
     "report_file",
     "citations_file",
     "css_file",
@@ -26,341 +28,311 @@ hidden_list = [
     "report_template",
     "report_logo",
     "report_css",
+}
+
+ALWAYS_INCLUDE_HIDDEN = {"igenomes_base", "igenomes_ignore"}
+PATH_FORMATS = {"file-path", "path", "directory-path"}
+STATIC_FORM_FIELDS = [
+    "bc_num_hours",
+    "executor",
+    "partition",
+    "num_cores",
+    "num_memory",
+    "workdir",
 ]
-always_include_keys = {"igenomes_base", "igenomes_ignore"}
-number_field_list = []
-boolean_field_list = []
+TRAILING_FORM_FIELDS = ["tower_access_token", "resume"]
 
 
-# ----------------------------------------------------------------------
-# Helper utilities
-# ----------------------------------------------------------------------
-def check_file_exists(filepath: str) -> None:
-    """Exit with an error if *filepath* does not exist."""
-    if not os.path.exists(filepath):
-        sys.stderr.write(f"\nError: File not found: {filepath}\n")
-        sys.exit(1)
+@dataclass(frozen=True)
+class FieldSpec:
+    """Normalized representation of a schema property."""
+
+    original_name: str
+    normalized_name: str
+    label: str
+    help_text: str
+    widget_type: str | None
+    required: bool
+    default_value: Any = None
+    enum_values: tuple[Any, ...] = ()
 
 
-def replace_apostrophes(text: str) -> str:
+@dataclass(frozen=True)
+class GroupSpec:
+    """Normalized representation of a schema definition group."""
+
+    name: str
+    normalized_name: str
+    label: str
+    help_text: str
+    fields: tuple[FieldSpec, ...] = field(default_factory=tuple)
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Generate OOD form YAML and Nextflow params templates from a JSON schema."
+    )
+    parser.add_argument("schema_json", help="Path to nextflow_schema.json")
+    parser.add_argument("output_form_yml", help="Rendered OOD form YAML output path")
+    parser.add_argument("base_form_yml", help="Base OOD form template path")
+    parser.add_argument("output_params_json", help="Rendered OOD params ERB template path")
+    return parser.parse_args()
+
+
+def read_json(path: Path) -> dict[str, Any]:
+    with path.open("r", encoding="utf-8") as handle:
+        return json.load(handle)
+
+
+def load_schema_definitions(schema: dict[str, Any]) -> dict[str, Any]:
+    definitions = schema.get("definitions", schema.get("$defs", {}))
+    if not definitions:
+        raise ValueError("Schema does not contain 'definitions' or '$defs'.")
+    return definitions
+
+
+def first_line(value: str | None) -> str:
+    if not value:
+        return ""
+    return value.splitlines()[0].strip()
+
+
+def yaml_single_quote(value: Any) -> str:
+    """Render a scalar as a YAML-safe single-quoted string."""
+
+    text = "" if value is None else str(value)
+    return "'" + text.replace("'", "''") + "'"
+
+
+def normalize_key(name: str) -> str:
+    """Convert schema keys into stable OOD context identifiers.
+
+    Rules:
+    - lowercase everything
+    - map non-alphanumeric runs to underscores
+    - move digits in each token to the end of that token
+    - if a token contains only digits, prefix it with ``n``
     """
-    Replace stray apostrophes and double quotes with back‑ticks.
 
-    Apostrophes that are part of a word (e.g. “you're”) are left untouched.
-    """
-    # apostrophe not preceded/followed by a letter
-    pattern = r"(?<![A-Za-z])'|'(?![A-Za-z])"
-    return re.sub(pattern, "`", text).replace('"', "`")
+    lowered = name.lower()
+    lowered = re.sub(r"[^a-z0-9]+", "_", lowered)
 
+    segments = []
+    for raw_segment in lowered.split("_"):
+        if not raw_segment:
+            continue
 
-def move_digits_to_end(prop: str) -> str:
-    """
-    Move digits to the end of each underscore‑separated segment.
-
-    Examples
-    --------
-    h3i             → hi3
-    dfam_h3i        → dfam_hi3
-    pfam12abc       → pfamabc12
-    3abc12          → abc123
-    ignore_3prime_r2 → ignore_prime3_r2
-    """
-    prop = prop.lower()
-    # Collapse “_123” into “123” so we don’t end up with a leading underscore
-    prop = re.sub(r"_([0-9]+)", r"\1", prop)
-    parts = prop.split("_")
-    new_parts = []
-    for part in parts:
-        letters = re.sub(r"\d", "", part)
-        digits = re.sub(r"\D", "", part)
-        new_parts.append(f"{letters}{digits}" if digits else letters)
-    return "_".join(new_parts)
-
-
-def write_help(outfile, help_text):
-    """Write a ``help:`` line if *help_text* is non‑empty."""
-    if help_text:
-        outfile.write(f'    help: "{replace_apostrophes(help_text)}"\n')
-
-
-def write_widget(outfile, widget, value):
-    """Write widget specific YAML for a field."""
-    if not widget:
-        return
-
-    default_value = value.get("default", "")
-
-    if widget == "check_box":
-        outfile.write("    widget: select\n")
-        if isinstance(default_value, bool):
-            outfile.write(f"    value: {'true' if default_value else 'false'}\n")
-        outfile.write("    options:\n")
-        if default_value is True:
-            outfile.write("      - ['true', 'true']\n")
-            outfile.write("      - ['false', 'false']\n")
+        letters = re.sub(r"\d", "", raw_segment)
+        digits = re.sub(r"\D", "", raw_segment)
+        if letters:
+            normalized_segment = f"{letters}{digits}"
         else:
-            outfile.write("      - ['false', 'false']\n")
-            outfile.write("      - ['true', 'true']\n")
+            normalized_segment = f"n{digits}"
 
-    elif widget == "text_field":
-        outfile.write("    widget: text_field\n")
-        if default_value:
-            outfile.write(f'    value: "{default_value}"\n')
+        segments.append(normalized_segment)
 
-    elif widget == "path_selector":
-        outfile.write("    widget: path_selector\n")
-        if default_value:
-            outfile.write(f'    value: "{default_value}"\n')
-        outfile.write("    directory: /cluster/tufts\n")
-        outfile.write("    favorites:\n")
-        outfile.write("      - /cluster/tufts\n")
-        outfile.write("      - /cluster/home\n")
-
-    elif widget == "number_field":
-        outfile.write("    widget: number_field\n")
-        if isinstance(default_value, (int, float)):
-            outfile.write(f"    value: {default_value}\n")
-        outfile.write("    step: 1\n")
-
-    elif widget == "select":
-        outfile.write("    widget: select\n")
-        outfile.write("    options:\n")
-        enum_vals = list(value.get("enum", []))
-        default_val = value.get("default")
-
-        if default_val is None:
-            outfile.write("      - ['', '']\n")
-        else:
-            outfile.write(f"      - ['{default_val}', '{default_val}']\n")
-
-        if default_val in enum_vals:
-            enum_vals.remove(default_val)
-        for opt in enum_vals:
-            outfile.write(f"      - ['{opt}', '{opt}']\n")
+    normalized = "_".join(segments)
+    return normalized or "field"
 
 
-def generate_parent_options(name, definition):
-    """
-    Produce the top‑level block for a *definition* (checkbox group).
+def infer_widget_type(property_schema: dict[str, Any]) -> str | None:
+    property_type = property_schema.get("type", "")
+    if isinstance(property_type, list):
+        property_type = next((item for item in property_type if item != "null"), "")
+    property_type = str(property_type).strip().lower()
+    property_format = str(property_schema.get("format", "")).strip().lower()
 
-    The function mirrors the original script’s behaviour but with cleaner
-    string handling.
-    """
-    label = definition.get("title", name.replace("_", " ").title())
-    properties = definition.get("properties", {})
-    # Use only the first line of the description (the original script did that)
-    help_text = definition.get("description", "").split("\n")[0]
+    if property_schema.get("enum"):
+        return "select"
+    if property_type == "boolean":
+        return "check_box"
+    if property_type == "string":
+        return "path_selector" if property_format in PATH_FORMATS else "text_field"
+    if property_type in {"integer", "number"}:
+        return "number_field"
+    return None
 
+
+def should_skip_property(property_name: str, property_schema: dict[str, Any]) -> bool:
+    if property_name == "email":
+        return True
+    if property_name in DEFAULT_HIDDEN_PROPERTY_NAMES:
+        return True
+    if property_schema.get("hidden", False) and property_name not in ALWAYS_INCLUDE_HIDDEN:
+        return True
+    return False
+
+
+def normalize_field(
+    property_name: str,
+    property_schema: dict[str, Any],
+    required_fields: set[str],
+) -> FieldSpec | None:
+    if should_skip_property(property_name, property_schema):
+        return None
+
+    return FieldSpec(
+        original_name=property_name,
+        normalized_name=normalize_key(property_name),
+        label=str(property_schema.get("title") or property_name),
+        help_text=first_line(property_schema.get("description")),
+        widget_type=infer_widget_type(property_schema),
+        required=property_name in required_fields,
+        default_value=property_schema.get("default"),
+        enum_values=tuple(property_schema.get("enum", ())),
+    )
+
+
+def normalize_group(group_name: str, definition: dict[str, Any]) -> GroupSpec | None:
+    if group_name in SKIPPED_DEFINITION_NAMES:
+        return None
+
+    required_fields = set(definition.get("required", []))
+    fields = tuple(
+        field_spec
+        for property_name, property_schema in definition.get("properties", {}).items()
+        for field_spec in [normalize_field(property_name, property_schema, required_fields)]
+        if field_spec is not None
+    )
+
+    return GroupSpec(
+        name=group_name,
+        normalized_name=normalize_key(group_name),
+        label=str(definition.get("title") or group_name.replace("_", " ").title()),
+        help_text=first_line(definition.get("description")),
+        fields=fields,
+    )
+
+
+def normalize_schema(schema: dict[str, Any]) -> list[GroupSpec]:
+    definitions = load_schema_definitions(schema)
+    groups = []
+    for group_name, definition in definitions.items():
+        group = normalize_group(group_name, definition)
+        if group is not None:
+            groups.append(group)
+    return groups
+
+
+def render_group(group: GroupSpec) -> list[str]:
     lines = [
-        f"  {name.lower()}:",
-        f'    label: "{label}"',
+        f"  {group.normalized_name}:",
+        f"    label: {yaml_single_quote(group.label)}",
         "    widget: 'check_box'",
         "    html_options:",
         "      data:",
     ]
 
-    for prop in properties:
-        if prop == "email":      # skip email key
-            continue
-        fixed_prop = move_digits_to_end(prop)
-        lines.append(f"        hide-{fixed_prop}-when-un-checked: true")
+    for field_spec in group.fields:
+        lines.append(f"        hide-{field_spec.normalized_name}-when-un-checked: true")
 
-    if help_text:
-        lines.append(f'    help: "{replace_apostrophes(help_text)}"')
+    if group.help_text:
+        lines.append(f"    help: {yaml_single_quote(group.help_text)}")
 
-    lines.append("")   # blank line for separation
+    lines.append("")
+    return lines
+
+
+def render_select_options(default_value: Any, enum_values: tuple[Any, ...]) -> list[str]:
+    values = list(enum_values)
+    lines = ["    options:"]
+
+    if default_value in values:
+        values.remove(default_value)
+
+    if default_value is None:
+        lines.append("      - ['', '']")
+    else:
+        quoted = yaml_single_quote(default_value)
+        lines.append(f"      - [{quoted}, {quoted}]")
+
+    for value in values:
+        quoted = yaml_single_quote(value)
+        lines.append(f"      - [{quoted}, {quoted}]")
+
+    return lines
+
+
+def render_field(field_spec: FieldSpec) -> list[str]:
+    lines = [
+        f"  {field_spec.normalized_name}:",
+        f"    label: {yaml_single_quote(field_spec.label)}",
+    ]
+
+    if field_spec.required:
+        lines.append("    required: true")
+
+    if field_spec.widget_type == "check_box":
+        lines.append("    widget: select")
+        default_option = "true" if field_spec.default_value is True else "false"
+        alternate_option = "false" if default_option == "true" else "true"
+        lines.extend(render_select_options(default_option, (default_option, alternate_option)))
+        if isinstance(field_spec.default_value, bool):
+            lines.append(f"    value: {'true' if field_spec.default_value else 'false'}")
+    elif field_spec.widget_type == "text_field":
+        lines.append("    widget: text_field")
+        if field_spec.default_value not in (None, ""):
+            lines.append(f"    value: {yaml_single_quote(field_spec.default_value)}")
+    elif field_spec.widget_type == "path_selector":
+        lines.append("    widget: path_selector")
+        if field_spec.default_value not in (None, ""):
+            lines.append(f"    value: {yaml_single_quote(field_spec.default_value)}")
+        lines.append('    directory: "<%= ENV.fetch(\'NF2OOD_DEFAULT_DIRECTORY\', ENV.fetch(\'HOME\', \'/\')) %>"')
+        lines.append("    favorites:")
+        lines.append('      - "<%= ENV.fetch(\'HOME\', \'/\') %>"')
+    elif field_spec.widget_type == "number_field":
+        lines.append("    widget: number_field")
+        if isinstance(field_spec.default_value, (int, float)):
+            lines.append(f"    value: {field_spec.default_value}")
+        lines.append("    step: 1")
+    elif field_spec.widget_type == "select":
+        lines.append("    widget: select")
+        lines.extend(render_select_options(field_spec.default_value, field_spec.enum_values))
+
+    if field_spec.help_text:
+        lines.append(f"    help: {yaml_single_quote(field_spec.help_text)}")
+
+    lines.append("")
+    return lines
+
+
+def render_form(groups: list[GroupSpec], base_form_content: str) -> str:
+    lines = [base_form_content.rstrip(), "", ""]
+    field_order = [*STATIC_FORM_FIELDS]
+
+    for group in groups:
+        lines.extend(render_group(group))
+        field_order.append(group.normalized_name)
+        for field_spec in group.fields:
+            lines.extend(render_field(field_spec))
+            field_order.append(field_spec.normalized_name)
+
+    lines.append("form:")
+    lines.extend(f"  - {field_name}" for field_name in field_order)
+    lines.extend(f"  - {field_name}" for field_name in TRAILING_FORM_FIELDS)
+    lines.append("")
     return "\n".join(lines)
 
 
-def determine_widget_type(key, value):
-    """
-    Decide which OOD widget to use for *key* based on its JSON‑Schema
-    description.
-    """
-    fmt = value.get("format", "").strip().lower()
-    typ = value.get("type", "")
-
-    # ``type`` can be a list (e.g. ["string", "null"])
-    if isinstance(typ, list):
-        typ = typ[0] if typ else ""
-
-    if isinstance(typ, str):
-        typ = typ.strip().lower()
+def render_params_entry(field_spec: FieldSpec) -> str:
+    if field_spec.widget_type == "check_box":
+        value_expression = f"to_bool.call(context.{field_spec.normalized_name})"
+    elif field_spec.widget_type == "number_field":
+        value_expression = f"to_number.call(context.{field_spec.normalized_name})"
     else:
-        typ = ""
+        value_expression = f"context.{field_spec.normalized_name}"
 
-    # Enum always becomes a select dropdown
-    if value.get("enum"):
-        return "select"
-
-    if typ == "boolean":
-        boolean_field_list.append(key)
-        return "check_box"
-
-    if typ == "string":
-        if fmt in {"file-path", "path", "directory-path"}:
-            return "path_selector"
-        return "text_field"
-
-    if typ in {"integer", "number"}:
-        number_field_list.append(key)
-        return "number_field"
-
-    # Fallback – let the caller decide (original script returned None)
-    return None
+    return f'    "{field_spec.original_name}": {value_expression}'
 
 
-def process_properties(outfile, properties):
-    """
-    Walk through a definition's ``properties`` dict and write the YAML for each
-    field.
-    """
-    for key, value in properties.items():
-        if key == "email":
-            continue
-
-        if value.get("hidden", False) and key not in always_include_keys:
-            hidden_list.append(key)
-            continue
-
-        fixed_key = move_digits_to_end(key)
-        outfile.write(f"  {fixed_key}:\n")
-        outfile.write(f'    label: "{key}"\n')
-
-        # ``required`` is a top‑level list inside the definition; we need to
-        # check it against the whole definition later (the original script used
-        # a slightly odd check – we keep that behaviour).
-        if "required" in properties and key in properties["required"]:
-            outfile.write("    required: true\n")
-
-        widget = determine_widget_type(key, value)
-        write_widget(outfile, widget, value)
-
-        # Only the first line of the description is used (as in the original)
-        write_help(outfile, value.get("description", "").split("\n")[0])
-        outfile.write("\n")
-
-
-# ----------------------------------------------------------------------
-# Main driver
-# ----------------------------------------------------------------------
-def main():
-    parser = argparse.ArgumentParser(
-        description="Generate OOD form YAML and parameters JSON from a JSON schema."
-    )
-    parser.add_argument("schema_json", help="Path to the JSON schema file")
-    parser.add_argument("output_form_yml", help="Path for the generated form YAML")
-    parser.add_argument(
-        "base_form_yml", help="Path to the base form YAML that will be copied first"
-    )
-    parser.add_argument(
-        "output_params_json", help="Path for the generated parameters JSON file"
-    )
-    args = parser.parse_args()
-
-    # ------------------------------------------------------------------
-    # Validate inputs
-    # ------------------------------------------------------------------
-    for path in (args.schema_json, args.base_form_yml):
-        check_file_exists(path)
-
-    # ------------------------------------------------------------------
-    # Prepare output files (remove old ones, copy base YAML)
-    # ------------------------------------------------------------------
-    if os.path.exists(args.output_form_yml):
-        os.remove(args.output_form_yml)
-
-    shutil.copyfile(args.base_form_yml, args.output_form_yml)
-
-    form_out = open(args.output_form_yml, "a")
-    params_out = open(args.output_params_json, "w")
-
-    # ------------------------------------------------------------------
-    # Load the JSON schema
-    # ------------------------------------------------------------------
-    with open(args.schema_json, "r") as f:
-        data = json.load(f)
-
-    form_out.write("\n\n")  # keep the same spacing as the original script
-
-    # ``definitions`` may be under "definitions" or "$defs"
-    definitions = data.get("definitions", data.get("$defs", {}))
-    if not definitions:
-        sys.stderr.write("Error: Neither 'definitions' nor '$defs' found in the JSON file.\n")
-        sys.exit(1)
-
-    # ------------------------------------------------------------------
-    # Write the top‑level checkbox groups
-    # ------------------------------------------------------------------
-    for name, definition in definitions.items():
-        if name in {
-            "institutional_config_options",
-            "generic_options",
-            "max_job_request_options",
-            "deprecated_options",
-        }:
-            continue
-        yaml_block = generate_parent_options(name, definition)
-        form_out.write(yaml_block + "\n")
-        # properties of the current definition are processed **after** the loop
-        # (the original script did that)
-        process_properties(form_out, definition.get("properties", {}))
-
-    # ------------------------------------------------------------------
-    # Write the static ``form:`` section
-    # ------------------------------------------------------------------
-    form_out.write("\nform:\n")
-    default_form_fields = [
-        "bc_num_hours",
-        "executor",
-        "partition",
-        "num_cores",
-        "num_memory",
-        "workdir",
+def render_params(groups: list[GroupSpec]) -> str:
+    entries = [
+        render_params_entry(field_spec)
+        for group in groups
+        for field_spec in group.fields
     ]
-    form_out.write("\n".join(f"  - {field}" for field in default_form_fields) + "\n")
 
-    # ------------------------------------------------------------------
-    # Build the params JSON ERB template (used later by OOD)
-    # ------------------------------------------------------------------
-    hidden_set = set(hidden_list)
-    number_set = set(number_field_list)
-    boolean_set = set(boolean_field_list)
-    params_entries = []
-
-    for name, definition in definitions.items():
-        if name in {
-            "institutional_config_options",
-            "generic_options",
-            "max_job_request_options",
-            "deprecated_options",
-        }:
-            continue
-
-        # The top‑level group name is added to the form YAML (lower‑cased)
-        form_out.write(f"  - {name.lower()}\n")
-
-        properties = definition.get("properties", {})
-        for key in properties:
-            if key == "email":
-                continue
-            if key in hidden_set and key not in always_include_keys:
-                continue
-
-            # write each field name (lower‑cased, digits moved to the end)
-            fixed_key = move_digits_to_end(key)
-            form_out.write(f"  - {fixed_key}\n")
-
-            if key in number_set or key in boolean_set:
-                if key in boolean_set:
-                    params_entries.append(f'    "{key}": to_bool.call(context.{fixed_key})')
-                else:
-                    params_entries.append(f'    "{key}": to_number.call(context.{fixed_key})')
-            else:
-                params_entries.append(f'    "{key}": context.{fixed_key}')
-
-    params_out.write(
-        """<%
+    return """<%
 require "json"
 
 to_bool = lambda do |value|
@@ -393,29 +365,44 @@ to_number = lambda do |value|
 end
 
 params = {
-"""
-    )
-    params_out.write(",\n".join(params_entries))
-    params_out.write(
-        """
+""" + ",\n".join(entries) + """
 }
 
 params.reject! { |_k, v| v.is_a?(String) && v.strip.empty? }
 %><%= JSON.pretty_generate(params) %>
 """
-    )
 
-    # ------------------------------------------------------------------
-    # Append the final two static fields (same as original script)
-    # ------------------------------------------------------------------
-    form_out.write("\n  - tower_access_token\n  - resume\n")
 
-    # ------------------------------------------------------------------
-    # Cleanup
-    # ------------------------------------------------------------------
-    params_out.close()
-    form_out.close()
+def generate_outputs(schema: dict[str, Any], base_form_path: Path) -> tuple[str, str]:
+    groups = normalize_schema(schema)
+    base_form_content = base_form_path.read_text(encoding="utf-8")
+    return render_form(groups, base_form_content), render_params(groups)
+
+
+def main() -> int:
+    args = parse_args()
+    schema_path = Path(args.schema_json)
+    output_form_path = Path(args.output_form_yml)
+    base_form_path = Path(args.base_form_yml)
+    output_params_path = Path(args.output_params_json)
+
+    for path in (schema_path, base_form_path):
+        if not path.exists():
+            raise FileNotFoundError(f"Required file not found: {path}")
+
+    output_form_path.parent.mkdir(parents=True, exist_ok=True)
+    output_params_path.parent.mkdir(parents=True, exist_ok=True)
+
+    schema = read_json(schema_path)
+    form_content, params_content = generate_outputs(schema, base_form_path)
+    output_form_path.write_text(form_content, encoding="utf-8")
+    output_params_path.write_text(params_content, encoding="utf-8")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        raise SystemExit(main())
+    except Exception as exc:  # pragma: no cover - command line error path
+        sys.stderr.write(f"Error: {exc}\n")
+        raise SystemExit(1)

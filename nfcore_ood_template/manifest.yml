@@ -1,7 +1,8 @@
 ---
-name: PIPELINE VERSION
-category: ""
-subcategory: SUBCATEGORY
+name: "__PIPELINE_NAME__ __PIPELINE_VERSION__"
+category: "Bioinformatics"
+subcategory: "__SUBCATEGORY__"
 role: batch_connect
 description: |
-  This app will launch the [PIPELINE](https://nf-co.re/PIPELINE) pipeline developed by nf-core community. 
+  Launch the nf-core pipeline [__PIPELINE_NAME__](https://nf-co.re/__PIPELINE_SLUG__)
+  version __PIPELINE_VERSION__ through Open OnDemand.

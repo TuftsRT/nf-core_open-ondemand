@@ -1,93 +1,86 @@
 #!/usr/bin/env bash
 
-# Exit immediately if a command fails
 set -euo pipefail
 
-# Clean the environment
-module purge
+# Export the environment module shell function when OOD starts this script
+# from a non-login shell.
+[[ $(type -t module || true) == "function" ]] && export -f module
 
-# Load the required module
-module load nf-core
-module list
-
-# Set the working directory
 workdir="<%= context.workdir %>"
-
-# Ensure the working directory exists
-if [[ ! -d "$workdir" ]]; then
-    echo "Creating working directory: $workdir"
-    mkdir -p "$workdir" || { echo "Error: Failed to create $workdir"; exit 1; }
+if [[ -z "${workdir// }" ]]; then
+  workdir="${HOME}"
 fi
 
-# Copy necessary files and change to the working directory
-cp nf-params.json "$workdir/" || { echo "Error: Failed to copy nf-params.json"; exit 1; }
-cd "$workdir" || { echo "Error: Failed to change to directory $workdir"; exit 1; }
+mkdir -p "$workdir"
+cp nf-params.json "$workdir/"
+cd "$workdir"
 
-# Determine if the job should resume
-resume_flag=""
-if [[ "<%= context.resume %>" -eq 1 ]]; then
-    echo "Resuming previous run."
-    resume_flag="-resume"
-else
-    echo "Starting a fresh run."
+resume_flag=()
+if [[ "<%= context.resume %>" == "1" ]]; then
+  resume_flag+=("-resume")
 fi
 
-# Check if Nextflow Tower should be used
-with_tower_flag=""
+tower_flag=()
 if [[ -n "${TOWER_ACCESS_TOKEN:="<%= context.tower_access_token %>"}" && -n "${TOWER_ACCESS_TOKEN// }" ]]; then
-    echo "Using Nextflow Tower."
-    export TOWER_ACCESS_TOKEN="$TOWER_ACCESS_TOKEN"
-    with_tower_flag="-with-tower"
-else
-    echo "Not using Nextflow Tower."
+  export TOWER_ACCESS_TOKEN
+  tower_flag+=("-with-tower")
 fi
 
-# TODO 
-# Set the Singularity cache directory
-export NXF_SINGULARITY_CACHEDIR="/cluster/tufts/apps/container/biocontainers/nf-core/singularity-images"
+# If configured, source the same environment file that was used during app
+# generation so runtime defaults stay aligned with generation defaults.
+nf2ood_env_file="__NF2OOD_ENV_FILE__"
+if [[ -n "${nf2ood_env_file}" && -r "${nf2ood_env_file}" ]]; then
+  # shellcheck disable=SC1090
+  source "${nf2ood_env_file}"
+fi
 
-# Clean up nf-params.json by removing empty values and replacing placeholders
-sed -i -E '/:[[:space:]]*,/d; /"[[:space:]]*"/d' nf-params.json
+module_name="${NF2OOD_MODULE_NAME:-__NF2OOD_MODULE_NAME__}"
+container_module="${NF2OOD_CONTAINER_MODULE:-__NF2OOD_CONTAINER_MODULE__}"
+pipeline_root="${NF2OOD_PIPELINE_ROOT:-__NF2OOD_PIPELINE_ROOT__}"
+singularity_cache="${NF2OOD_SINGULARITY_CACHEDIR:-__NF2OOD_SINGULARITY_CACHEDIR__}"
+slurm_profile="${NF2OOD_SLURM_PROFILE:-__NF2OOD_SLURM_PROFILE__}"
 
-export pipeline_version=/cluster/tufts/apps/container/biocontainers/nf-core/pipelines/PIPELINE/VERSION
-export projectDir=$pipeline_version
-export baseDir=$pipeline_version
+if [[ $(type -t module || true) == "function" ]]; then
+  module purge
+  if [[ -n "${module_name}" ]]; then
+    module load "${module_name}"
+  fi
+  if [[ -n "${container_module}" ]]; then
+    module load "${container_module}"
+  fi
+fi
 
-sed -i -E "s@\$(projectDir)@$projectDir@g; s@\$(baseDir)@$baseDir@g; s/\"None\"/null/g" nf-params.json
+export NXF_SINGULARITY_CACHEDIR="${singularity_cache}"
+pipeline_path="${pipeline_root}/__PIPELINE_NAME__/__PIPELINE_VERSION_PATH__"
+export projectDir="${pipeline_path}"
+export baseDir="${pipeline_path}"
 
-# Define resources based on execution environment
-num_memory="<%= context.num_memory %>"
-num_core="<%= context.num_cores %>"
+# Normalize the rendered parameter file before running Nextflow.
+sed -i.bak -E '/:[[:space:]]*,/d; /"[[:space:]]*"/d' nf-params.json
+sed -i.bak -E "s@\$(projectDir)@${projectDir}@g; s@\$(baseDir)@${baseDir}@g; s/\"None\"/null/g" nf-params.json
+rm -f nf-params.json.bak
 
-# Build Nextflow command
-nextflow_command=("nextflow run $pipeline_version -params-file nf-params.json")
+nextflow_command=(nextflow run "${pipeline_path}" -params-file nf-params.json)
 
 if [[ "<%= context.executor %>" == "slurm" ]]; then
-    echo "Using Tufts profile (Slurm execution)."  # TODO
-    nextflow_command+=("-profile tufts")
+  nextflow_command+=("-profile" "${slurm_profile}")
 else
-    echo "Running in local mode (single-node execution)."
-
-    # Generate custom.config for local execution
-    cat <<EOF > custom.config
+  cat > custom.config <<EOF
 cleanup = true
 
 process {
-    resourceLimits = [
-        cpus: $num_core,
-        memory: "$num_memory"
-    ]
+  resourceLimits = [
+    cpus: <%= context.num_cores %>,
+    memory: "<%= context.num_memory %> GB"
+  ]
 }
 EOF
-
-    echo "custom.config file created with cpus=$num_core and memory=$num_memory."
-    nextflow_command+=("-profile singularity" "-c custom.config")
+  nextflow_command+=("-profile" "singularity" "-c" "custom.config")
 fi
 
-# Append optional flags
-[[ -n "$resume_flag" ]] && nextflow_command+=("$resume_flag")
-[[ -n "$with_tower_flag" ]] && nextflow_command+=("$with_tower_flag")
+nextflow_command+=("${resume_flag[@]}")
+nextflow_command+=("${tower_flag[@]}")
 
-# Output and execute the command
-echo "Executing command: ${nextflow_command[*]}"
-eval "${nextflow_command[*]}"
+printf 'Executing: %q ' "${nextflow_command[@]}"
+printf '\n'
+"${nextflow_command[@]}"
