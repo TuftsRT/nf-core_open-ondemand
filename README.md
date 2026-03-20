@@ -4,7 +4,7 @@
 nf-core pipelines. The repository is focused on pipeline-to-Open-OnDemand app
 generation only.
 
-![nf2ood icon](docs/icon.png)
+<img src="docs/icon.png" alt="nf2ood icon" width="20%">
 
 ## Prerequisites
 
