@@ -1,5 +1,5 @@
 ---
-name: "__PIPELINE_NAME__ __PIPELINE_VERSION__"
+name: "__PIPELINE_SLUG__ __PIPELINE_VERSION__"
 category: "Bioinformatics"
 subcategory: "__SUBCATEGORY__"
 role: batch_connect
