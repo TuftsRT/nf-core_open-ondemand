@@ -6,6 +6,19 @@ pipeline-to-Open-OnDemand app generation step.
 
 <img src="docs/icon.png" alt="nf2ood icon" width="30%">
 
+## Demo
+
+This recording shows how to download an nf-core pipeline with
+[`download_nfcore_pipeline.sh`](/Users/yucheng/Documents/GitHub/nfcore2ood/download_nfcore_pipeline.sh)
+and then run [`nf2ood`](/Users/yucheng/Documents/GitHub/nfcore2ood/nf2ood) to
+generate Open OnDemand apps.
+
+<video src="./nf2ood_demo.mp4" controls width="100%"></video>
+
+If the embedded player does not render in your Markdown viewer, open
+[`nf2ood_demo.mp4`](/Users/yucheng/Documents/GitHub/nfcore2ood/nf2ood_demo.mp4)
+directly.
+
 ## Prerequisites
 
 - `python3`
@@ -80,6 +93,58 @@ update the downloader variables in
 [`nf2ood.env`](/Users/yucheng/Documents/GitHub/nfcore2ood/nf2ood.env) for
 their own environment before downloading pipelines.
 
+## Configuration for Step 2
+
+Use the checked-in environment file
+[`nf2ood.env`](/Users/yucheng/Documents/GitHub/nfcore2ood/nf2ood.env) as the
+single place to define site values:
+
+```bash
+source ./nf2ood.env
+./nf2ood --input /path/to/pipelines --output /path/to/generated-apps
+```
+
+Current variables:
+
+- `NF2OOD_ENV_FILE`: path that generated runtime scripts will try to source
+- `NF2OOD_CLUSTER`: Open OnDemand cluster id written into `form.yml.erb`
+- `NF2OOD_DEFAULT_DIRECTORY`: default working directory shown in the app form
+- `NF2OOD_PARTITION_YML`: path to the partition partial used in the form
+- `NF2OOD_MODULE_NAME`: main runtime module, default `nextflow`
+- `NF2OOD_CONTAINER_MODULE`: container runtime module, default `singularity`
+- `NF2OOD_PIPELINE_ROOT`: root directory containing installed nf-core pipelines
+- `NF2OOD_SINGULARITY_CACHEDIR`: Singularity or Apptainer cache path
+- `NF2OOD_SLURM_PROFILE`: Nextflow profile used for scheduler-backed runs
+
+Downloader defaults are derived from those settings:
+
+- install root defaults to the parent directory of `NF2OOD_PIPELINE_ROOT`
+- configs dir defaults to `<install-root>/configs`
+- container engine defaults to `NF2OOD_CONTAINER_MODULE`
+
+## Institutional profile
+
+`nf2ood` is currently configured around the Tufts institutional nf-core
+profile, `-profile tufts`, published in
+[`nf-core/configs`](https://nf-co.re/configs/tufts/). That profile is the
+site-specific execution profile used for Tufts HPC deployments and is
+referenced by `NF2OOD_SLURM_PROFILE="tufts"` in
+[`nf2ood.env`](/Users/yucheng/Documents/GitHub/nfcore2ood/nf2ood.env).
+
+Other centers should not reuse the Tufts profile as-is. The recommended
+approach is to create and maintain your own institutional profile in
+`nf-core/configs`, then set `NF2OOD_SLURM_PROFILE` to that profile name in
+[`nf2ood.env`](/Users/yucheng/Documents/GitHub/nfcore2ood/nf2ood.env). That
+keeps scheduler settings, partitions, modules, storage paths, and local site
+policies aligned with your own HPC environment.
+
+Important runtime note:
+
+The generated job wrapper will try to source `NF2OOD_ENV_FILE` again at job
+runtime. By default, `nf2ood.env` sets this to the `nf2ood.env` file next to
+[`nf2ood`](/Users/yucheng/Documents/GitHub/nfcore2ood/nf2ood). That only works
+if the same path is visible from the Open OnDemand host and compute nodes.
+
 ## Step 2: Generate Open OnDemand apps
 
 Source the shared environment file first:
@@ -125,42 +190,6 @@ Schema discovery currently checks these locations in order:
 <input>/<pipeline>/<version_underscored>/nextflow_schema.json
 <input>/<pipeline>/nextflow_schema.json
 ```
-
-## Configuration
-
-Use the checked-in environment file
-[`nf2ood.env`](/Users/yucheng/Documents/GitHub/nfcore2ood/nf2ood.env) as the
-single place to define site values:
-
-```bash
-source ./nf2ood.env
-./nf2ood --input /path/to/pipelines --output /path/to/generated-apps
-```
-
-Current variables:
-
-- `NF2OOD_ENV_FILE`: path that generated runtime scripts will try to source
-- `NF2OOD_CLUSTER`: Open OnDemand cluster id written into `form.yml.erb`
-- `NF2OOD_DEFAULT_DIRECTORY`: default working directory shown in the app form
-- `NF2OOD_PARTITION_YML`: path to the partition partial used in the form
-- `NF2OOD_MODULE_NAME`: main runtime module, default `nextflow`
-- `NF2OOD_CONTAINER_MODULE`: container runtime module, default `singularity`
-- `NF2OOD_PIPELINE_ROOT`: root directory containing installed nf-core pipelines
-- `NF2OOD_SINGULARITY_CACHEDIR`: Singularity or Apptainer cache path
-- `NF2OOD_SLURM_PROFILE`: Nextflow profile used for scheduler-backed runs
-
-Downloader defaults are derived from those settings:
-
-- install root defaults to the parent directory of `NF2OOD_PIPELINE_ROOT`
-- configs dir defaults to `<install-root>/configs`
-- container engine defaults to `NF2OOD_CONTAINER_MODULE`
-
-Important runtime note:
-
-The generated job wrapper will try to source `NF2OOD_ENV_FILE` again at job
-runtime. By default, `nf2ood.env` sets this to the `nf2ood.env` file next to
-[`nf2ood`](/Users/yucheng/Documents/GitHub/nfcore2ood/nf2ood). That only works
-if the same path is visible from the Open OnDemand host and compute nodes.
 
 ## Generated app contents
 
@@ -211,17 +240,6 @@ apps still assume:
 
 Those are the main areas to review before sharing the generated apps with other
 centers or preparing an Appverse submission.
-
-## Testing
-
-The repository includes unit tests for the schema-to-form conversion logic in
-[`tests/test_json2ood.py`](/Users/yucheng/Documents/GitHub/nfcore2ood/tests/test_json2ood.py).
-
-Run them with:
-
-```bash
-python3 -m unittest discover -s tests -p 'test_*.py'
-```
 
 ## Contributor
 
