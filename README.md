@@ -1,8 +1,8 @@
 # nf2ood
 
 `nf2ood` generates Open OnDemand batch-connect apps from locally downloaded
-nf-core pipelines. The repository is focused on pipeline-to-Open-OnDemand app
-generation only.
+nf-core pipelines. The repository includes both the download step and the
+pipeline-to-Open-OnDemand app generation step.
 
 <img src="docs/icon.png" alt="nf2ood icon" width="30%">
 
@@ -10,6 +10,7 @@ generation only.
 
 - `python3`
 - a local copy of nf-core pipeline downloads that include `nextflow_schema.json`
+- the site-specific modules and paths needed by [`download_nfcore_pipeline.sh`](/Users/yucheng/Documents/GitHub/nfcore2ood/download_nfcore_pipeline.sh)
 
 ## What `nf2ood` does
 
@@ -19,7 +20,67 @@ generation only.
 - creates one Open OnDemand app directory per pipeline version
 - writes a per-app `README.md` for deployment review
 
-## Usage
+## Recommended deployment flow
+
+For other centers deploying nf-core workflows on Open OnDemand, the intended
+workflow is:
+
+1. Use [`download_nfcore_pipeline.sh`](/Users/yucheng/Documents/GitHub/nfcore2ood/download_nfcore_pipeline.sh)
+   to download nf-core pipelines onto local storage.
+2. Run [`nf2ood`](/Users/yucheng/Documents/GitHub/nfcore2ood/nf2ood) against
+   that local pipeline tree to generate Open OnDemand apps.
+
+This keeps pipeline installation separate from app generation and makes it
+easier to adapt the deployment for another site.
+
+## Step 1: Download pipelines locally
+
+[`download_nfcore_pipeline.sh`](/Users/yucheng/Documents/GitHub/nfcore2ood/download_nfcore_pipeline.sh)
+downloads a selected nf-core pipeline and revision into a local pipeline
+directory structure that `nf2ood` can consume later.
+
+Source the shared environment file first so the downloader and generator use
+the same site configuration:
+
+```bash
+source ./nf2ood.env
+```
+
+Example:
+
+```bash
+./download_nfcore_pipeline.sh --name taxprofiler --revision 1.2.6
+```
+
+The script currently:
+
+- loads modules only when needed for your site
+- downloads the requested pipeline with `nf-core pipelines download`
+- stores the pipeline under a local `nf-core-<name>/<version>` directory
+- replaces the per-pipeline `configs` directory with a symlink to the shared central copy
+- allows site overrides through CLI flags while using defaults from `nf2ood.env`
+
+Configs are maintained centrally under the shared nf-core install root, usually
+`<install-root>/configs`. The downloader removes the downloaded local `configs`
+directory and points each pipeline to that shared copy instead. This means you
+update configs once in the central location and all downloaded pipelines use
+the same maintained set.
+
+The downloader does not require a container engine module. If `apptainer` or
+`singularity` is already installed on `PATH`, the script can use it directly.
+Use `--engine-module <name>` only at sites where the engine must be loaded as
+a module first.
+
+Important:
+
+[`download_nfcore_pipeline.sh`](/Users/yucheng/Documents/GitHub/nfcore2ood/download_nfcore_pipeline.sh)
+contains Tufts-specific paths and module names such as
+`/cluster/tufts/apps/container/biocontainers/nf-core`. Other centers should
+update the downloader variables in
+[`nf2ood.env`](/Users/yucheng/Documents/GitHub/nfcore2ood/nf2ood.env) for
+their own environment before downloading pipelines.
+
+## Step 2: Generate Open OnDemand apps
 
 Source the shared environment file first:
 
@@ -87,6 +148,12 @@ Current variables:
 - `NF2OOD_PIPELINE_ROOT`: root directory containing installed nf-core pipelines
 - `NF2OOD_SINGULARITY_CACHEDIR`: Singularity or Apptainer cache path
 - `NF2OOD_SLURM_PROFILE`: Nextflow profile used for scheduler-backed runs
+
+Downloader defaults are derived from those settings:
+
+- install root defaults to the parent directory of `NF2OOD_PIPELINE_ROOT`
+- configs dir defaults to `<install-root>/configs`
+- container engine defaults to `NF2OOD_CONTAINER_MODULE`
 
 Important runtime note:
 
