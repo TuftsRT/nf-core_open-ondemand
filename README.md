@@ -9,21 +9,21 @@ pipeline-to-Open-OnDemand app generation step.
 ## Demo
 
 This recording shows how to download an nf-core pipeline with
-[`download_nfcore_pipeline.sh`](/Users/yucheng/Documents/GitHub/nfcore2ood/download_nfcore_pipeline.sh)
-and then run [`nf2ood`](/Users/yucheng/Documents/GitHub/nfcore2ood/nf2ood) to
+[`download_nfcore_pipeline.sh`](./download_nfcore_pipeline.sh)
+and then run [`nf2ood`](./nf2ood) to
 generate Open OnDemand apps.
 
 <video src="./nf2ood_demo.mp4" controls width="100%"></video>
 
 If the embedded player does not render in your Markdown viewer, open
-[`nf2ood_demo.mp4`](/Users/yucheng/Documents/GitHub/nfcore2ood/nf2ood_demo.mp4)
+[`nf2ood_demo.mp4`](./nf2ood_demo.mp4)
 directly.
 
 ## Prerequisites
 
 - `python3`
 - a local copy of nf-core pipeline downloads that include `nextflow_schema.json`
-- the site-specific modules and paths needed by [`download_nfcore_pipeline.sh`](/Users/yucheng/Documents/GitHub/nfcore2ood/download_nfcore_pipeline.sh)
+- the site-specific modules and paths needed by [`download_nfcore_pipeline.sh`](./download_nfcore_pipeline.sh)
 
 ## What `nf2ood` does
 
@@ -38,9 +38,9 @@ directly.
 For other centers deploying nf-core workflows on Open OnDemand, the intended
 workflow is:
 
-1. Use [`download_nfcore_pipeline.sh`](/Users/yucheng/Documents/GitHub/nfcore2ood/download_nfcore_pipeline.sh)
+1. Use [`download_nfcore_pipeline.sh`](./download_nfcore_pipeline.sh)
    to download nf-core pipelines onto local storage.
-2. Run [`nf2ood`](/Users/yucheng/Documents/GitHub/nfcore2ood/nf2ood) against
+2. Run [`nf2ood`](./nf2ood) against
    that local pipeline tree to generate Open OnDemand apps.
 
 This keeps pipeline installation separate from app generation and makes it
@@ -48,7 +48,7 @@ easier to adapt the deployment for another site.
 
 ## Step 1: Download pipelines locally
 
-[`download_nfcore_pipeline.sh`](/Users/yucheng/Documents/GitHub/nfcore2ood/download_nfcore_pipeline.sh)
+[`download_nfcore_pipeline.sh`](./download_nfcore_pipeline.sh)
 downloads a selected nf-core pipeline and revision into a local pipeline
 directory structure that `nf2ood` can consume later.
 
@@ -86,17 +86,17 @@ a module first.
 
 Important:
 
-[`download_nfcore_pipeline.sh`](/Users/yucheng/Documents/GitHub/nfcore2ood/download_nfcore_pipeline.sh)
+[`download_nfcore_pipeline.sh`](./download_nfcore_pipeline.sh)
 contains Tufts-specific paths and module names such as
 `/cluster/tufts/apps/container/biocontainers/nf-core`. Other centers should
 update the downloader variables in
-[`nf2ood.env`](/Users/yucheng/Documents/GitHub/nfcore2ood/nf2ood.env) for
+[`nf2ood.env`](./nf2ood.env) for
 their own environment before downloading pipelines.
 
 ## Configuration for Step 2
 
 Use the checked-in environment file
-[`nf2ood.env`](/Users/yucheng/Documents/GitHub/nfcore2ood/nf2ood.env) as the
+[`nf2ood.env`](./nf2ood.env) as the
 single place to define site values:
 
 ```bash
@@ -129,12 +129,12 @@ profile, `-profile tufts`, published in
 [`nf-core/configs`](https://nf-co.re/configs/tufts/). That profile is the
 site-specific execution profile used for Tufts HPC deployments and is
 referenced by `NF2OOD_SLURM_PROFILE="tufts"` in
-[`nf2ood.env`](/Users/yucheng/Documents/GitHub/nfcore2ood/nf2ood.env).
+[`nf2ood.env`](./nf2ood.env).
 
 Other centers should not reuse the Tufts profile as-is. The recommended
 approach is to create and maintain your own institutional profile in
 `nf-core/configs`, then set `NF2OOD_SLURM_PROFILE` to that profile name in
-[`nf2ood.env`](/Users/yucheng/Documents/GitHub/nfcore2ood/nf2ood.env). That
+[`nf2ood.env`](./nf2ood.env). That
 keeps scheduler settings, partitions, modules, storage paths, and local site
 policies aligned with your own HPC environment.
 
@@ -142,7 +142,7 @@ Important runtime note:
 
 The generated job wrapper will try to source `NF2OOD_ENV_FILE` again at job
 runtime. By default, `nf2ood.env` sets this to the `nf2ood.env` file next to
-[`nf2ood`](/Users/yucheng/Documents/GitHub/nfcore2ood/nf2ood). That only works
+[`nf2ood`](./nf2ood). That only works
 if the same path is visible from the Open OnDemand host and compute nodes.
 
 ## Step 2: Generate Open OnDemand apps
@@ -220,7 +220,7 @@ Each generated app directory includes:
 
 ## Image mapping
 
-By default, `nf2ood` uses [`pipeline2image.tsv`](/Users/yucheng/Documents/GitHub/nfcore2ood/pipeline2image.tsv)
+By default, `nf2ood` uses [`pipeline2image.tsv`](./pipeline2image.tsv)
 when it exists. That file maps pipeline names to header image URLs.
 
 If the TSV file exists but a pipeline is not listed, no image is rendered for
