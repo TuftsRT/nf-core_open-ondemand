@@ -1,12 +1,15 @@
 function resetBatchConnectFormOnce() {
   const url = new URL(window.location.href);
-  const needsReset = url.searchParams.get("cache_reset") === "1" || url.searchParams.has("cache_reset_reload");
+  const needsReset =
+    url.searchParams.get("cache_reset") === "1" ||
+    url.searchParams.has("cache_reset_reload");
   if (!needsReset) return;
 
   const clearFields = () => {
     document.querySelectorAll("input, textarea, select").forEach((field) => {
       const type = (field.getAttribute("type") || "").toLowerCase();
-      if (["hidden", "submit", "button", "image", "file"].includes(type)) return;
+      if (["hidden", "submit", "button", "image", "file"].includes(type))
+        return;
       if (field.disabled) return;
 
       if (field.tagName === "SELECT") {
@@ -160,39 +163,87 @@ const prefixIconMap = {
 const keywordRules = [
   { regex: /\b(hour|time|duration|walltime)\b/, icon: ICONS.clock },
   { regex: /\b(memory|ram|core|cpu|threads?|parallel)\b/, icon: ICONS.chip },
-  { regex: /\b(work|scratch|outdir|directory|folder|path)\b/, icon: ICONS.folder },
-  { regex: /\b(executor|profile|config|engine|queue|partition|cluster|slurm|pbs|lsf)\b/, icon: ICONS.server },
+  {
+    regex: /\b(work|scratch|outdir|directory|folder|path)\b/,
+    icon: ICONS.folder,
+  },
+  {
+    regex:
+      /\b(executor|profile|config|engine|queue|partition|cluster|slurm|pbs|lsf)\b/,
+    icon: ICONS.server,
+  },
   { regex: /\b(resume|retry|run|launch|start)\b/, icon: ICONS.play },
   { regex: /\b(skip|exclude|disable)\b/, icon: ICONS.skip },
   { regex: /\b(input|output|io|channel)\b/, icon: ICONS.terminal },
   { regex: /\b(read|trim|adapter|primer|cutadapt|fastp)\b/, icon: ICONS.cut },
   { regex: /\b(filter|qcfilter|remove)\b/, icon: ICONS.filter },
   { regex: /\b(umi|barcode)\b/, icon: ICONS.barcode },
-  { regex: /\b(map|mapping|align|alignment|bwa|star|hisat|minimap)\b/, icon: ICONS.map },
-  { regex: /\b(reference|genome|fasta|gtf|gff|transcriptome|igenomes)\b/, icon: ICONS.dna },
-  { regex: /\b(fastq|bam|cram|vcf|bed|tsv|csv|file|manifest)\b/, icon: ICONS.file },
+  {
+    regex: /\b(map|mapping|align|alignment|bwa|star|hisat|minimap)\b/,
+    icon: ICONS.map,
+  },
+  {
+    regex: /\b(reference|genome|fasta|gtf|gff|transcriptome|igenomes)\b/,
+    icon: ICONS.dna,
+  },
+  {
+    regex: /\b(fastq|bam|cram|vcf|bed|tsv|csv|file|manifest)\b/,
+    icon: ICONS.file,
+  },
   { regex: /\b(qc|quality|multiqc|fastqc|qualimap|check)\b/, icon: ICONS.qc },
-  { regex: /\b(analysis|detect|discovery|search|inspect)\b/, icon: ICONS.search },
-  { regex: /\b(report|visual|plot|chart|summary|dashboard)\b/, icon: ICONS.chart },
+  {
+    regex: /\b(analysis|detect|discovery|search|inspect)\b/,
+    icon: ICONS.search,
+  },
+  {
+    regex: /\b(report|visual|plot|chart|summary|dashboard)\b/,
+    icon: ICONS.chart,
+  },
   { regex: /\b(variant|snv|indel|sv|cnv|mutat)\b/, icon: ICONS.vial },
   { regex: /\b(annotation|annotator|annotate)\b/, icon: ICONS.annotate },
   { regex: /\b(index|indexing)\b/, icon: ICONS.index },
-  { regex: /\b(database|db|taxonomy|kraken|metaphlan)\b/, icon: ICONS.database },
-  { regex: /\b(metagenom|microbiome|amplicon|taxonomic|profiling)\b/, icon: ICONS.bacteria },
-  { regex: /\b(antismash|gecco|deepbgc|amp|arg|amrfinder|fargene|rgi|abricate)\b/, icon: ICONS.bacteria },
+  {
+    regex: /\b(database|db|taxonomy|kraken|metaphlan)\b/,
+    icon: ICONS.database,
+  },
+  {
+    regex: /\b(metagenom|microbiome|amplicon|taxonomic|profiling)\b/,
+    icon: ICONS.bacteria,
+  },
+  {
+    regex:
+      /\b(antismash|gecco|deepbgc|amp|arg|amrfinder|fargene|rgi|abricate)\b/,
+    icon: ICONS.bacteria,
+  },
   { regex: /\b(assembly|assembler|contig|scaffold)\b/, icon: ICONS.puzzle },
   { regex: /\b(bin|binning|bins)\b/, icon: ICONS.bin },
   { regex: /\b(virus|viral|virome)\b/, icon: ICONS.virus },
-  { regex: /\b(cellranger|single[- ]?cell|scrna|spatial)\b/, icon: ICONS.layer },
+  {
+    regex: /\b(cellranger|single[- ]?cell|scrna|spatial)\b/,
+    icon: ICONS.layer,
+  },
   { regex: /\b(image|imaging|microscopy|segment)\b/, icon: ICONS.image },
   { regex: /\b(protein|proteomics|peptide|openms)\b/, icon: ICONS.microscope },
   { regex: /\b(motif|fimo|macs2|chromhmm|chip|atac|dmr)\b/, icon: ICONS.chart },
-  { regex: /\b(demux|demultiplex|hashed|freemuxlet|htodemux|hashsolo)\b/, icon: ICONS.cubes },
-  { regex: /\b(cluster|clustering|integration|umap|tsne|dimensionality)\b/, icon: ICONS.layer },
-  { regex: /\b(consensus|dedup|refine|collapse|normaliz)\b/, icon: ICONS.filter },
+  {
+    regex: /\b(demux|demultiplex|hashed|freemuxlet|htodemux|hashsolo)\b/,
+    icon: ICONS.cubes,
+  },
+  {
+    regex: /\b(cluster|clustering|integration|umap|tsne|dimensionality)\b/,
+    icon: ICONS.layer,
+  },
+  {
+    regex: /\b(consensus|dedup|refine|collapse|normaliz)\b/,
+    icon: ICONS.filter,
+  },
   { regex: /\b(ont|nanopore|hifi|pacbio|long[- ]?read)\b/, icon: ICONS.map },
   { regex: /\b(hla|epitope|immune|immuno)\b/, icon: ICONS.microscope },
-  { regex: /\b(community|developer|deprecated|additional|optional|global|generic|general)\b/, icon: ICONS.gears },
+  {
+    regex:
+      /\b(community|developer|deprecated|additional|optional|global|generic|general)\b/,
+    icon: ICONS.gears,
+  },
   { regex: /\b(token|apikey|secret|password|credential)\b/, icon: ICONS.key },
   { regex: /\b(reproduc|lock|determin)\b/, icon: ICONS.lock },
 ];
@@ -242,11 +293,13 @@ function resolveIconClass(rawLabel) {
 }
 
 function toKeyToken(text) {
-  return (text || "")
-    .toLowerCase()
-    // OOD data-hide attributes use hyphens while schema keys often use underscores.
-    .replace(/[_-]/g, "")
-    .replace(/[^a-z0-9]/g, "");
+  return (
+    (text || "")
+      .toLowerCase()
+      // OOD data-hide attributes use hyphens while schema keys often use underscores.
+      .replace(/[_-]/g, "")
+      .replace(/[^a-z0-9]/g, "")
+  );
 }
 
 function getLabelFieldKey(label) {
@@ -288,7 +341,9 @@ function isFirstLevelControllerLabel(label) {
 
   // OOD often stores conditional wiring on option elements.
   if (target.tagName === "SELECT") {
-    if (Array.from(target.options || []).some((opt) => hasDataHideAttribute(opt))) {
+    if (
+      Array.from(target.options || []).some((opt) => hasDataHideAttribute(opt))
+    ) {
       return true;
     }
   }
@@ -301,7 +356,9 @@ function isFirstLevelControllerLabel(label) {
 
 function isAlwaysIconLabel(labelText) {
   const normalized = normalizeLabel(labelText);
-  return /\b(cores?|cpus?|memory|ram|hours?|time|walltime|resume|tower_access_token|tower access token|workdir|working directory)\b/.test(normalized);
+  return /\b(cores?|cpus?|memory|ram|hours?|time|walltime|resume|tower_access_token|tower access token|workdir|working directory)\b/.test(
+    normalized
+  );
 }
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -341,7 +398,7 @@ document.addEventListener("DOMContentLoaded", () => {
   imgs.forEach((img) => {
     // Constrain size but keep aspect ratio
     img.style.setProperty("height", "auto", "important");
-    img.style.setProperty("max-height", "300px", "important");
+    img.style.setProperty("max-height", "600px", "important");
     img.style.setProperty("width", "auto", "important");
     img.style.setProperty("max-width", "600px", "important");
 
@@ -353,8 +410,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function styleSavedFormNotice() {
   const blockquotes = Array.from(document.querySelectorAll("blockquote"));
-  const notice = blockquotes.find((el) =>
-    /saved form values/i.test(el.textContent || "") && /cache reset utility/i.test(el.textContent || "")
+  const notice = blockquotes.find(
+    (el) =>
+      /saved form values/i.test(el.textContent || "") &&
+      /cache reset utility/i.test(el.textContent || "")
   );
   if (!notice) return;
 
@@ -394,13 +453,16 @@ function styleSavedFormNotice() {
 
 function resetBatchConnectFormOnce() {
   const url = new URL(window.location.href);
-  const needsReset = url.searchParams.get("cache_reset") === "1" || url.searchParams.has("cache_reset_reload");
+  const needsReset =
+    url.searchParams.get("cache_reset") === "1" ||
+    url.searchParams.has("cache_reset_reload");
   if (!needsReset) return;
 
   const clearFields = () => {
     document.querySelectorAll("input, textarea, select").forEach((field) => {
       const type = (field.getAttribute("type") || "").toLowerCase();
-      if (["hidden", "submit", "button", "image", "file"].includes(type)) return;
+      if (["hidden", "submit", "button", "image", "file"].includes(type))
+        return;
       if (field.disabled) return;
 
       if (field.tagName === "SELECT") {
