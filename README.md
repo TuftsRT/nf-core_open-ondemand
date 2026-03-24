@@ -10,14 +10,13 @@ pipeline-to-Open-OnDemand app generation step.
 
 This recording shows how to download an nf-core pipeline with
 [`download_nfcore_pipeline.sh`](./download_nfcore_pipeline.sh)
-and then run [`nf2ood`](./nf2ood) to
-generate Open OnDemand apps.
+and then run [`nf2ood`](./nf2ood)
+to generate Open OnDemand apps.
 
-<video src="./nf2ood_demo.mp4" controls width="100%"></video>
+[Watch the demo video](./nf2ood_demo.mp4)
 
-If the embedded player does not render in your Markdown viewer, open
-[`nf2ood_demo.mp4`](./nf2ood_demo.mp4)
-directly.
+If the video does not open in your browser, download
+[`nf2ood_demo.mp4`](./nf2ood_demo.mp4) directly.
 
 ## Prerequisites
 
