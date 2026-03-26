@@ -18,6 +18,7 @@ https://github.com/user-attachments/assets/bc7234ff-5b9c-42a0-b616-44f5f6d57eaa
 ## Prerequisites
 
 - `python3`
+- Open OnDemand 3.1 or newer for generated checkbox hide/show behavior
 - a local copy of nf-core pipeline downloads that include `nextflow_schema.json`
 - the site-specific modules and paths needed by [`download_nfcore_pipeline.sh`](./download_nfcore_pipeline.sh)
 
@@ -213,6 +214,8 @@ Each generated app directory includes:
 - Slurm mode runs `nextflow` with the configured `NF2OOD_SLURM_PROFILE`
 - generated schema field names are normalized so Open OnDemand hide rules do
   not break when digits appear inside field names
+- generated checkbox `data-hide-...-when-un-checked` behavior requires Open
+  OnDemand 3.1 or newer
 
 ## Image mapping
 
