@@ -47,3 +47,4 @@ bacass
 scnanoseq	https://raw.githubusercontent.com/nf-core/scnanoseq/1.2.1//assets/scnanoseq_tube_map.png
 viralmetagenome	https://raw.githubusercontent.com/nf-core/viralmetagenome/1.1.0//docs/images/metromap_style_pipeline_workflow_viralmetagenome.png
 genomeassembler	https://raw.githubusercontent.com/nf-core/genomeassembler/1.1.0//docs/images/genomeassembler.light.png
+drop	https://raw.githubusercontent.com/nf-core/drop/1.0.0//docs/images/drop_metromap.png
