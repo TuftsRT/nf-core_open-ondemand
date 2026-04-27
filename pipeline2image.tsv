@@ -1,6 +1,6 @@
 pipeline	image
 coproid	https://raw.githubusercontent.com/nf-core/coproid/2.0.1//docs/images/coproid_workflow.jpg?raw=true
-taxprofiler	https://raw.githubusercontent.com/nf-core/taxprofiler/1.2.6//docs/images/taxprofiler_tube.png
+taxprofiler	https://raw.githubusercontent.com/nf-core/taxprofiler/2.0.0//docs/images/taxprofiler_tube.png
 pathogensurveillance	https://raw.githubusercontent.com/nf-core/pathogensurveillance/1.1.0//docs/images/pipeline_diagram.png
 sarek	https://raw.githubusercontent.com/nf-core/sarek/3.8.1//docs/images/sarek_workflow.png
 createtaxdb	https://raw.githubusercontent.com/nf-core/createtaxdb/2.1.0//assets/createtaxdb-metromap-diagram-light.png
