@@ -1,8 +1,0 @@
----
-name: "scrnaseq 4.0.0"
-category: ""
-subcategory: "singlecell"
-role: batch_connect
-description: |
-  Launch the nf-core pipeline [nf-core-scrnaseq](https://nf-co.re/scrnaseq)
-  version 4.0.0 through Open OnDemand.

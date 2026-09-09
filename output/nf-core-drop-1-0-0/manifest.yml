@@ -1,8 +1,0 @@
----
-name: "drop 1.0.0"
-category: ""
-subcategory: "singlecell"
-role: batch_connect
-description: |
-  Launch the nf-core pipeline [nf-core-drop](https://nf-co.re/drop)
-  version 1.0.0 through Open OnDemand.

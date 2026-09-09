@@ -1,8 +1,0 @@
----
-name: "funcscan 3.0.0"
-category: ""
-subcategory: "metagenomics"
-role: batch_connect
-description: |
-  Launch the nf-core pipeline [nf-core-funcscan](https://nf-co.re/funcscan)
-  version 3.0.0 through Open OnDemand.

@@ -1,8 +1,0 @@
----
-name: "mag 5.4.1"
-category: ""
-subcategory: "metagenomics"
-role: batch_connect
-description: |
-  Launch the nf-core pipeline [nf-core-mag](https://nf-co.re/mag)
-  version 5.4.1 through Open OnDemand.

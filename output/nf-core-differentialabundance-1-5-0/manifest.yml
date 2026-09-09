@@ -1,8 +1,0 @@
----
-name: "differentialabundance 1.5.0"
-category: ""
-subcategory: "rnaseq"
-role: batch_connect
-description: |
-  Launch the nf-core pipeline [nf-core-differentialabundance](https://nf-co.re/differentialabundance)
-  version 1.5.0 through Open OnDemand.

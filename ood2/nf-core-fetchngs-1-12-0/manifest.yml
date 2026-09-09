@@ -1,8 +1,0 @@
----
-name: "fetchngs 1.12.0"
-category: ""
-subcategory: "utility"
-role: batch_connect
-description: |
-  Launch the nf-core pipeline [nf-core-fetchngs](https://nf-co.re/fetchngs)
-  version 1.12.0 through Open OnDemand.

@@ -1,8 +1,0 @@
----
-name: "rnafusion 4.0.0"
-category: ""
-subcategory: "rnaseq"
-role: batch_connect
-description: |
-  Launch the nf-core pipeline [nf-core-rnafusion](https://nf-co.re/rnafusion)
-  version 4.0.0 through Open OnDemand.
