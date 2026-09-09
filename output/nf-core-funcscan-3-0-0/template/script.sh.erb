@@ -1,0 +1,84 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+# Export the environment module shell function when OOD starts this script
+# from a non-login shell.
+[[ $(type -t module || true) == "function" ]] && export -f module
+
+workdir="<%= context.workdir %>"
+if [[ -z "${workdir// }" ]]; then
+  workdir="${HOME}"
+fi
+
+mkdir -p "$workdir"
+cp nf-params.json "$workdir/"
+cd "$workdir"
+
+resume_flag=()
+if [[ "<%= context.resume %>" == "1" ]]; then
+  resume_flag+=("-resume")
+fi
+
+# If configured, source the same environment file that was used during app
+# generation so runtime defaults stay aligned with generation defaults.
+nf2ood_env_file="/cluster/tufts/yzhang85/github/nfcore2ood/nf2ood.env"
+if [[ -n "${nf2ood_env_file}" && -r "${nf2ood_env_file}" ]]; then
+  # shellcheck disable=SC1090
+  source "${nf2ood_env_file}"
+fi
+
+module_name="${NF2OOD_MODULE_NAME:-nextflow}"
+container_module="${NF2OOD_CONTAINER_MODULE:-singularity}"
+pipeline_root="${NF2OOD_PIPELINE_ROOT:-/cluster/tufts/apps/container/biocontainers/nf-core/pipelines}"
+singularity_cache="${NF2OOD_SINGULARITY_CACHEDIR:-/cluster/tufts/apps/container/biocontainers/nf-core/singularity-images}"
+slurm_profile="${NF2OOD_SLURM_PROFILE:-tufts}"
+nextflow_version="<%= context.nextflow_version.to_s.strip %>"
+
+if [[ $(type -t module || true) == "function" ]]; then
+  module purge
+  if [[ -n "${module_name}" ]]; then
+    if [[ -n "${nextflow_version}" ]]; then
+      module load "${module_name}/${nextflow_version}"
+    else
+      module load "${module_name}"
+    fi
+  fi
+  if [[ -n "${container_module}" ]]; then
+    module load "${container_module}"
+  fi
+fi
+
+export NXF_SINGULARITY_CACHEDIR="${singularity_cache}"
+pipeline_path="${pipeline_root}/nf-core-funcscan/3.0.0/3_0_0"
+export projectDir="${pipeline_path}"
+export baseDir="${pipeline_path}"
+
+# Normalize the rendered parameter file before running Nextflow.
+sed -i.bak -E '/:[[:space:]]*,/d; /"[[:space:]]*"/d' nf-params.json
+sed -i.bak -E "s@\$(projectDir)@${projectDir}@g; s@\$(baseDir)@${baseDir}@g; s/\"None\"/null/g" nf-params.json
+rm -f nf-params.json.bak
+
+nextflow_command=(nextflow run "${pipeline_path}" -params-file nf-params.json)
+
+if [[ "<%= context.executor %>" == "slurm" ]]; then
+  nextflow_command+=("-profile" "${slurm_profile}")
+else
+  cat > custom.config <<EOF
+cleanup = true
+
+process {
+  resourceLimits = [
+    cpus: <%= context.num_cores %>,
+    memory: "<%= context.num_memory %> GB"
+  ]
+}
+EOF
+  nextflow_command+=("-profile" "singularity" "-c" "custom.config")
+fi
+
+nextflow_command+=("${resume_flag[@]}")
+
+printf 'Executing: %q ' "${nextflow_command[@]}"
+printf '\n'
+"${nextflow_command[@]}"

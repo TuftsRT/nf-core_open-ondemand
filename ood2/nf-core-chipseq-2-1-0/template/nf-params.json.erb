@@ -1,0 +1,90 @@
+<%
+require "json"
+
+to_bool = lambda do |value|
+  case value
+  when true, false
+    value
+  when String
+    normalized = value.strip.downcase
+    next true if %w[true 1 yes y on].include?(normalized)
+    next false if %w[false 0 no n off].include?(normalized)
+    value
+  else
+    value
+  end
+end
+
+to_number = lambda do |value|
+  case value
+  when Integer, Float
+    value
+  when String
+    stripped = value.strip
+    next value if stripped.empty?
+    next stripped.to_i if stripped.match?(/\A[+-]?\d+\z/)
+    next stripped.to_f if stripped.match?(/\A[+-]?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?\z/)
+    value
+  else
+    value
+  end
+end
+
+params = {
+    "input": context.input,
+    "fragment_size": to_number.call(context.fragment_size),
+    "seq_center": context.seq_center,
+    "read_length": context.read_length,
+    "outdir": context.outdir,
+    "multiqc_title": context.multiqc_title,
+    "genome": context.genome,
+    "fasta": context.fasta,
+    "gtf": context.gtf,
+    "gff": context.gff,
+    "bwa_index": context.bwa_index,
+    "bowtie2_index": context.bowtie2_index,
+    "chromap_index": context.chromap_index,
+    "star_index": context.star_index,
+    "gene_bed": context.gene_bed,
+    "macs_gsize": to_number.call(context.macs_gsize),
+    "blacklist": context.blacklist,
+    "save_reference": to_bool.call(context.save_reference),
+    "igenomes_base": context.igenomes_base,
+    "igenomes_ignore": to_bool.call(context.igenomes_ignore),
+    "clip_r1": to_number.call(context.clip_r1),
+    "clip_r2": to_number.call(context.clip_r2),
+    "three_prime_clip_r1": to_number.call(context.three_prime_clip_r1),
+    "three_prime_clip_r2": to_number.call(context.three_prime_clip_r2),
+    "trim_nextseq": to_number.call(context.trim_nextseq),
+    "skip_trimming": to_bool.call(context.skip_trimming),
+    "save_trimmed": to_bool.call(context.save_trimmed),
+    "aligner": context.aligner,
+    "keep_dups": to_bool.call(context.keep_dups),
+    "keep_multi_map": to_bool.call(context.keep_multi_map),
+    "bwa_min_score": to_number.call(context.bwa_min_score),
+    "save_align_intermeds": to_bool.call(context.save_align_intermeds),
+    "save_unaligned": to_bool.call(context.save_unaligned),
+    "narrow_peak": to_bool.call(context.narrow_peak),
+    "broad_cutoff": to_number.call(context.broad_cutoff),
+    "macs_fdr": to_number.call(context.macs_fdr),
+    "macs_pvalue": to_number.call(context.macs_pvalue),
+    "min_reps_consensus": to_number.call(context.min_reps_consensus),
+    "save_macs_pileup": to_bool.call(context.save_macs_pileup),
+    "skip_peak_qc": to_bool.call(context.skip_peak_qc),
+    "skip_peak_annotation": to_bool.call(context.skip_peak_annotation),
+    "skip_consensus_peaks": to_bool.call(context.skip_consensus_peaks),
+    "skip_fastqc": to_bool.call(context.skip_fastqc),
+    "skip_picard_metrics": to_bool.call(context.skip_picard_metrics),
+    "skip_preseq": to_bool.call(context.skip_preseq),
+    "deseq2_vst": to_bool.call(context.deseq2_vst),
+    "skip_plot_profile": to_bool.call(context.skip_plot_profile),
+    "skip_plot_fingerprint": to_bool.call(context.skip_plot_fingerprint),
+    "skip_spp": to_bool.call(context.skip_spp),
+    "skip_deseq2_qc": to_bool.call(context.skip_deseq2_qc),
+    "skip_igv": to_bool.call(context.skip_igv),
+    "skip_multiqc": to_bool.call(context.skip_multiqc),
+    "skip_qc": to_bool.call(context.skip_qc)
+}
+
+params.reject! { |_k, v| v.is_a?(String) && v.strip.empty? }
+%><%= JSON.pretty_generate(params) %>

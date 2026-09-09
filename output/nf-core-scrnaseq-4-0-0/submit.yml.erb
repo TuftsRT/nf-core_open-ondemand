@@ -1,0 +1,31 @@
+---
+batch_connect:
+  template: "basic"
+  conn_params:
+    - working_path
+    - output_log_path
+
+script:
+  email_on_started: <%= bc_email_on_started.to_s == "1" %>
+  email_on_terminated: false
+  job_name: "OnDemand/nf-core-scrnaseq"
+  native:
+    - "--time"
+    - "<%= bc_num_hours %>:00:00"
+    - "--nodes"
+    - "1"
+    <%- if executor == "slurm" -%>
+    - "-n"
+    - "2"
+    - "--mem"
+    - "12G"
+    <%- elsif executor == "local" -%>
+    - "-n"
+    - "<%= num_cores %>"
+    - "--mem"
+    - "<%= num_memory %>G"
+    <%- if partition.to_s.strip != "" -%>
+    - "-p"
+    - "<%= partition %>"
+    <%- end -%>
+    <%- end -%>

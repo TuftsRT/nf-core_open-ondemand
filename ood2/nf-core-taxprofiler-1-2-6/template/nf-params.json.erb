@@ -1,0 +1,136 @@
+<%
+require "json"
+
+to_bool = lambda do |value|
+  case value
+  when true, false
+    value
+  when String
+    normalized = value.strip.downcase
+    next true if %w[true 1 yes y on].include?(normalized)
+    next false if %w[false 0 no n off].include?(normalized)
+    value
+  else
+    value
+  end
+end
+
+to_number = lambda do |value|
+  case value
+  when Integer, Float
+    value
+  when String
+    stripped = value.strip
+    next value if stripped.empty?
+    next stripped.to_i if stripped.match?(/\A[+-]?\d+\z/)
+    next stripped.to_f if stripped.match?(/\A[+-]?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?\z/)
+    value
+  else
+    value
+  end
+end
+
+params = {
+    "input": context.input,
+    "databases": context.databases,
+    "save_untarred_databases": to_bool.call(context.save_untarred_databases),
+    "outdir": context.outdir,
+    "multiqc_title": context.multiqc_title,
+    "skip_preprocessing_qc": to_bool.call(context.skip_preprocessing_qc),
+    "preprocessing_qc_tool": context.preprocessing_qc_tool,
+    "save_preprocessed_reads": to_bool.call(context.save_preprocessed_reads),
+    "save_analysis_ready_fastqs": to_bool.call(context.save_analysis_ready_fastqs),
+    "perform_shortread_qc": to_bool.call(context.perform_shortread_qc),
+    "shortread_qc_tool": context.shortread_qc_tool,
+    "shortread_qc_skipadaptertrim": to_bool.call(context.shortread_qc_skipadaptertrim),
+    "shortread_qc_adapter1": context.shortread_qc_adapter1,
+    "shortread_qc_adapter2": context.shortread_qc_adapter2,
+    "shortread_qc_adapterlist": context.shortread_qc_adapterlist,
+    "shortread_qc_mergepairs": to_bool.call(context.shortread_qc_mergepairs),
+    "shortread_qc_includeunmerged": to_bool.call(context.shortread_qc_includeunmerged),
+    "shortread_qc_minlength": to_number.call(context.shortread_qc_minlength),
+    "shortread_qc_dedup": to_bool.call(context.shortread_qc_dedup),
+    "perform_shortread_complexityfilter": to_bool.call(context.perform_shortread_complexityfilter),
+    "shortread_complexityfilter_tool": context.shortread_complexityfilter_tool,
+    "shortread_complexityfilter_entropy": to_number.call(context.shortread_complexityfilter_entropy),
+    "shortread_complexityfilter_bbduk_windowsize": to_number.call(context.shortread_complexityfilter_bbduk_windowsize),
+    "shortread_complexityfilter_bbduk_mask": to_bool.call(context.shortread_complexityfilter_bbduk_mask),
+    "shortread_complexityfilter_fastp_threshold": to_number.call(context.shortread_complexityfilter_fastp_threshold),
+    "shortread_complexityfilter_prinseqplusplus_mode": context.shortread_complexityfilter_prinseqplusplus_mode,
+    "shortread_complexityfilter_prinseqplusplus_dustscore": to_number.call(context.shortread_complexityfilter_prinseqplusplus_dustscore),
+    "save_complexityfiltered_reads": to_bool.call(context.save_complexityfiltered_reads),
+    "perform_longread_qc": to_bool.call(context.perform_longread_qc),
+    "longread_adapterremoval_tool": context.longread_adapterremoval_tool,
+    "longread_qc_skipadaptertrim": to_bool.call(context.longread_qc_skipadaptertrim),
+    "longread_filter_tool": context.longread_filter_tool,
+    "longread_qc_skipqualityfilter": to_bool.call(context.longread_qc_skipqualityfilter),
+    "longread_qc_qualityfilter_minlength": to_number.call(context.longread_qc_qualityfilter_minlength),
+    "longread_qc_qualityfilter_keeppercent": to_number.call(context.longread_qc_qualityfilter_keeppercent),
+    "longread_qc_qualityfilter_targetbases": to_number.call(context.longread_qc_qualityfilter_targetbases),
+    "longread_qc_qualityfilter_minquality": to_number.call(context.longread_qc_qualityfilter_minquality),
+    "perform_shortread_redundancyestimation": to_bool.call(context.perform_shortread_redundancyestimation),
+    "shortread_redundancyestimation_mode": context.shortread_redundancyestimation_mode,
+    "perform_shortread_hostremoval": to_bool.call(context.perform_shortread_hostremoval),
+    "perform_longread_hostremoval": to_bool.call(context.perform_longread_hostremoval),
+    "hostremoval_reference": context.hostremoval_reference,
+    "shortread_hostremoval_index": context.shortread_hostremoval_index,
+    "longread_hostremoval_index": context.longread_hostremoval_index,
+    "save_hostremoval_index": to_bool.call(context.save_hostremoval_index),
+    "save_hostremoval_bam": to_bool.call(context.save_hostremoval_bam),
+    "save_hostremoval_unmapped": to_bool.call(context.save_hostremoval_unmapped),
+    "perform_runmerging": to_bool.call(context.perform_runmerging),
+    "save_runmerged_reads": to_bool.call(context.save_runmerged_reads),
+    "run_centrifuge": to_bool.call(context.run_centrifuge),
+    "centrifuge_save_reads": to_bool.call(context.centrifuge_save_reads),
+    "run_diamond": to_bool.call(context.run_diamond),
+    "diamond_output_format": context.diamond_output_format,
+    "diamond_save_reads": to_bool.call(context.diamond_save_reads),
+    "run_kaiju": to_bool.call(context.run_kaiju),
+    "kaiju_expand_viruses": to_bool.call(context.kaiju_expand_viruses),
+    "kaiju_taxon_rank": context.kaiju_taxon_rank,
+    "run_kraken2": to_bool.call(context.run_kraken2),
+    "kraken2_save_reads": to_bool.call(context.kraken2_save_reads),
+    "kraken2_save_readclassifications": to_bool.call(context.kraken2_save_readclassifications),
+    "kraken2_save_minimizers": to_bool.call(context.kraken2_save_minimizers),
+    "run_krakenuniq": to_bool.call(context.run_krakenuniq),
+    "krakenuniq_save_reads": to_bool.call(context.krakenuniq_save_reads),
+    "krakenuniq_ram_chunk_size": context.krakenuniq_ram_chunk_size,
+    "krakenuniq_save_readclassifications": to_bool.call(context.krakenuniq_save_readclassifications),
+    "krakenuniq_batch_size": to_number.call(context.krakenuniq_batch_size),
+    "run_bracken": to_bool.call(context.run_bracken),
+    "bracken_save_intermediatekraken2": to_bool.call(context.bracken_save_intermediatekraken2),
+    "run_malt": to_bool.call(context.run_malt),
+    "malt_mode": context.malt_mode,
+    "malt_save_reads": to_bool.call(context.malt_save_reads),
+    "malt_generate_megansummary": to_bool.call(context.malt_generate_megansummary),
+    "run_metaphlan": to_bool.call(context.run_metaphlan),
+    "metaphlan_save_samfiles": to_bool.call(context.metaphlan_save_samfiles),
+    "run_motus": to_bool.call(context.run_motus),
+    "motus_use_relative_abundance": to_bool.call(context.motus_use_relative_abundance),
+    "motus_save_mgc_read_counts": to_bool.call(context.motus_save_mgc_read_counts),
+    "motus_remove_ncbi_ids": to_bool.call(context.motus_remove_ncbi_ids),
+    "run_kmcp": to_bool.call(context.run_kmcp),
+    "kmcp_save_search": to_bool.call(context.kmcp_save_search),
+    "run_ganon": to_bool.call(context.run_ganon),
+    "ganon_save_readclassifications": to_bool.call(context.ganon_save_readclassifications),
+    "ganon_report_type": context.ganon_report_type,
+    "ganon_report_rank": context.ganon_report_rank,
+    "ganon_report_toppercentile": to_number.call(context.ganon_report_toppercentile),
+    "ganon_report_mincount": to_number.call(context.ganon_report_mincount),
+    "ganon_report_maxcount": to_number.call(context.ganon_report_maxcount),
+    "run_profile_standardisation": to_bool.call(context.run_profile_standardisation),
+    "standardisation_motus_generatebiom": to_bool.call(context.standardisation_motus_generatebiom),
+    "run_krona": to_bool.call(context.run_krona),
+    "krona_taxonomy_directory": context.krona_taxonomy_directory,
+    "standardisation_taxpasta_format": context.standardisation_taxpasta_format,
+    "taxpasta_taxonomy_dir": context.taxpasta_taxonomy_dir,
+    "taxpasta_add_name": to_bool.call(context.taxpasta_add_name),
+    "taxpasta_add_rank": to_bool.call(context.taxpasta_add_rank),
+    "taxpasta_add_lineage": to_bool.call(context.taxpasta_add_lineage),
+    "taxpasta_add_idlineage": to_bool.call(context.taxpasta_add_idlineage),
+    "taxpasta_add_ranklineage": to_bool.call(context.taxpasta_add_ranklineage),
+    "taxpasta_ignore_errors": to_bool.call(context.taxpasta_ignore_errors)
+}
+
+params.reject! { |_k, v| v.is_a?(String) && v.strip.empty? }
+%><%= JSON.pretty_generate(params) %>

@@ -1,0 +1,8 @@
+---
+name: "pathogensurveillance 1.1.0"
+category: ""
+subcategory: "metagenomics"
+role: batch_connect
+description: |
+  Launch the nf-core pipeline [nf-core-pathogensurveillance](https://nf-co.re/pathogensurveillance)
+  version 1.1.0 through Open OnDemand.

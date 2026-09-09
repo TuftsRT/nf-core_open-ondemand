@@ -1,0 +1,680 @@
+---
+cluster: "pax"
+form_header: |
+  <!-- NF2OOD_BANNER_START -->
+  <div style="text-align: center; margin-bottom: 20px;">
+    <img src="https://raw.githubusercontent.com/nf-core/drop/1.0.0//docs/images/drop_metromap.png"
+         alt="nf-core-drop"
+         style="max-width: 600px; max-height: 600px; height: auto; margin-bottom: 10px;">
+  </div>
+  <!-- NF2OOD_BANNER_END -->
+
+  > **Saved form values**
+  >
+  > This app automatically saves your form inputs between sessions.
+  >
+  > To clear the saved form values for this app, use the [cache reset utility](/pun/sys/cache_reset/?app_slug=nf-core-drop-1-0-0&return_url=/pun/sys/dashboard/batch_connect/sys/nf-core-drop-1-0-0/session_contexts/new).
+
+attributes:
+  bc_num_hours:
+    label: Number of hours
+    widget: number_field
+    value: 8
+    min: 1
+    step: 1
+    help: Requested walltime for the launch job.
+
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/cpu_partition.yml").indent(2) %>
+
+  num_cores:
+    label: Number of cores
+    widget: number_field
+    value: 4
+    min: 1
+    step: 1
+    help: CPU count used for single-node local execution.
+
+  num_memory:
+    label: Amount of memory (GB)
+    widget: number_field
+    value: 8
+    min: 1
+    step: 1
+    help: Memory requested for single-node local execution.
+
+  executor:
+    label: Which Nextflow executor should be used?
+    widget: select
+    options:
+      - ["slurm", "slurm", data-hide-partition: true, data-hide-num-cores: true, data-hide-num-memory: true]
+      - ["local", "local"]
+    help: |
+      With `slurm`, the pipeline uses its configured scheduler profile.
+      With `local`, tasks run on the submitted node using a generated config.
+
+  workdir:
+    label: Working directory
+    widget: path_selector
+    required: false
+    directory: "/cluster/tufts"
+    favorites:
+      - "/cluster/tufts"
+    help: Directory where the Nextflow launch should run.
+
+  resume:
+    label: Resume previous run
+    widget: check_box
+    checked_value: 1
+    unchecked_value: 0
+    help: Resume a previous run if a matching Nextflow work directory exists.
+
+
+  input_output_options:
+    label: 'Parameters defining the input and output options of the pipeline'
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-input-when-un-checked: true
+        hide-outdir-when-un-checked: true
+        hide-multiqc_title-when-un-checked: true
+        hide-project_title-when-un-checked: true
+        hide-genome-when-un-checked: true
+        hide-gene_annotation-when-un-checked: true
+        hide-hpo_file-when-un-checked: true
+        hide-random_seed-when-un-checked: true
+    help: 'Parameters defining the input and output options of the pipeline.'
+
+  input:
+    label: 'input'
+    required: true
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Path to the samplesheet file used by the pipeline. The file should be a TSV file. Equivalent to the `sampleAnnotation` parameter in the snakemake pipeline.'
+
+  outdir:
+    label: 'outdir'
+    required: true
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure. Equivalent to the `root` parameter in the snakemake pipeline.'
+
+  multiqc_title:
+    label: 'multiqc_title'
+    widget: text_field
+    help: 'MultiQC report title. Printed as page header, used for filename if not otherwise specified.'
+
+  project_title:
+    label: 'project_title'
+    widget: text_field
+    help: 'Title of the project to be displayed on the rendered HTML output'
+
+  genome:
+    label: 'genome'
+    required: true
+    widget: select
+    options:
+      - ['', '']
+      - ['hg19', 'hg19']
+      - ['hs37d5 ', 'hs37d5 ']
+      - ['hg38', 'hg38']
+      - ['GRCh38', 'GRCh38']
+    help: 'Equivalent to the `genomeAssembly` parameter in the snakemake pipeline. Either hg19/hs37d5 or hg38/GRCh38, depending on the genome assembly used for mapping'
+
+  gene_annotation:
+    label: 'gene_annotation'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Path to GTF gene annotations file. Equivalent to the `geneAnnotation` parameter in the snakemake pipeline, with the difference that a file depicting the kev-value pairs is expected here instead.'
+
+  hpo_file:
+    label: 'hpo_file'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Full path of the file containing HPO terms. If missing, it reads it from our webserver. Refer to [files-to-download](https://gagneurlab-drop.readthedocs.io/en/latest/prepare.html?highlight=drop_group#files-to-download). Equivalent to the `hpoFile` parameter in the snakemake pipeline.'
+
+  random_seed:
+    label: 'random_seed'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'Specify a random seed for reproducibility'
+
+  export_counts:
+    label: 'Export counts options'
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-ec_gene_annotations-when-un-checked: true
+        hide-ec_exclude_groups-when-un-checked: true
+    help: 'Export counts options.'
+
+  ec_gene_annotations:
+    label: 'ec_gene_annotations'
+    widget: text_field
+    help: 'A comma-separated list of gene annotations to export.'
+
+  ec_exclude_groups:
+    label: 'ec_exclude_groups'
+    widget: text_field
+    help: 'A comma-separated list of aberrant expression and aberrant splicing groups whose counts should not be exported. If empty, all groups are exported.'
+
+  aberrant_expression:
+    label: 'Aberrant expression options'
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-ae_skip-when-un-checked: true
+        hide-ae_groups-when-un-checked: true
+        hide-ae_min_ids-when-un-checked: true
+        hide-ae_fpkm_cutoff-when-un-checked: true
+        hide-ae_implementation-when-un-checked: true
+        hide-ae_padj_cutoff-when-un-checked: true
+        hide-ae_z_score_cutoff-when-un-checked: true
+        hide-ae_max_tested_dimension_proportion-when-un-checked: true
+        hide-ae_yield_size-when-un-checked: true
+        hide-ae_genes_to_test-when-un-checked: true
+        hide-ae_use_grid_search_to_obtain_q-when-un-checked: true
+    help: 'Aberrant expression options.'
+
+  ae_skip:
+    label: 'ae_skip'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'Skip aberrant expression analysis.'
+
+  ae_groups:
+    label: 'ae_groups'
+    widget: text_field
+    help: 'A comma-separated list of aberrant expression groups to run. If empty, all groups are run.'
+
+  ae_min_ids:
+    label: 'ae_min_ids'
+    widget: number_field
+    value: 1
+    step: 1
+    help: 'A positive number indicating the minimum number of samples that a group needs in order to be analyzed. We recommend at least 50.'
+
+  ae_fpkm_cutoff:
+    label: 'ae_fpkm_cutoff'
+    widget: number_field
+    value: 1
+    step: 1
+    help: 'A positive number indicating the minimum FPKM value for a gene to be considered expressed.'
+
+  ae_implementation:
+    label: 'ae_implementation'
+    widget: select
+    options:
+      - ['autoencoder', 'autoencoder']
+      - ['pca', 'pca']
+      - ['peer', 'peer']
+    help: 'Methods to remove sample covariation in OUTRIDER.'
+
+  ae_padj_cutoff:
+    label: 'ae_padj_cutoff'
+    widget: number_field
+    value: 0.05
+    step: 1
+    help: 'A number between (0, 1] indicating the maximum FDR an event can have in order to be considered an outlier.'
+
+  ae_z_score_cutoff:
+    label: 'ae_z_score_cutoff'
+    widget: number_field
+    value: 0
+    step: 1
+    help: 'A non-negative number. Z scores (in absolute value) greater than this cutoff are considered as outliers.'
+
+  ae_max_tested_dimension_proportion:
+    label: 'ae_max_tested_dimension_proportion'
+    widget: number_field
+    value: 3
+    step: 1
+    help: 'An integer that controls the maximum value that the encoding dimension can take.'
+
+  ae_yield_size:
+    label: 'ae_yield_size'
+    widget: number_field
+    value: 2000000
+    step: 1
+    help: 'An integer that sets the batch size for counting reads within a bam file. If memory issues persist lower the yieldSize.'
+
+  ae_genes_to_test:
+    label: 'ae_genes_to_test'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Full path to a yaml file specifying lists of candidate genes per sample to test during FDR correction. See the documentation for details on the structure of this file.'
+
+  ae_use_grid_search_to_obtain_q:
+    label: 'ae_use_grid_search_to_obtain_q'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'If true, the optimal latent space dimension for the autoencoder will be determined by grid search. If false, OHT will be performed..'
+
+  aberrant_splicing:
+    label: 'Aberrant splicing options'
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-as_skip-when-un-checked: true
+        hide-as_groups-when-un-checked: true
+        hide-as_min_ids-when-un-checked: true
+        hide-as_recount-when-un-checked: true
+        hide-as_long_read-when-un-checked: true
+        hide-as_keep_non_standard_chrs-when-un-checked: true
+        hide-as_skip_filter-when-un-checked: true
+        hide-as_min_expression_in_one_sample-when-un-checked: true
+        hide-as_quantile_min_expression-when-un-checked: true
+        hide-as_min_delta_psi-when-un-checked: true
+        hide-as_implementation-when-un-checked: true
+        hide-as_fraser_version-when-un-checked: true
+        hide-as_delta_psi_cutoff-when-un-checked: true
+        hide-as_quantile_for_filtering-when-un-checked: true
+        hide-as_padj_cutoff-when-un-checked: true
+        hide-as_max_tested_dimension_proportion-when-un-checked: true
+        hide-as_genes_to_test-when-un-checked: true
+        hide-as_use_grid_search_to_obtain_q-when-un-checked: true
+    help: 'Aberrant splicing options.'
+
+  as_skip:
+    label: 'as_skip'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'Skip aberrant splicing analysis.'
+
+  as_groups:
+    label: 'as_groups'
+    widget: text_field
+    help: 'A comma-separated list of aberrant splicing groups to run. If empty, all groups are run.'
+
+  as_min_ids:
+    label: 'as_min_ids'
+    widget: number_field
+    value: 1
+    step: 1
+    help: 'A positive number indicating the minimum number of samples that a group needs in order to be analyzed. We recommend at least 50.'
+
+  as_recount:
+    label: 'as_recount'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'If true, it forces samples to be recounted.'
+
+  as_long_read:
+    label: 'as_long_read'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'Set to true only if counting Nanopore or PacBio long reads.'
+
+  as_keep_non_standard_chrs:
+    label: 'as_keep_non_standard_chrs'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'Set to true if non standard chromosomes are to be kept for further analysis.'
+
+  as_skip_filter:
+    label: 'as_skip_filter'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'If true, no filter is applied. We recommend filtering.'
+
+  as_min_expression_in_one_sample:
+    label: 'as_min_expression_in_one_sample'
+    widget: number_field
+    value: 20
+    step: 1
+    help: 'The minimal read count in at least one sample required for an intron to pass the filter.'
+
+  as_quantile_min_expression:
+    label: 'as_quantile_min_expression'
+    widget: number_field
+    value: 10
+    step: 1
+    help: 'The minimum total read count (N) an intron needs to have at the specified quantile across samples to pass the filter. See --as_quantile_for_filtering.'
+
+  as_min_delta_psi:
+    label: 'as_min_delta_psi'
+    widget: number_field
+    value: 0.05
+    step: 1
+    help: 'The minimal variation (in delta psi) required for an intron to pass the filter.'
+
+  as_implementation:
+    label: 'as_implementation'
+    widget: select
+    options:
+      - ['PCA', 'PCA']
+      - ['PCA-BB-Decoder', 'PCA-BB-Decoder']
+    help: 'Methods to remove sample covariation in FRASER.'
+
+  as_fraser_version:
+    label: 'as_fraser_version'
+    widget: text_field
+    value: 'FRASER2'
+    help: 'Version of FRASER to use.'
+
+  as_delta_psi_cutoff:
+    label: 'as_delta_psi_cutoff'
+    widget: number_field
+    value: 0.3
+    step: 1
+    help: 'A non-negative number. Delta psi values greater than this cutoff are considered as outliers. Recommand 0.3 for FRASER, 0.1 for FRASER2.'
+
+  as_quantile_for_filtering:
+    label: 'as_quantile_for_filtering'
+    widget: number_field
+    value: 0.75
+    step: 1
+    help: 'Defines at which percentile the as_quantile_min_expression filter is applied. Recommand 0.95 for FRASER, 0.75 for FRASER2.'
+
+  as_padj_cutoff:
+    label: 'as_padj_cutoff'
+    widget: number_field
+    value: 0.1
+    step: 1
+    help: 'Same as in aberrant expression.'
+
+  as_max_tested_dimension_proportion:
+    label: 'as_max_tested_dimension_proportion'
+    widget: number_field
+    value: 6
+    step: 1
+    help: 'An integer that controls the maximum value that the encoding dimension can take.'
+
+  as_genes_to_test:
+    label: 'as_genes_to_test'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Full path to a yaml file specifying lists of candidate genes per sample to test during FDR correction. See the documentation for details on the structure of this file.'
+
+  as_use_grid_search_to_obtain_q:
+    label: 'as_use_grid_search_to_obtain_q'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'If true, the optimal latent space dimension for the autoencoder will be determined by grid search. If false, OHT will be performed..'
+
+  mono_allelic_expression:
+    label: 'Mono-allelic expression options'
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-mae_skip-when-un-checked: true
+        hide-mae_groups-when-un-checked: true
+        hide-ucsc_fasta-when-un-checked: true
+        hide-ucsc_fai-when-un-checked: true
+        hide-ucsc_dict-when-un-checked: true
+        hide-ncbi_fasta-when-un-checked: true
+        hide-ncbi_fai-when-un-checked: true
+        hide-ncbi_dict-when-un-checked: true
+        hide-mae_gatk_header_check-when-un-checked: true
+        hide-mae_padj_cutoff-when-un-checked: true
+        hide-mae_allelic_ratio_cutoff-when-un-checked: true
+        hide-mae_add_af-when-un-checked: true
+        hide-mae_max_af-when-un-checked: true
+        hide-mae_max_var_freq_cohort-when-un-checked: true
+        hide-mae_qc_vcf-when-un-checked: true
+        hide-mae_qc_vcf_tbi-when-un-checked: true
+        hide-mae_qc_groups-when-un-checked: true
+        hide-mae_dna_rna_match_cutoff-when-un-checked: true
+    help: 'Mono-allelic expression options.'
+
+  mae_skip:
+    label: 'mae_skip'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'Skip mono-allelic expression analysis.'
+
+  mae_groups:
+    label: 'mae_groups'
+    widget: text_field
+    help: 'A comma-separated list of mono-allelic expression groups to run. If empty, all groups are run.'
+
+  ucsc_fasta:
+    label: 'ucsc_fasta'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Path to UCSC FASTA genome file. Equivalent to the `ucsc` option in the `genome` parameter in the snakemake pipeline.'
+
+  ucsc_fai:
+    label: 'ucsc_fai'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Path to UCSC FASTA index file.'
+
+  ucsc_dict:
+    label: 'ucsc_dict'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Path to UCSC sequence dictionary file. . If not provided, the pipeline will try to create it from the FASTA file.'
+
+  ncbi_fasta:
+    label: 'ncbi_fasta'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Path to NCBI FASTA genome file. Equivalent to the `ncbi` option in the `genome` parameter in the snakemake pipeline.'
+
+  ncbi_fai:
+    label: 'ncbi_fai'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Path to NCBI FASTA index file.'
+
+  ncbi_dict:
+    label: 'ncbi_dict'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Path to NCBI sequence dictionary file. If not provided, the pipeline will try to create it from the FASTA file.'
+
+  mae_gatk_header_check:
+    label: 'mae_gatk_header_check'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'If true (recommended), it emits the header warnings of a VCF file when performing the allelic counts'
+
+  mae_padj_cutoff:
+    label: 'mae_padj_cutoff'
+    widget: number_field
+    value: 0.05
+    step: 1
+    help: 'Same as in aberrant expression.'
+
+  mae_allelic_ratio_cutoff:
+    label: 'mae_allelic_ratio_cutoff'
+    widget: number_field
+    value: 0.8
+    step: 1
+    help: 'A number between [0.5, 1) indicating the maximum allelic ratio allele1/(allele1+allele2) for the test to be significant.'
+
+  mae_add_af:
+    label: 'mae_add_af'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'Add the allele frequencies from gnomAD'
+
+  mae_max_af:
+    label: 'mae_max_af'
+    widget: number_field
+    value: 0.001
+    step: 1
+    help: 'Maximum allele frequency (of the minor allele) cut-off. Variants with AF equal or below this number are considered rare.'
+
+  mae_max_var_freq_cohort:
+    label: 'mae_max_var_freq_cohort'
+    widget: number_field
+    value: 0.05
+    step: 1
+    help: 'Maximum variant frequency among the cohort.'
+
+  mae_qc_vcf:
+    label: 'mae_qc_vcf'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Full path to the vcf file used for VCF-BAM matching. Refer to [files-to-download](https://gagneurlab-drop.readthedocs.io/en/latest/prepare.html?highlight=drop_group#files-to-download).'
+
+  mae_qc_vcf_tbi:
+    label: 'mae_qc_vcf_tbi'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Full path to the index of the vcf file used for VCF-BAM matching. Refer to [files-to-download](https://gagneurlab-drop.readthedocs.io/en/latest/prepare.html?highlight=drop_group#files-to-download)'
+
+  mae_qc_groups:
+    label: 'mae_qc_groups'
+    widget: text_field
+    help: 'Same as ''groups'', but for the VCF-BAM matching'
+
+  mae_dna_rna_match_cutoff:
+    label: 'mae_dna_rna_match_cutoff'
+    widget: number_field
+    value: 0.05
+    step: 1
+    help: 'fraction (0-1) used to seperate ''matching'' samples and ''non-matching'' samples comparing the DNA and RNA data during QC.'
+
+  reference_genome_options:
+    label: 'Reference genome options'
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-igenomes_ignore-when-un-checked: true
+        hide-igenomes_base-when-un-checked: true
+    help: 'Reference genome related files and options required for the workflow.'
+
+  igenomes_ignore:
+    label: 'igenomes_ignore'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'Do not load the iGenomes reference config.'
+
+  igenomes_base:
+    label: 'igenomes_base'
+    widget: path_selector
+    value: 's3://ngi-igenomes/igenomes/'
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'The base path to the igenomes reference files'
+
+form:
+  - bc_num_hours
+  - executor
+  - partition
+  - num_cores
+  - num_memory
+  - workdir
+  - input_output_options
+  - input
+  - outdir
+  - multiqc_title
+  - project_title
+  - genome
+  - gene_annotation
+  - hpo_file
+  - random_seed
+  - export_counts
+  - ec_gene_annotations
+  - ec_exclude_groups
+  - aberrant_expression
+  - ae_skip
+  - ae_groups
+  - ae_min_ids
+  - ae_fpkm_cutoff
+  - ae_implementation
+  - ae_padj_cutoff
+  - ae_z_score_cutoff
+  - ae_max_tested_dimension_proportion
+  - ae_yield_size
+  - ae_genes_to_test
+  - ae_use_grid_search_to_obtain_q
+  - aberrant_splicing
+  - as_skip
+  - as_groups
+  - as_min_ids
+  - as_recount
+  - as_long_read
+  - as_keep_non_standard_chrs
+  - as_skip_filter
+  - as_min_expression_in_one_sample
+  - as_quantile_min_expression
+  - as_min_delta_psi
+  - as_implementation
+  - as_fraser_version
+  - as_delta_psi_cutoff
+  - as_quantile_for_filtering
+  - as_padj_cutoff
+  - as_max_tested_dimension_proportion
+  - as_genes_to_test
+  - as_use_grid_search_to_obtain_q
+  - mono_allelic_expression
+  - mae_skip
+  - mae_groups
+  - ucsc_fasta
+  - ucsc_fai
+  - ucsc_dict
+  - ncbi_fasta
+  - ncbi_fai
+  - ncbi_dict
+  - mae_gatk_header_check
+  - mae_padj_cutoff
+  - mae_allelic_ratio_cutoff
+  - mae_add_af
+  - mae_max_af
+  - mae_max_var_freq_cohort
+  - mae_qc_vcf
+  - mae_qc_vcf_tbi
+  - mae_qc_groups
+  - mae_dna_rna_match_cutoff
+  - reference_genome_options
+  - igenomes_ignore
+  - igenomes_base
+  - resume

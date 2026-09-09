@@ -1,0 +1,574 @@
+---
+cluster: "pax"
+form_header: |
+  <!-- NF2OOD_BANNER_START -->
+  <div style="text-align: center; margin-bottom: 20px;">
+    <img src="https://raw.githubusercontent.com/nf-core/scrnaseq/4.1.0//docs/images/scrnaseq_pipeline_V3.0-metro_clean.png"
+         alt="nf-core-scrnaseq"
+         style="max-width: 600px; max-height: 600px; height: auto; margin-bottom: 10px;">
+  </div>
+  <!-- NF2OOD_BANNER_END -->
+
+  > **Saved form values**
+  >
+  > This app automatically saves your form inputs between sessions.
+  >
+  > To clear the saved form values for this app, use the [cache reset utility](/pun/sys/cache_reset/?app_slug=nf-core-scrnaseq-4-0-0&return_url=/pun/sys/dashboard/batch_connect/sys/nf-core-scrnaseq-4-0-0/session_contexts/new).
+
+attributes:
+  bc_num_hours:
+    label: Number of hours
+    widget: number_field
+    value: 8
+    min: 1
+    step: 1
+    help: Requested walltime for the launch job.
+
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/cpu_partition.yml").indent(2) %>
+
+  num_cores:
+    label: Number of cores
+    widget: number_field
+    value: 4
+    min: 1
+    step: 1
+    help: CPU count used for single-node local execution.
+
+  num_memory:
+    label: Amount of memory (GB)
+    widget: number_field
+    value: 8
+    min: 1
+    step: 1
+    help: Memory requested for single-node local execution.
+
+  executor:
+    label: Which Nextflow executor should be used?
+    widget: select
+    options:
+      - ["slurm", "slurm", data-hide-partition: true, data-hide-num-cores: true, data-hide-num-memory: true]
+      - ["local", "local"]
+    help: |
+      With `slurm`, the pipeline uses its configured scheduler profile.
+      With `local`, tasks run on the submitted node using a generated config.
+
+  workdir:
+    label: Working directory
+    widget: path_selector
+    required: false
+    directory: "/cluster/tufts"
+    favorites:
+      - "/cluster/tufts"
+    help: Directory where the Nextflow launch should run.
+
+  resume:
+    label: Resume previous run
+    widget: check_box
+    checked_value: 1
+    unchecked_value: 0
+    help: Resume a previous run if a matching Nextflow work directory exists.
+
+
+  input_output_options:
+    label: 'Input/output options'
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-input-when-un-checked: true
+        hide-outdir-when-un-checked: true
+        hide-multiqc_title-when-un-checked: true
+    help: 'Define where the pipeline should find input data and save output data.'
+
+  input:
+    label: 'input'
+    required: true
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Path to comma-separated file containing information about the samples in the experiment.'
+
+  outdir:
+    label: 'outdir'
+    required: true
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure.'
+
+  multiqc_title:
+    label: 'multiqc_title'
+    widget: text_field
+    help: 'MultiQC report title. Printed as page header, used for filename if not otherwise specified.'
+
+  mandatory_arguments:
+    label: 'Mandatory arguments'
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-barcode_whitelist-when-un-checked: true
+        hide-aligner-when-un-checked: true
+        hide-protocol-when-un-checked: true
+
+  barcode_whitelist:
+    label: 'barcode_whitelist'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'If not using the 10X Genomics platform, a custom barcode whitelist can be used with `--barcode_whitelist`.'
+
+  aligner:
+    label: 'aligner'
+    widget: select
+    options:
+      - ['simpleaf', 'simpleaf']
+      - ['kallisto', 'kallisto']
+      - ['star', 'star']
+      - ['cellranger', 'cellranger']
+      - ['cellrangerarc', 'cellrangerarc']
+      - ['cellrangermulti', 'cellrangermulti']
+    help: 'Name of the tool to use for scRNA (pseudo-) alignment.'
+
+  protocol:
+    label: 'protocol'
+    widget: text_field
+    value: 'auto'
+    help: 'The protocol that was used to generate the single cell data, e.g. 10x Genomics v2 Chemistry.'
+
+  skip_tools:
+    label: 'Skip Tools'
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-skip_multiqc-when-un-checked: true
+        hide-skip_fastqc-when-un-checked: true
+        hide-skip_cellbender-when-un-checked: true
+        hide-skip_emptydrops-when-un-checked: true
+    help: 'This section can be used to  disable certain tools in the pipeline'
+
+  skip_multiqc:
+    label: 'skip_multiqc'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'Skip MultiQC Report'
+
+  skip_fastqc:
+    label: 'skip_fastqc'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'Skip FastQC'
+
+  skip_cellbender:
+    label: 'skip_cellbender'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'Skip cellbender empty drops filter subworkflow'
+
+  skip_emptydrops:
+    label: 'skip_emptydrops'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+
+  reference_genome_options:
+    label: 'Reference genome options'
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-genome-when-un-checked: true
+        hide-fasta-when-un-checked: true
+        hide-igenomes_ignore-when-un-checked: true
+        hide-transcript_fasta-when-un-checked: true
+        hide-gtf-when-un-checked: true
+        hide-save_reference-when-un-checked: true
+        hide-save_align_intermeds-when-un-checked: true
+        hide-igenomes_base-when-un-checked: true
+        hide-txpgene2-when-un-checked: true
+    help: 'Reference genome related files and options required for the workflow.'
+
+  genome:
+    label: 'genome'
+    widget: text_field
+    help: 'Name of iGenomes reference.'
+
+  fasta:
+    label: 'fasta'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Path to FASTA genome file.'
+
+  igenomes_ignore:
+    label: 'igenomes_ignore'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'Do not load the iGenomes reference config.'
+
+  transcript_fasta:
+    label: 'transcript_fasta'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'A cDNA FASTA file'
+
+  gtf:
+    label: 'gtf'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Reference GTF annotation file'
+
+  save_reference:
+    label: 'save_reference'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'Specify this parameter to save the indices created (STAR, Kallisto, Simpleaf) to the results.'
+
+  save_align_intermeds:
+    label: 'save_align_intermeds'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'Specify this parameter to save the intermediate alignment files (STAR, CellRanger) to the results.'
+
+  igenomes_base:
+    label: 'igenomes_base'
+    widget: path_selector
+    value: 's3://ngi-igenomes/igenomes/'
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Directory / URL base for iGenomes references.'
+
+  txpgene2:
+    label: 'txp2gene'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Path to transcript to gene mapping file. This allows the specification of a transcript to gene mapping file for Kallisto/BUS and Alevin-fry with AlevinQC.'
+
+  simpleaf_options:
+    label: 'Simpleaf Options'
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-simpleaf_index-when-un-checked: true
+        hide-simpleaf_umi_resolution-when-un-checked: true
+
+  simpleaf_index:
+    label: 'simpleaf_index'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Path to pre-built Simpleaf index.'
+
+  simpleaf_umi_resolution:
+    label: 'simpleaf_umi_resolution'
+    widget: select
+    options:
+      - ['cr-like', 'cr-like']
+      - ['cr-like-em', 'cr-like-em']
+      - ['parsimony', 'parsimony']
+      - ['parsimony-em', 'parsimony-em']
+      - ['parsimony-gene', 'parsimony-gene']
+      - ['parsimony-gene-em', 'parsimony-gene-em']
+    help: 'UMI resolution strategy to deduplicate UMIs.'
+
+  starsolo_options:
+    label: 'STARSolo Options'
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-star_index-when-un-checked: true
+        hide-star_ignore_sjdbgtf-when-un-checked: true
+        hide-seq_center-when-un-checked: true
+        hide-star_feature-when-un-checked: true
+
+  star_index:
+    label: 'star_index'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Specify a path to the precomputed STAR index.'
+
+  star_ignore_sjdbgtf:
+    label: 'star_ignore_sjdbgtf'
+    widget: text_field
+    help: 'Ignore the SJDB GTF file.'
+
+  seq_center:
+    label: 'seq_center'
+    widget: text_field
+    help: 'Name of sequencing center for BAM read group tag.'
+
+  star_feature:
+    label: 'star_feature'
+    widget: select
+    options:
+      - ['Gene', 'Gene']
+      - ['GeneFull', 'GeneFull']
+      - ['Gene Velocyto', 'Gene Velocyto']
+    help: 'Quantification type of different transcriptomic feature. Use `GeneFull` on pre-mRNA count for single-nucleus RNA-seq reads. Use `Gene Velocyto` to generate RNA velocity matrix.'
+
+  kallisto_bus_options:
+    label: 'Kallisto/BUS Options'
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-kallisto_index-when-un-checked: true
+        hide-kb_tc1-when-un-checked: true
+        hide-kb_tc2-when-un-checked: true
+        hide-kb_workflow-when-un-checked: true
+    help: 'Params related to Kallisto/BUS tool'
+
+  kallisto_index:
+    label: 'kallisto_index'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Specify a path to the precomputed Kallisto index.'
+
+  kb_tc1:
+    label: 'kb_t1c'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Specify a path to the cDNA transcripts-to-capture.'
+
+  kb_tc2:
+    label: 'kb_t2c'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Specify a path to the intron transcripts-to-capture.'
+
+  kb_workflow:
+    label: 'kb_workflow'
+    widget: select
+    options:
+      - ['standard', 'standard']
+      - ['lamanno', 'lamanno']
+      - ['nac', 'nac']
+    help: 'Type of workflow. Use `nac` for an index type that can quantify nascent and mature RNA. Use `lamanno` for RNA velocity based on La Manno et al. 2018 logic. (default: standard)'
+
+  cellranger_options:
+    label: 'Cellranger Options'
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-cellranger_index-when-un-checked: true
+        hide-skip_cellranger_renaming-when-un-checked: true
+    help: 'Params related to the Cellranger pipeline'
+
+  cellranger_index:
+    label: 'cellranger_index'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Specify a pre-calculated cellranger index. Readily prepared indexes can be obtained from the 10x Genomics website.'
+
+  skip_cellranger_renaming:
+    label: 'skip_cellranger_renaming'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'Should it skip the automatic renaming included in cellranger-related modules?'
+
+  cellrangerarc_options:
+    label: 'Cellranger ARC Options'
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-motifs-when-un-checked: true
+        hide-cellrangerarc_config-when-un-checked: true
+        hide-cellrangerarc_reference-when-un-checked: true
+    help: 'Params related to the Cellranger pipeline'
+
+  motifs:
+    label: 'motifs'
+    widget: text_field
+    help: 'Specify a motif file to create a cellranger-arc index. Can be taken, e.g., from the JASPAR database.'
+
+  cellrangerarc_config:
+    label: 'cellrangerarc_config'
+    widget: text_field
+    help: 'Specify a config file to create the cellranger-arc index.'
+
+  cellrangerarc_reference:
+    label: 'cellrangerarc_reference'
+    widget: text_field
+    help: 'Specify the genome reference name used in the config file to create a cellranger-arc index.'
+
+  cellranger_multi_options:
+    label: 'Cellranger Multi options'
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-cellranger_vdj_index-when-un-checked: true
+        hide-skip_cellrangermulti_vdjref-when-un-checked: true
+        hide-gex_frna_probe_set-when-un-checked: true
+        hide-gex_target_panel-when-un-checked: true
+        hide-gex_cmo_set-when-un-checked: true
+        hide-fb_reference-when-un-checked: true
+        hide-vdj_inner_enrichment_primers-when-un-checked: true
+        hide-gex_barcode_sample_assignment-when-un-checked: true
+        hide-cellranger_multi_barcodes-when-un-checked: true
+
+  cellranger_vdj_index:
+    label: 'cellranger_vdj_index'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Specify a pre-built Cell Ranger index for VDJ analysis.'
+
+  skip_cellrangermulti_vdjref:
+    label: 'skip_cellrangermulti_vdjref'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'Skip mkvdjref if not using VDJ data with cellranger/multi'
+
+  gex_frna_probe_set:
+    label: 'gex_frna_probe_set'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Provide a probe set for fixed RNA-seq profiling (used with FFPE samples). Please refer to the [10x documentation about probesets](https://www.10xgenomics.com/support/single-cell-gene-expression-flex/documentation/steps/probe-sets/chromium-frp-probe-set-files) for more details.'
+
+  gex_target_panel:
+    label: 'gex_target_panel'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Provide a panel description for targeted sequencing.'
+
+  gex_cmo_set:
+    label: 'gex_cmo_set'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Provide a Cell Multiplexing Oligo (CMO) description file when working with multiplexed samples. This is only necessary if you with to override Cell Ranger''s default CMO-set. Please refer to the [10x documentation](https://www.10xgenomics.com/support/software/cell-ranger/latest/analysis/running-pipelines/cr-3p-multi#cmo-ref) about CMO references for more details.'
+
+  fb_reference:
+    label: 'fb_reference'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Provide a reference file for feature barcoding (e.g. antibody measurements). Please refer to the [Cell Ranger Feature Reference documentation](https://www.10xgenomics.com/support/software/cell-ranger/latest/analysis/inputs/cr-feature-ref-csv) for more details.'
+
+  vdj_inner_enrichment_primers:
+    label: 'vdj_inner_enrichment_primers'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'This argument takes a .txt file containing primer sequences that were used to enrich cDNA for V(D)J sequences. This is only necessary if you with to override Cell Ranger''s defaults.'
+
+  gex_barcode_sample_assignment:
+    label: 'gex_barcode_sample_assignment'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'This is only necessary to override Cell Ranger''s default cell calling and tag calling steps. In most cases you need to only use the `cellranger_multi_barcodes` parameter. Please refer to the [10x documentation](https://www.10xgenomics.com/support/software/cell-ranger/latest/analysis/running-pipelines/cr-3p-multi#barcode-asst) for more information about this file.'
+
+  cellranger_multi_barcodes:
+    label: 'cellranger_multi_barcodes'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Additional samplesheet to provide information about multiplexed samples. See the ''Usage'' section for more details.'
+
+form:
+  - bc_num_hours
+  - executor
+  - partition
+  - num_cores
+  - num_memory
+  - workdir
+  - input_output_options
+  - input
+  - outdir
+  - multiqc_title
+  - mandatory_arguments
+  - barcode_whitelist
+  - aligner
+  - protocol
+  - skip_tools
+  - skip_multiqc
+  - skip_fastqc
+  - skip_cellbender
+  - skip_emptydrops
+  - reference_genome_options
+  - genome
+  - fasta
+  - igenomes_ignore
+  - transcript_fasta
+  - gtf
+  - save_reference
+  - save_align_intermeds
+  - igenomes_base
+  - txpgene2
+  - simpleaf_options
+  - simpleaf_index
+  - simpleaf_umi_resolution
+  - starsolo_options
+  - star_index
+  - star_ignore_sjdbgtf
+  - seq_center
+  - star_feature
+  - kallisto_bus_options
+  - kallisto_index
+  - kb_tc1
+  - kb_tc2
+  - kb_workflow
+  - cellranger_options
+  - cellranger_index
+  - skip_cellranger_renaming
+  - cellrangerarc_options
+  - motifs
+  - cellrangerarc_config
+  - cellrangerarc_reference
+  - cellranger_multi_options
+  - cellranger_vdj_index
+  - skip_cellrangermulti_vdjref
+  - gex_frna_probe_set
+  - gex_target_panel
+  - gex_cmo_set
+  - fb_reference
+  - vdj_inner_enrichment_primers
+  - gex_barcode_sample_assignment
+  - cellranger_multi_barcodes
+  - resume

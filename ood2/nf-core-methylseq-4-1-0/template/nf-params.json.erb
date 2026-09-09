@@ -1,0 +1,98 @@
+<%
+require "json"
+
+to_bool = lambda do |value|
+  case value
+  when true, false
+    value
+  when String
+    normalized = value.strip.downcase
+    next true if %w[true 1 yes y on].include?(normalized)
+    next false if %w[false 0 no n off].include?(normalized)
+    value
+  else
+    value
+  end
+end
+
+to_number = lambda do |value|
+  case value
+  when Integer, Float
+    value
+  when String
+    stripped = value.strip
+    next value if stripped.empty?
+    next stripped.to_i if stripped.match?(/\A[+-]?\d+\z/)
+    next stripped.to_f if stripped.match?(/\A[+-]?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?\z/)
+    value
+  else
+    value
+  end
+end
+
+params = {
+    "input": context.input,
+    "outdir": context.outdir,
+    "multiqc_title": context.multiqc_title,
+    "save_reference": to_bool.call(context.save_reference),
+    "save_align_intermeds": to_bool.call(context.save_align_intermeds),
+    "unmapped": to_bool.call(context.unmapped),
+    "save_trimmed": to_bool.call(context.save_trimmed),
+    "genome": context.genome,
+    "fasta": context.fasta,
+    "fasta_index": context.fasta_index,
+    "bismark_index": context.bismark_index,
+    "bwameth_index": context.bwameth_index,
+    "igenomes_ignore": to_bool.call(context.igenomes_ignore),
+    "igenomes_base": context.igenomes_base,
+    "aligner": context.aligner,
+    "use_mem2": to_bool.call(context.use_mem2),
+    "pbat": to_bool.call(context.pbat),
+    "rrbs": to_bool.call(context.rrbs),
+    "slamseq": to_bool.call(context.slamseq),
+    "em_seq": to_bool.call(context.em_seq),
+    "single_cell": to_bool.call(context.single_cell),
+    "accel": to_bool.call(context.accel),
+    "zymo": to_bool.call(context.zymo),
+    "clip_r1": to_number.call(context.clip_r1),
+    "clip_r2": to_number.call(context.clip_r2),
+    "three_prime_clip_r1": to_number.call(context.three_prime_clip_r1),
+    "three_prime_clip_r2": to_number.call(context.three_prime_clip_r2),
+    "nextseq_trim": to_number.call(context.nextseq_trim),
+    "length_trim": to_number.call(context.length_trim),
+    "skip_trimming_presets": to_bool.call(context.skip_trimming_presets),
+    "non_directional": to_bool.call(context.non_directional),
+    "cytosine_report": to_bool.call(context.cytosine_report),
+    "relax_mismatches": to_bool.call(context.relax_mismatches),
+    "num_mismatches": to_number.call(context.num_mismatches),
+    "meth_cutoff": to_number.call(context.meth_cutoff),
+    "no_overlap": to_bool.call(context.no_overlap),
+    "ignore_r1": to_number.call(context.ignore_r1),
+    "ignore_r2": to_number.call(context.ignore_r2),
+    "ignore_3prime_r1": to_number.call(context.ignore_prime3_r1),
+    "ignore_3prime_r2": to_number.call(context.ignore_prime3_r2),
+    "known_splices": context.known_splices,
+    "local_alignment": to_bool.call(context.local_alignment),
+    "minins": to_number.call(context.minins),
+    "maxins": to_number.call(context.maxins),
+    "nomeseq": to_bool.call(context.nomeseq),
+    "comprehensive": to_bool.call(context.comprehensive),
+    "all_contexts": to_bool.call(context.all_contexts),
+    "merge_context": to_bool.call(context.merge_context),
+    "min_depth": to_number.call(context.min_depth),
+    "ignore_flags": to_bool.call(context.ignore_flags),
+    "methyl_kit": to_bool.call(context.methyl_kit),
+    "bamqc_regions_file": context.bamqc_regions_file,
+    "target_regions_file": context.target_regions_file,
+    "collecthsmetrics": to_bool.call(context.collecthsmetrics),
+    "skip_trimming": to_bool.call(context.skip_trimming),
+    "skip_deduplication": to_bool.call(context.skip_deduplication),
+    "skip_fastqc": to_bool.call(context.skip_fastqc),
+    "skip_multiqc": to_bool.call(context.skip_multiqc),
+    "run_preseq": to_bool.call(context.run_preseq),
+    "run_qualimap": to_bool.call(context.run_qualimap),
+    "run_targeted_sequencing": to_bool.call(context.run_targeted_sequencing)
+}
+
+params.reject! { |_k, v| v.is_a?(String) && v.strip.empty? }
+%><%= JSON.pretty_generate(params) %>

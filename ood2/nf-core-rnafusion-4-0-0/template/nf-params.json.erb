@@ -1,0 +1,97 @@
+<%
+require "json"
+
+to_bool = lambda do |value|
+  case value
+  when true, false
+    value
+  when String
+    normalized = value.strip.downcase
+    next true if %w[true 1 yes y on].include?(normalized)
+    next false if %w[false 0 no n off].include?(normalized)
+    value
+  else
+    value
+  end
+end
+
+to_number = lambda do |value|
+  case value
+  when Integer, Float
+    value
+  when String
+    stripped = value.strip
+    next value if stripped.empty?
+    next stripped.to_i if stripped.match?(/\A[+-]?\d+\z/)
+    next stripped.to_f if stripped.match?(/\A[+-]?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?\z/)
+    value
+  else
+    value
+  end
+end
+
+params = {
+    "skip_qc": to_bool.call(context.skip_qc),
+    "skip_vcf": to_bool.call(context.skip_vcf),
+    "skip_vis": to_bool.call(context.skip_vis),
+    "input": context.input,
+    "outdir": context.outdir,
+    "multiqc_title": context.multiqc_title,
+    "cosmic_username": context.cosmic_username,
+    "cosmic_passwd": context.cosmic_passwd,
+    "genomes_base": context.genomes_base,
+    "genomes_ignore": to_bool.call(context.genomes_ignore),
+    "genome_gencode_version": to_number.call(context.genome_gencode_version),
+    "tools": context.tools,
+    "read_length": to_number.call(context.read_length),
+    "arriba_ref_blacklist": context.arriba_ref_blacklist,
+    "arriba_ref_cytobands": context.arriba_ref_cytobands,
+    "arriba_ref_known_fusions": context.arriba_ref_known_fusions,
+    "arriba_ref_protein_domains": context.arriba_ref_protein_domains,
+    "arriba_fusions": context.arriba_fusions,
+    "fusioncatcher_fusions": context.fusioncatcher_fusions,
+    "fusioncatcher_limitSjdbInsertNsj": to_number.call(context.fusioncatcher_limitsjdbinsertnsj),
+    "fusioncatcher_ref": context.fusioncatcher_ref,
+    "fusioninspector_limitSjdbInsertNsj": to_number.call(context.fusioninspector_limitsjdbinsertnsj),
+    "fusioninspector_fusions": context.fusioninspector_fusions,
+    "fusionreport_ref": context.fusionreport_ref,
+    "hgnc_ref": context.hgnc_ref,
+    "hgnc_date": context.hgnc_date,
+    "qiagen": to_bool.call(context.qiagen),
+    "salmon_index": context.salmon_index,
+    "starfusion_fusions": context.starfusion_fusions,
+    "starfusion_ref": context.starfusion_ref,
+    "ctatsplicing_cancer_introns": context.ctatsplicing_cancer_introns,
+    "dfam_hmm": context.dfam_hmm,
+    "dfam_h3f": context.dfam_hf3,
+    "dfam_h3i": context.dfam_hi3,
+    "dfam_h3m": context.dfam_hm3,
+    "dfam_h3p": context.dfam_hp3,
+    "pfam_file": context.pfam_file,
+    "annot_filter_url": context.annot_filter_url,
+    "starindex_ref": context.starindex_ref,
+    "tools_cutoff": to_number.call(context.tools_cutoff),
+    "whitelist": context.whitelist,
+    "trim_tail": to_number.call(context.trim_tail),
+    "trim_tail_fusioncatcher": to_number.call(context.trim_tail_fusioncatcher),
+    "adapter_fasta": context.adapter_fasta,
+    "save_trimmed_fail": to_bool.call(context.save_trimmed_fail),
+    "min_trimmed_reads": to_number.call(context.min_trimmed_reads),
+    "save_merged": to_bool.call(context.save_merged),
+    "cram": to_bool.call(context.cram),
+    "references_only": to_bool.call(context.references_only),
+    "fasta": context.fasta,
+    "fai": context.fai,
+    "genome": context.genome,
+    "gtf": context.gtf,
+    "refflat": context.refflat,
+    "rrna_intervals": context.rrna_intervals,
+    "no_cosmic": to_bool.call(context.no_cosmic),
+    "fusion_annot_lib": context.fusion_annot_lib,
+    "species": context.species,
+    "dfam_version": to_number.call(context.dfam_version),
+    "pfam_version": to_number.call(context.pfam_version)
+}
+
+params.reject! { |_k, v| v.is_a?(String) && v.strip.empty? }
+%><%= JSON.pretty_generate(params) %>

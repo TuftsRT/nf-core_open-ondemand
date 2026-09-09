@@ -1,0 +1,8 @@
+---
+name: "methylseq 4.1.0"
+category: ""
+subcategory: "epigenomics"
+role: batch_connect
+description: |
+  Launch the nf-core pipeline [nf-core-methylseq](https://nf-co.re/methylseq)
+  version 4.1.0 through Open OnDemand.

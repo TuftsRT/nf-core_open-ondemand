@@ -1,0 +1,8 @@
+---
+name: "ampliseq 2.16.1"
+category: ""
+subcategory: "metagenomics"
+role: batch_connect
+description: |
+  Launch the nf-core pipeline [nf-core-ampliseq](https://nf-co.re/ampliseq)
+  version 2.16.1 through Open OnDemand.

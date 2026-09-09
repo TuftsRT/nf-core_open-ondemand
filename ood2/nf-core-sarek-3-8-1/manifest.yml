@@ -1,0 +1,8 @@
+---
+name: "sarek 3.8.1"
+category: ""
+subcategory: "genomics"
+role: batch_connect
+description: |
+  Launch the nf-core pipeline [nf-core-sarek](https://nf-co.re/sarek)
+  version 3.8.1 through Open OnDemand.

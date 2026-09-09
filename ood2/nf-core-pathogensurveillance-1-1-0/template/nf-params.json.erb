@@ -1,0 +1,66 @@
+<%
+require "json"
+
+to_bool = lambda do |value|
+  case value
+  when true, false
+    value
+  when String
+    normalized = value.strip.downcase
+    next true if %w[true 1 yes y on].include?(normalized)
+    next false if %w[false 0 no n off].include?(normalized)
+    value
+  else
+    value
+  end
+end
+
+to_number = lambda do |value|
+  case value
+  when Integer, Float
+    value
+  when String
+    stripped = value.strip
+    next value if stripped.empty?
+    next stripped.to_i if stripped.match?(/\A[+-]?\d+\z/)
+    next stripped.to_f if stripped.match?(/\A[+-]?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?\z/)
+    value
+  else
+    value
+  end
+end
+
+params = {
+    "input": context.input,
+    "max_parallel_downloads": to_number.call(context.max_parallel_downloads),
+    "reference_data": context.reference_data,
+    "outdir": context.outdir,
+    "temp_dir": context.temp_dir,
+    "data_dir": context.data_dir,
+    "multiqc_title": context.multiqc_title,
+    "bakta_db": context.bakta_db,
+    "download_bakta_db": to_bool.call(context.download_bakta_db),
+    "bakta_db_type": context.bakta_db_type,
+    "max_samples": to_number.call(context.max_samples),
+    "max_depth": to_number.call(context.max_depth),
+    "only_latin_binomial_refs": to_bool.call(context.only_latin_binomial_refs),
+    "allow_non_refseq": to_bool.call(context.allow_non_refseq),
+    "allow_unannotated": to_bool.call(context.allow_unannotated),
+    "allow_atypical_refs": to_bool.call(context.allow_atypical_refs),
+    "n_ref_strains": to_number.call(context.n_ref_strains),
+    "n_ref_species": to_number.call(context.n_ref_species),
+    "n_ref_genera": to_number.call(context.n_ref_genera),
+    "n_ref_closest": to_number.call(context.n_ref_closest),
+    "n_ref_closest_named": to_number.call(context.n_ref_closest_named),
+    "n_ref_context": to_number.call(context.n_ref_context),
+    "phylo_min_genes": to_number.call(context.phylo_min_genes),
+    "phylo_max_genes": to_number.call(context.phylo_max_genes),
+    "ref_min_ani": to_number.call(context.ref_min_ani),
+    "min_bases_to_assemble": to_number.call(context.min_bases_to_assemble),
+    "max_variants": to_number.call(context.max_variants),
+    "cpu_scale": to_number.call(context.cpu_scale),
+    "skip_core_phylogeny": to_bool.call(context.skip_core_phylogeny)
+}
+
+params.reject! { |_k, v| v.is_a?(String) && v.strip.empty? }
+%><%= JSON.pretty_generate(params) %>

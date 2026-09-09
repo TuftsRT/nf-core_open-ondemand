@@ -1,0 +1,1543 @@
+<%
+require "open3"
+
+nextflow_module_name = "nextflow".to_s.strip
+nextflow_versions = []
+
+def nextflow_version_sort_key(version)
+  version.scan(/\d+|[A-Za-z]+/).map do |part|
+    if part.match?(/\A\d+\z/)
+      [0, part.to_i]
+    else
+      [1, part.downcase]
+    end
+  end
+end
+
+if !nextflow_module_name.empty?
+  begin
+    module_avail_output, = Open3.capture2(
+      "bash", "-lc", "module -t avail #{nextflow_module_name} 2>&1 || true"
+    )
+
+    nextflow_versions = module_avail_output.lines.filter_map do |line|
+      normalized = line.strip.sub(/\s+\(.*\)\z/, "")
+      match = normalized.match(/\A#{Regexp.escape(nextflow_module_name)}\/(.+)\z/)
+      match && match[1]
+    end.uniq.sort_by { |version| nextflow_version_sort_key(version) }.reverse
+  rescue StandardError
+    nextflow_versions = []
+  end
+end
+%>
+---
+cluster: "pax"
+form_header: |
+  <!-- NF2OOD_BANNER_START -->
+  <div style="text-align: center; margin-bottom: 20px;">
+    <img src="https://raw.githubusercontent.com/nf-core/sarek/3.8.1//docs/images/sarek_workflow.png"
+         alt="nf-core-sarek"
+         style="max-width: 600px; max-height: 600px; height: auto; margin-bottom: 10px;">
+  </div>
+  <!-- NF2OOD_BANNER_END -->
+
+  > **Saved form values**
+  >
+  > This app automatically saves your form inputs between sessions.
+  >
+  > To clear the saved form values for this app, use the [cache reset utility](/pun/sys/cache_reset/?app_slug=nf-core-sarek-3-8-1&return_url=/pun/sys/dashboard/batch_connect/sys/nf-core-sarek-3-8-1/session_contexts/new).
+
+attributes:
+  bc_num_hours:
+    label: Number of hours
+    widget: number_field
+    value: 8
+    min: 1
+    step: 1
+    help: Requested walltime for the launch job.
+
+  bc_email_on_started:
+    label: Email when job starts
+    widget: check_box
+    checked_value: 1
+    unchecked_value: 0
+    help: Send an email notification when the Open OnDemand launch job starts.
+
+<% if !nextflow_module_name.empty? && nextflow_versions.any? %>
+  nextflow_version:
+    label: Nextflow version
+    widget: select
+    options:
+<% nextflow_versions.each do |version| %>
+      - ["<%= version %>", "<%= version %>"]
+<% end %>
+    help: Use an older Nextflow version when running previous nf-core pipeline releases.
+<% elsif !nextflow_module_name.empty? %>
+  nextflow_version:
+    label: Nextflow version
+    widget: text_field
+    required: false
+    help: Use an older Nextflow version when running previous nf-core pipeline releases.
+<% end %>
+
+<%= File.read("/etc/ood/config/apps/dashboard/batch_connect/partials/cpu_partition.yml").indent(2) %>
+
+  num_cores:
+    label: Number of cores
+    widget: number_field
+    value: 4
+    min: 1
+    step: 1
+    help: CPU count used for single-node local execution.
+
+  num_memory:
+    label: Amount of memory (GB)
+    widget: number_field
+    value: 8
+    min: 1
+    step: 1
+    help: Memory requested for single-node local execution.
+
+  executor:
+    label: Which Nextflow executor should be used?
+    widget: select
+    options:
+      - ["slurm", "slurm", data-hide-partition: true, data-hide-num-cores: true, data-hide-num-memory: true]
+      - ["local", "local"]
+    help: |
+      With `slurm`, the pipeline uses its configured scheduler profile.
+      With `local`, tasks run on the submitted node using a generated config.
+
+  workdir:
+    label: Working directory
+    widget: path_selector
+    required: false
+    directory: "/cluster/tufts"
+    favorites:
+      - "/cluster/tufts"
+    help: Directory where the Nextflow launch should run.
+
+  resume:
+    label: Resume previous run
+    widget: check_box
+    checked_value: 1
+    unchecked_value: 0
+    help: Resume a previous run if a matching Nextflow work directory exists.
+
+
+  input_output_options:
+    label: 'Input/output options'
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-input-when-un-checked: true
+        hide-step-when-un-checked: true
+        hide-outdir-when-un-checked: true
+    help: 'Define where the pipeline should find input data and save output data.'
+
+  input:
+    label: 'input'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Path to comma-separated file containing information about the samples in the experiment.'
+
+  step:
+    label: 'step'
+    required: true
+    widget: select
+    options:
+      - ['mapping', 'mapping']
+      - ['markduplicates', 'markduplicates']
+      - ['prepare_recalibration', 'prepare_recalibration']
+      - ['recalibrate', 'recalibrate']
+      - ['variant_calling', 'variant_calling']
+      - ['annotate', 'annotate']
+    help: 'Starting step'
+
+  outdir:
+    label: 'outdir'
+    required: true
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure.'
+
+  main_options:
+    label: 'Main options'
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-split_fastq-when-un-checked: true
+        hide-nucleotides_per_second-when-un-checked: true
+        hide-intervals-when-un-checked: true
+        hide-no_intervals-when-un-checked: true
+        hide-wes-when-un-checked: true
+        hide-tools-when-un-checked: true
+        hide-skip_tools-when-un-checked: true
+    help: 'Most common options used for the pipeline'
+
+  split_fastq:
+    label: 'split_fastq'
+    widget: number_field
+    value: 50000000
+    step: 1
+    help: 'Specify how many reads each split of a FastQ file contains. Set 0 to turn off splitting at all.'
+
+  nucleotides_per_second:
+    label: 'nucleotides_per_second'
+    widget: number_field
+    value: 200000
+    step: 1
+    help: 'Estimate interval size.'
+
+  intervals:
+    label: 'intervals'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Path to target bed file in case of whole exome or targeted sequencing or intervals file.'
+
+  no_intervals:
+    label: 'no_intervals'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'Disable usage of intervals.'
+
+  wes:
+    label: 'wes'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'Enable when exome or panel data is provided.'
+
+  tools:
+    label: 'tools'
+    widget: text_field
+    help: 'Tools to use for contamination removal, duplicate marking, variant calling and/or for annotation.'
+
+  skip_tools:
+    label: 'skip_tools'
+    widget: text_field
+    help: 'Disable specified tools.'
+
+  fastq_preprocessing:
+    label: 'FASTQ Preprocessing'
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-trim_fastq-when-un-checked: true
+        hide-clip_r1-when-un-checked: true
+        hide-clip_r2-when-un-checked: true
+        hide-three_prime_clip_r1-when-un-checked: true
+        hide-three_prime_clip_r2-when-un-checked: true
+        hide-trim_nextseq-when-un-checked: true
+        hide-length_required-when-un-checked: true
+        hide-save_trimmed-when-un-checked: true
+        hide-save_split_fastqs-when-un-checked: true
+    help: 'Trim fastq file or handle UMIs'
+
+  trim_fastq:
+    label: 'trim_fastq'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'Run FastP for read trimming'
+
+  clip_r1:
+    label: 'clip_r1'
+    widget: number_field
+    value: 0
+    step: 1
+    help: 'Remove bp from the 5'' end of read 1'
+
+  clip_r2:
+    label: 'clip_r2'
+    widget: number_field
+    value: 0
+    step: 1
+    help: 'Remove bp from the 5'' end of read 2'
+
+  three_prime_clip_r1:
+    label: 'three_prime_clip_r1'
+    widget: number_field
+    value: 0
+    step: 1
+    help: 'Remove bp from the 3'' end of read 1'
+
+  three_prime_clip_r2:
+    label: 'three_prime_clip_r2'
+    widget: number_field
+    value: 0
+    step: 1
+    help: 'Remove bp from the 3'' end of read 2'
+
+  trim_nextseq:
+    label: 'trim_nextseq'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'Removing poly-G tails.'
+
+  length_required:
+    label: 'length_required'
+    widget: number_field
+    value: 15
+    step: 1
+    help: 'Minimum length of reads to keep'
+
+  save_trimmed:
+    label: 'save_trimmed'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'Save trimmed FastQ file intermediates.'
+
+  save_split_fastqs:
+    label: 'save_split_fastqs'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'If set, publishes split FASTQ files. Intended for testing purposes.'
+
+  umi_processing:
+    label: 'Unique Molecular Identifiers'
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-umi_read_structure-when-un-checked: true
+        hide-group_by_umi_strategy-when-un-checked: true
+        hide-umi_in_read_header-when-un-checked: true
+        hide-umi_location-when-un-checked: true
+        hide-umi_length-when-un-checked: true
+        hide-umi_base_skip-when-un-checked: true
+        hide-umi_tag-when-un-checked: true
+        hide-bbsplit_fasta_list-when-un-checked: true
+        hide-bbsplit_index-when-un-checked: true
+        hide-save_bbsplit_reads-when-un-checked: true
+    help: 'Parameters related to the handling of Unique Molecular Identifiers (UMIs)'
+
+  umi_read_structure:
+    label: 'umi_read_structure'
+    widget: text_field
+    help: 'Specify UMI read structure for fgbio UMI consensus read generation'
+
+  group_by_umi_strategy:
+    label: 'group_by_umi_strategy'
+    widget: select
+    options:
+      - ['Adjacency', 'Adjacency']
+      - ['Identity', 'Identity']
+      - ['Edit', 'Edit']
+      - ['Paired', 'Paired']
+    help: 'Default strategy for fgbio UMI-based consensus read generation'
+
+  umi_in_read_header:
+    label: 'umi_in_read_header'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'Move UMIs from fastq read headers to a tag prior to deduplication.'
+
+  umi_location:
+    label: 'umi_location'
+    widget: select
+    options:
+      - ['', '']
+      - ['read1', 'read1']
+      - ['read2', 'read2']
+      - ['per_read', 'per_read']
+      - ['index1', 'index1']
+      - ['index2', 'index2']
+      - ['per_index', 'per_index']
+    help: 'Location of the UMI(s) to be extracted with fastp.'
+
+  umi_length:
+    label: 'umi_length'
+    widget: number_field
+    step: 1
+    help: 'Length of the UMI(s) in the read.'
+
+  umi_base_skip:
+    label: 'umi_base_skip'
+    widget: number_field
+    step: 1
+    help: 'Number of bases to skip after the UMI(s) in the read when extracting with fastp.'
+
+  umi_tag:
+    label: 'umi_tag'
+    widget: text_field
+    help: 'Tag detailing where UMIs are present inside the bam/cram file (e.g. RX).'
+
+  bbsplit_fasta_list:
+    label: 'bbsplit_fasta_list'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Path to comma-separated file containing a list of reference genomes to filter reads against with BBSplit. You have to also explicitly set `--tools bbsplit` if you want to use BBSplit.'
+
+  bbsplit_index:
+    label: 'bbsplit_index'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Path to directory or tar.gz archive for pre-built BBSplit index.'
+
+  save_bbsplit_reads:
+    label: 'save_bbsplit_reads'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'If this option is specified, FastQ files split by reference will be saved in the results directory.'
+
+  preprocessing:
+    label: 'Preprocessing'
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-aligner-when-un-checked: true
+        hide-save_mapped-when-un-checked: true
+        hide-save_output_as_bam-when-un-checked: true
+        hide-use_gatk_spark-when-un-checked: true
+        hide-markduplicates_pixel_distance-when-un-checked: true
+        hide-sentieon_consensus-when-un-checked: true
+    help: 'Configure preprocessing tools'
+
+  aligner:
+    label: 'aligner'
+    widget: select
+    options:
+      - ['bwa-mem', 'bwa-mem']
+      - ['bwa-mem2', 'bwa-mem2']
+      - ['dragmap', 'dragmap']
+      - ['sentieon-bwamem', 'sentieon-bwamem']
+      - ['parabricks', 'parabricks']
+    help: 'Specify aligner to be used to map reads to reference genome.'
+
+  save_mapped:
+    label: 'save_mapped'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'Save mapped files.'
+
+  save_output_as_bam:
+    label: 'save_output_as_bam'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'Saves output from mapping (if `--save_mapped`), Markduplicates & Baserecalibration as BAM file instead of CRAM'
+
+  use_gatk_spark:
+    label: 'use_gatk_spark'
+    widget: text_field
+    help: 'Enable usage of GATK Spark implementation for duplicate marking and/or base quality score recalibration'
+
+  markduplicates_pixel_distance:
+    label: 'markduplicates_pixel_distance'
+    widget: number_field
+    step: 1
+
+  sentieon_consensus:
+    label: 'sentieon_consensus'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'Generate consensus reads with Sentieon dedup rather than choosing one best read.'
+
+  variant_calling:
+    label: 'Variant Calling'
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-only_paired_variant_calling-when-un-checked: true
+        hide-ascat_min_base_qual-when-un-checked: true
+        hide-ascat_min_counts-when-un-checked: true
+        hide-ascat_min_map_qual-when-un-checked: true
+        hide-ascat_ploidy-when-un-checked: true
+        hide-ascat_purity-when-un-checked: true
+        hide-cf_chrom_len-when-un-checked: true
+        hide-cf_coeff-when-un-checked: true
+        hide-cf_contamination_adjustment-when-un-checked: true
+        hide-cf_contamination-when-un-checked: true
+        hide-cf_minqual-when-un-checked: true
+        hide-cf_mincov-when-un-checked: true
+        hide-cf_ploidy-when-un-checked: true
+        hide-cf_window-when-un-checked: true
+        hide-cnvkit_reference-when-un-checked: true
+        hide-freebayes_filter-when-un-checked: true
+        hide-joint_germline-when-un-checked: true
+        hide-joint_mutect2-when-un-checked: true
+        hide-ignore_soft_clipped_bases-when-un-checked: true
+        hide-pon-when-un-checked: true
+        hide-pon_tbi-when-un-checked: true
+        hide-sentieon_haplotyper_emit_mode-when-un-checked: true
+        hide-sentieon_dnascope_emit_mode-when-un-checked: true
+        hide-sentieon_dnascope_pcr_indel_model-when-un-checked: true
+        hide-gatk_pcr_indel_model-when-un-checked: true
+    help: 'Configure variant calling tools'
+
+  only_paired_variant_calling:
+    label: 'only_paired_variant_calling'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'If true, skips germline variant calling for matched normal to tumor sample. Normal samples without matched tumor will still be processed through germline variant calling tools.'
+
+  ascat_min_base_qual:
+    label: 'ascat_min_base_qual'
+    widget: number_field
+    value: 20
+    step: 1
+    help: 'Overwrite Ascat min base quality required for a read to be counted.'
+
+  ascat_min_counts:
+    label: 'ascat_min_counts'
+    widget: number_field
+    value: 10
+    step: 1
+    help: 'Overwrite Ascat minimum depth required in the normal for a SNP to be considered.'
+
+  ascat_min_map_qual:
+    label: 'ascat_min_map_qual'
+    widget: number_field
+    value: 35
+    step: 1
+    help: 'Overwrite Ascat min mapping quality required for a read to be counted.'
+
+  ascat_ploidy:
+    label: 'ascat_ploidy'
+    widget: number_field
+    step: 1
+    help: 'Overwrite ASCAT ploidy.'
+
+  ascat_purity:
+    label: 'ascat_purity'
+    widget: number_field
+    step: 1
+    help: 'Overwrite ASCAT purity.'
+
+  cf_chrom_len:
+    label: 'cf_chrom_len'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Specify a custom chromosome length file.'
+
+  cf_coeff:
+    label: 'cf_coeff'
+    widget: number_field
+    value: 0.05
+    step: 1
+    help: 'Overwrite Control-FREEC coefficientOfVariation'
+
+  cf_contamination_adjustment:
+    label: 'cf_contamination_adjustment'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'Overwrite Control-FREEC contaminationAdjustement'
+
+  cf_contamination:
+    label: 'cf_contamination'
+    widget: number_field
+    value: 0
+    step: 1
+    help: 'Design known contamination value for Control-FREEC'
+
+  cf_minqual:
+    label: 'cf_minqual'
+    widget: number_field
+    value: 0
+    step: 1
+    help: 'Minimal sequencing quality for a position to be considered in BAF analysis.'
+
+  cf_mincov:
+    label: 'cf_mincov'
+    widget: number_field
+    value: 0
+    step: 1
+    help: 'Minimal read coverage for a position to be considered in BAF analysis.'
+
+  cf_ploidy:
+    label: 'cf_ploidy'
+    widget: text_field
+    value: '2'
+    help: 'Genome ploidy used by ControlFREEC'
+
+  cf_window:
+    label: 'cf_window'
+    widget: number_field
+    step: 1
+    help: 'Overwrite Control-FREEC window size.'
+
+  cnvkit_reference:
+    label: 'cnvkit_reference'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Copy-number reference for CNVkit'
+
+  freebayes_filter:
+    label: 'freebayes_filter'
+    widget: text_field
+    value: '30'
+    help: 'Filtering expression for vcflib/vcffilter'
+
+  joint_germline:
+    label: 'joint_germline'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'Turn on the joint germline variant calling for GATK haplotypecaller'
+
+  joint_mutect2:
+    label: 'joint_mutect2'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'Runs Mutect2 in joint (multi-sample) mode for better concordance among variant calls of tumor samples from the same patient. Mutect2 outputs will be stored in a subfolder named with patient ID under `variant_calling/mutect2/` folder. Only a single normal sample per patient is allowed. Tumor-only mode is also supported.'
+
+  ignore_soft_clipped_bases:
+    label: 'ignore_soft_clipped_bases'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'Do not analyze soft clipped bases in the reads for GATK Mutect2.'
+
+  pon:
+    label: 'pon'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Panel-of-normals VCF (bgzipped) for GATK Mutect2'
+
+  pon_tbi:
+    label: 'pon_tbi'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Index of PON panel-of-normals VCF.'
+
+  sentieon_haplotyper_emit_mode:
+    label: 'sentieon_haplotyper_emit_mode'
+    widget: text_field
+    value: 'variant'
+    help: 'Option for selecting output and emit-mode of Sentieon''s Haplotyper.'
+
+  sentieon_dnascope_emit_mode:
+    label: 'sentieon_dnascope_emit_mode'
+    widget: text_field
+    value: 'variant'
+    help: 'Option for selecting output and emit-mode of Sentieon''s Dnascope.'
+
+  sentieon_dnascope_pcr_indel_model:
+    label: 'sentieon_dnascope_pcr_indel_model'
+    widget: text_field
+    value: 'CONSERVATIVE'
+    help: 'Option for selecting the PCR indel model used by Sentieon Dnascope.'
+
+  gatk_pcr_indel_model:
+    label: 'gatk_pcr_indel_model'
+    widget: text_field
+    value: 'CONSERVATIVE'
+
+  post_variant_calling:
+    label: 'Post variant calling'
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-filter_vcfs-when-un-checked: true
+        hide-bcftools_filter_criteria-when-un-checked: true
+        hide-normalize_vcfs-when-un-checked: true
+        hide-snv_consensus_calling-when-un-checked: true
+        hide-consensus_min_count-when-un-checked: true
+        hide-concatenate_vcfs-when-un-checked: true
+        hide-varlociraptor_scenario_tumor_only-when-un-checked: true
+        hide-varlociraptor_scenario_somatic-when-un-checked: true
+        hide-varlociraptor_scenario_germline-when-un-checked: true
+    help: 'Options for tools that run between variant calling and annotation'
+
+  filter_vcfs:
+    label: 'filter_vcfs'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'Enable filtering of VCFs with bcftools view'
+
+  bcftools_filter_criteria:
+    label: 'bcftools_filter_criteria'
+    widget: text_field
+    value: '-f PASS,.'
+    help: 'Filter criteria. Uses bcftools view filter options. To customize, follow instructions here: https://samtools.github.io/bcftools/bcftools.html#view'
+
+  normalize_vcfs:
+    label: 'normalize_vcfs'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'Option for normalization of vcf-files.'
+
+  snv_consensus_calling:
+    label: 'snv_consensus_calling'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'Enable consensus calling of multiple VCF files from one sample'
+
+  consensus_min_count:
+    label: 'consensus_min_count'
+    widget: number_field
+    value: 2
+    step: 1
+    help: 'Minimum number of variant callers calling a variant for consensus results'
+
+  concatenate_vcfs:
+    label: 'concatenate_vcfs'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'Option for concatenating germline vcf-files.'
+
+  varlociraptor_scenario_tumor_only:
+    label: 'varlociraptor_scenario_tumor_only'
+    widget: text_field
+    help: 'Yte compatible scenario file for tumor only samples. Defaults to assets/varlociraptor_tumor_only.yte.yaml'
+
+  varlociraptor_scenario_somatic:
+    label: 'varlociraptor_scenario_somatic'
+    widget: text_field
+    help: 'Yte compatible scenario file for somatic samples. Defaults to assets/varlociraptor_somatic.yte.yaml'
+
+  varlociraptor_scenario_germline:
+    label: 'varlociraptor_scenario_germline'
+    widget: text_field
+    help: 'Yte compatible scenario file for germline samples. Defaults to assets/varlociraptor_germline.yte.yaml'
+
+  annotation:
+    label: 'Annotation'
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-vep_include_fasta-when-un-checked: true
+        hide-vep_condel-when-un-checked: true
+        hide-condel_config-when-un-checked: true
+        hide-vep_dbnsfp-when-un-checked: true
+        hide-dbnsfp-when-un-checked: true
+        hide-dbnsfp_tbi-when-un-checked: true
+        hide-dbnsfp_consequence-when-un-checked: true
+        hide-dbnsfp_fields-when-un-checked: true
+        hide-vep_loftee-when-un-checked: true
+        hide-vep_mastermind-when-un-checked: true
+        hide-mastermind_file-when-un-checked: true
+        hide-mastermind_mutations-when-un-checked: true
+        hide-mastermind_var_iden-when-un-checked: true
+        hide-mastermind_url-when-un-checked: true
+        hide-vep_phenotypes-when-un-checked: true
+        hide-phenotypes_file-when-un-checked: true
+        hide-phenotypes_file_tbi-when-un-checked: true
+        hide-phenotypes_include_types-when-un-checked: true
+        hide-vep_spliceai-when-un-checked: true
+        hide-spliceai_snv-when-un-checked: true
+        hide-spliceai_snv_tbi-when-un-checked: true
+        hide-spliceai_indel-when-un-checked: true
+        hide-spliceai_indel_tbi-when-un-checked: true
+        hide-vep_spliceregion-when-un-checked: true
+        hide-vep_custom_args-when-un-checked: true
+        hide-vep_version-when-un-checked: true
+        hide-outdir_cache-when-un-checked: true
+        hide-vep_out_format-when-un-checked: true
+        hide-bcftools_annotations-when-un-checked: true
+        hide-bcftools_annotations_tbi-when-un-checked: true
+        hide-bcftools_columns-when-un-checked: true
+        hide-bcftools_header_lines-when-un-checked: true
+        hide-snpsift_databases-when-un-checked: true
+
+  vep_include_fasta:
+    label: 'vep_include_fasta'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'Allow usage of fasta file for annotation with VEP'
+
+  vep_condel:
+    label: 'vep_condel'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'Enable the use of the VEP Condel plugin.'
+
+  condel_config:
+    label: 'condel_config'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Path to Condel config file.'
+
+  vep_dbnsfp:
+    label: 'vep_dbnsfp'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'Enable the use of the VEP dbNSFP plugin.'
+
+  dbnsfp:
+    label: 'dbnsfp'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Path to dbNSFP processed file.'
+
+  dbnsfp_tbi:
+    label: 'dbnsfp_tbi'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Path to dbNSFP tabix indexed file.'
+
+  dbnsfp_consequence:
+    label: 'dbnsfp_consequence'
+    widget: text_field
+    help: 'Consequence to annotate with'
+
+  dbnsfp_fields:
+    label: 'dbnsfp_fields'
+    widget: text_field
+    value: 'rs_dbSNP,HGVSc_VEP,HGVSp_VEP,1000Gp3_EAS_AF,1000Gp3_AMR_AF,LRT_score,GERP++_RS,gnomAD_exomes_AF'
+    help: 'Fields to annotate with'
+
+  vep_loftee:
+    label: 'vep_loftee'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'Enable the use of the VEP LOFTEE plugin.'
+
+  vep_mastermind:
+    label: 'vep_mastermind'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'Enable the use of the VEP Mastermind plugin.'
+
+  mastermind_file:
+    label: 'mastermind_file'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Path to Mastermind cited variants VCF file.'
+
+  mastermind_mutations:
+    label: 'mastermind_mutations'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'Mastermind plugin mutations parameter.'
+
+  mastermind_var_iden:
+    label: 'mastermind_var_iden'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'Mastermind plugin var_iden parameter.'
+
+  mastermind_url:
+    label: 'mastermind_url'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'Mastermind plugin url parameter.'
+
+  vep_phenotypes:
+    label: 'vep_phenotypes'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'Enable the use of the VEP Phenotypes plugin.'
+
+  phenotypes_file:
+    label: 'phenotypes_file'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Path to phenotype annotation GFF/GVF file.'
+
+  phenotypes_file_tbi:
+    label: 'phenotypes_file_tbi'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Path to phenotype annotation tabix indexed file.'
+
+  phenotypes_include_types:
+    label: 'phenotypes_include_types'
+    widget: text_field
+    help: 'Phenotypes plugin feature types to include.'
+
+  vep_spliceai:
+    label: 'vep_spliceai'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'Enable the use of the VEP SpliceAI plugin.'
+
+  spliceai_snv:
+    label: 'spliceai_snv'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Path to spliceai raw scores snv file.'
+
+  spliceai_snv_tbi:
+    label: 'spliceai_snv_tbi'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Path to spliceai raw scores snv tabix indexed file.'
+
+  spliceai_indel:
+    label: 'spliceai_indel'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Path to spliceai raw scores indel file.'
+
+  spliceai_indel_tbi:
+    label: 'spliceai_indel_tbi'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Path to spliceai raw scores indel tabix indexed file.'
+
+  vep_spliceregion:
+    label: 'vep_spliceregion'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'Enable the use of the VEP SpliceRegion plugin.'
+
+  vep_custom_args:
+    label: 'vep_custom_args'
+    widget: text_field
+    value: '--everything --filter_common --per_gene --total_length --offline --format vcf'
+    help: 'Add an extra custom argument to VEP.'
+
+  vep_version:
+    label: 'vep_version'
+    widget: text_field
+    value: '115.0-0'
+    help: 'Should reflect the VEP version used in the container.'
+
+  outdir_cache:
+    label: 'outdir_cache'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'The output directory where the cache will be saved. You have to use absolute paths to storage on Cloud infrastructure.'
+
+  vep_out_format:
+    label: 'vep_out_format'
+    widget: select
+    options:
+      - ['vcf', 'vcf']
+      - ['json', 'json']
+      - ['tab', 'tab']
+    help: 'VEP output-file format.'
+
+  bcftools_annotations:
+    label: 'bcftools_annotations'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'A vcf file containing custom annotations to be used with bcftools annotate. Needs to be bgzipped.'
+
+  bcftools_annotations_tbi:
+    label: 'bcftools_annotations_tbi'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Index file for `bcftools_annotations`'
+
+  bcftools_columns:
+    label: 'bcftools_columns'
+    widget: text_field
+    help: 'Optional text file with list of columns to use from `bcftools_annotations`, one name per row'
+
+  bcftools_header_lines:
+    label: 'bcftools_header_lines'
+    widget: text_field
+    help: 'Text file with the header lines of `bcftools_annotations`'
+
+  snpsift_databases:
+    label: 'snpsift_databases'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Path to CSV samplesheet specifying SnpSift annotation databases.'
+
+  general_reference_genome_options:
+    label: 'General reference genome options'
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-igenomes_base-when-un-checked: true
+        hide-igenomes_ignore-when-un-checked: true
+        hide-save_reference-when-un-checked: true
+        hide-build_only_index-when-un-checked: true
+        hide-download_cache-when-un-checked: true
+    help: 'General options to interact with reference genomes.'
+
+  igenomes_base:
+    label: 'igenomes_base'
+    widget: path_selector
+    value: 's3://ngi-igenomes/igenomes/'
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'The base path to the igenomes reference files'
+
+  igenomes_ignore:
+    label: 'igenomes_ignore'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'Do not load the iGenomes reference config.'
+
+  save_reference:
+    label: 'save_reference'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'Save built references.'
+
+  build_only_index:
+    label: 'build_only_index'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'Only built references.'
+
+  download_cache:
+    label: 'download_cache'
+    widget: select
+    options:
+      - ['false', 'false']
+      - ['true', 'true']
+    help: 'Download annotation cache.'
+
+  reference_genome_options:
+    label: 'Reference genome options'
+    widget: 'check_box'
+    html_options:
+      data:
+        hide-genome-when-un-checked: true
+        hide-ascat_genome-when-un-checked: true
+        hide-ascat_alleles-when-un-checked: true
+        hide-ascat_loci-when-un-checked: true
+        hide-ascat_loci_gc-when-un-checked: true
+        hide-ascat_loci_rt-when-un-checked: true
+        hide-bwa-when-un-checked: true
+        hide-bwamem2-when-un-checked: true
+        hide-chr_dir-when-un-checked: true
+        hide-dbsnp-when-un-checked: true
+        hide-dbsnp_tbi-when-un-checked: true
+        hide-dbsnp_vqsr-when-un-checked: true
+        hide-dict-when-un-checked: true
+        hide-dragmap-when-un-checked: true
+        hide-fasta-when-un-checked: true
+        hide-fasta_fai-when-un-checked: true
+        hide-germline_resource-when-un-checked: true
+        hide-germline_resource_tbi-when-un-checked: true
+        hide-known_indels-when-un-checked: true
+        hide-known_indels_tbi-when-un-checked: true
+        hide-known_indels_vqsr-when-un-checked: true
+        hide-known_snps-when-un-checked: true
+        hide-known_snps_tbi-when-un-checked: true
+        hide-known_snps_vqsr-when-un-checked: true
+        hide-mappability-when-un-checked: true
+        hide-msisensor2_models-when-un-checked: true
+        hide-msisensorpro_scan-when-un-checked: true
+        hide-ngscheckmate_bed-when-un-checked: true
+        hide-sentieon_dnascope_model-when-un-checked: true
+        hide-snpeff_cache-when-un-checked: true
+        hide-snpeff_db-when-un-checked: true
+        hide-vep_cache-when-un-checked: true
+        hide-vep_cache_version-when-un-checked: true
+        hide-vep_genome-when-un-checked: true
+        hide-vep_species-when-un-checked: true
+    help: 'Reference genome related files and options required for the workflow. If you use AWS iGenomes, this has already been set for you appropriately.'
+
+  genome:
+    label: 'genome'
+    widget: text_field
+    value: 'GATK.GRCh38'
+    help: 'Name of iGenomes reference.'
+
+  ascat_genome:
+    label: 'ascat_genome'
+    widget: select
+    options:
+      - ['', '']
+      - ['hg19', 'hg19']
+      - ['hg38', 'hg38']
+    help: 'ASCAT genome.'
+
+  ascat_alleles:
+    label: 'ascat_alleles'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Path to ASCAT allele zip file.'
+
+  ascat_loci:
+    label: 'ascat_loci'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Path to ASCAT loci zip file.'
+
+  ascat_loci_gc:
+    label: 'ascat_loci_gc'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Path to ASCAT GC content correction file.'
+
+  ascat_loci_rt:
+    label: 'ascat_loci_rt'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Path to ASCAT RT (replictiming) correction file.'
+
+  bwa:
+    label: 'bwa'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Path to BWA mem indices.'
+
+  bwamem2:
+    label: 'bwamem2'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Path to bwa-mem2 mem indices.'
+
+  chr_dir:
+    label: 'chr_dir'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Path to chromosomes folder used with ControLFREEC.'
+
+  dbsnp:
+    label: 'dbsnp'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Path to dbsnp file.'
+
+  dbsnp_tbi:
+    label: 'dbsnp_tbi'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Path to dbsnp index.'
+
+  dbsnp_vqsr:
+    label: 'dbsnp_vqsr'
+    widget: text_field
+    help: 'Label string for VariantRecalibration (haplotypecaller joint variant calling).'
+
+  dict:
+    label: 'dict'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Path to FASTA dictionary file.'
+
+  dragmap:
+    label: 'dragmap'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Path to dragmap indices.'
+
+  fasta:
+    label: 'fasta'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Path to FASTA genome file.'
+
+  fasta_fai:
+    label: 'fasta_fai'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Path to FASTA reference index.'
+
+  germline_resource:
+    label: 'germline_resource'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Path to GATK Mutect2 Germline Resource File.'
+
+  germline_resource_tbi:
+    label: 'germline_resource_tbi'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Path to GATK Mutect2 Germline Resource Index.'
+
+  known_indels:
+    label: 'known_indels'
+    widget: text_field
+    help: 'Path to known indels file.'
+
+  known_indels_tbi:
+    label: 'known_indels_tbi'
+    widget: text_field
+    help: 'Path to known indels file index.'
+
+  known_indels_vqsr:
+    label: 'known_indels_vqsr'
+    widget: text_field
+    help: 'Label string for VariantRecalibration (haplotypecaller joint variant calling). If you use AWS iGenomes, this has already been set for you appropriately.'
+
+  known_snps:
+    label: 'known_snps'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Path to known snps file.'
+
+  known_snps_tbi:
+    label: 'known_snps_tbi'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Path to known snps file snps.'
+
+  known_snps_vqsr:
+    label: 'known_snps_vqsr'
+    widget: text_field
+    help: 'Label string for VariantRecalibration (haplotypecaller joint variant calling).If you use AWS iGenomes, this has already been set for you appropriately.'
+
+  mappability:
+    label: 'mappability'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Path to Control-FREEC mappability file.'
+
+  msisensor2_models:
+    label: 'msisensor2_models'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Path to models folder used with MSIsensor2.'
+
+  msisensorpro_scan:
+    label: 'msisensorpro_scan'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Path to scan file used with MSIsensorPro.'
+
+  ngscheckmate_bed:
+    label: 'ngscheckmate_bed'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Path to SNP bed file for sample checking with NGSCheckMate'
+
+  sentieon_dnascope_model:
+    label: 'sentieon_dnascope_model'
+    widget: path_selector
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Machine learning model for Sentieon Dnascope.'
+
+  snpeff_cache:
+    label: 'snpeff_cache'
+    widget: path_selector
+    value: 's3://annotation-cache/snpeff_cache/'
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Path to snpEff cache.'
+
+  snpeff_db:
+    label: 'snpeff_db'
+    widget: text_field
+    help: 'snpEff DB version.'
+
+  vep_cache:
+    label: 'vep_cache'
+    widget: path_selector
+    value: 's3://annotation-cache/vep_cache/'
+    directory: "<%= ENV.fetch('NF2OOD_DEFAULT_DIRECTORY', ENV.fetch('HOME', '/')) %>"
+    favorites:
+      - "<%= ENV.fetch('HOME', '/') %>"
+    help: 'Path to VEP cache.'
+
+  vep_cache_version:
+    label: 'vep_cache_version'
+    widget: text_field
+    help: 'VEP cache version.'
+
+  vep_genome:
+    label: 'vep_genome'
+    widget: text_field
+    help: 'VEP genome.'
+
+  vep_species:
+    label: 'vep_species'
+    widget: text_field
+    help: 'VEP species.'
+
+form:
+  - bc_num_hours
+  - nextflow_version
+  - executor
+  - partition
+  - num_cores
+  - num_memory
+  - workdir
+  - input_output_options
+  - input
+  - step
+  - outdir
+  - main_options
+  - split_fastq
+  - nucleotides_per_second
+  - intervals
+  - no_intervals
+  - wes
+  - tools
+  - skip_tools
+  - fastq_preprocessing
+  - trim_fastq
+  - clip_r1
+  - clip_r2
+  - three_prime_clip_r1
+  - three_prime_clip_r2
+  - trim_nextseq
+  - length_required
+  - save_trimmed
+  - save_split_fastqs
+  - umi_processing
+  - umi_read_structure
+  - group_by_umi_strategy
+  - umi_in_read_header
+  - umi_location
+  - umi_length
+  - umi_base_skip
+  - umi_tag
+  - bbsplit_fasta_list
+  - bbsplit_index
+  - save_bbsplit_reads
+  - preprocessing
+  - aligner
+  - save_mapped
+  - save_output_as_bam
+  - use_gatk_spark
+  - markduplicates_pixel_distance
+  - sentieon_consensus
+  - variant_calling
+  - only_paired_variant_calling
+  - ascat_min_base_qual
+  - ascat_min_counts
+  - ascat_min_map_qual
+  - ascat_ploidy
+  - ascat_purity
+  - cf_chrom_len
+  - cf_coeff
+  - cf_contamination_adjustment
+  - cf_contamination
+  - cf_minqual
+  - cf_mincov
+  - cf_ploidy
+  - cf_window
+  - cnvkit_reference
+  - freebayes_filter
+  - joint_germline
+  - joint_mutect2
+  - ignore_soft_clipped_bases
+  - pon
+  - pon_tbi
+  - sentieon_haplotyper_emit_mode
+  - sentieon_dnascope_emit_mode
+  - sentieon_dnascope_pcr_indel_model
+  - gatk_pcr_indel_model
+  - post_variant_calling
+  - filter_vcfs
+  - bcftools_filter_criteria
+  - normalize_vcfs
+  - snv_consensus_calling
+  - consensus_min_count
+  - concatenate_vcfs
+  - varlociraptor_scenario_tumor_only
+  - varlociraptor_scenario_somatic
+  - varlociraptor_scenario_germline
+  - annotation
+  - vep_include_fasta
+  - vep_condel
+  - condel_config
+  - vep_dbnsfp
+  - dbnsfp
+  - dbnsfp_tbi
+  - dbnsfp_consequence
+  - dbnsfp_fields
+  - vep_loftee
+  - vep_mastermind
+  - mastermind_file
+  - mastermind_mutations
+  - mastermind_var_iden
+  - mastermind_url
+  - vep_phenotypes
+  - phenotypes_file
+  - phenotypes_file_tbi
+  - phenotypes_include_types
+  - vep_spliceai
+  - spliceai_snv
+  - spliceai_snv_tbi
+  - spliceai_indel
+  - spliceai_indel_tbi
+  - vep_spliceregion
+  - vep_custom_args
+  - vep_version
+  - outdir_cache
+  - vep_out_format
+  - bcftools_annotations
+  - bcftools_annotations_tbi
+  - bcftools_columns
+  - bcftools_header_lines
+  - snpsift_databases
+  - general_reference_genome_options
+  - igenomes_base
+  - igenomes_ignore
+  - save_reference
+  - build_only_index
+  - download_cache
+  - reference_genome_options
+  - genome
+  - ascat_genome
+  - ascat_alleles
+  - ascat_loci
+  - ascat_loci_gc
+  - ascat_loci_rt
+  - bwa
+  - bwamem2
+  - chr_dir
+  - dbsnp
+  - dbsnp_tbi
+  - dbsnp_vqsr
+  - dict
+  - dragmap
+  - fasta
+  - fasta_fai
+  - germline_resource
+  - germline_resource_tbi
+  - known_indels
+  - known_indels_tbi
+  - known_indels_vqsr
+  - known_snps
+  - known_snps_tbi
+  - known_snps_vqsr
+  - mappability
+  - msisensor2_models
+  - msisensorpro_scan
+  - ngscheckmate_bed
+  - sentieon_dnascope_model
+  - snpeff_cache
+  - snpeff_db
+  - vep_cache
+  - vep_cache_version
+  - vep_genome
+  - vep_species
+  - resume
+  - bc_email_on_started

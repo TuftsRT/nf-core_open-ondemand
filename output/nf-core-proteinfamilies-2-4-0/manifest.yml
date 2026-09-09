@@ -1,0 +1,8 @@
+---
+name: "proteinfamilies 2.4.0"
+category: ""
+subcategory: "metagenomics"
+role: batch_connect
+description: |
+  Launch the nf-core pipeline [nf-core-proteinfamilies](https://nf-co.re/proteinfamilies)
+  version 2.4.0 through Open OnDemand.

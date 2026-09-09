@@ -1,0 +1,8 @@
+---
+name: "rnaseq 3.25.0"
+category: ""
+subcategory: "rnaseq"
+role: batch_connect
+description: |
+  Launch the nf-core pipeline [nf-core-rnaseq](https://nf-co.re/rnaseq)
+  version 3.25.0 through Open OnDemand.

@@ -1,0 +1,8 @@
+---
+name: "denovotranscript 1.2.1"
+category: ""
+subcategory: "rnaseq"
+role: batch_connect
+description: |
+  Launch the nf-core pipeline [nf-core-denovotranscript](https://nf-co.re/denovotranscript)
+  version 1.2.1 through Open OnDemand.

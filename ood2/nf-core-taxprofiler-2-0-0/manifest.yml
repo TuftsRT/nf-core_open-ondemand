@@ -1,0 +1,8 @@
+---
+name: "taxprofiler 2.0.0"
+category: ""
+subcategory: "metagenomics"
+role: batch_connect
+description: |
+  Launch the nf-core pipeline [nf-core-taxprofiler](https://nf-co.re/taxprofiler)
+  version 2.0.0 through Open OnDemand.

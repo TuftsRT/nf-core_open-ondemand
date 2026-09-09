@@ -1,0 +1,8 @@
+---
+name: "chipseq 2.1.0"
+category: ""
+subcategory: "epigenomics"
+role: batch_connect
+description: |
+  Launch the nf-core pipeline [nf-core-chipseq](https://nf-co.re/chipseq)
+  version 2.1.0 through Open OnDemand.
