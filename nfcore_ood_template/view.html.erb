@@ -1,5 +1,5 @@
-<%# Offers a quick link to the user's working directory via the OnDemand interface.
-This will appear once the job begins running. %>
+<%# Offers a quick link to the user's working directory and a deep link into the
+Nextflow Pipeline Monitor for this specific run. Both appear once the job runs. %>
 <%
 log_tail = []
 
@@ -8,8 +8,21 @@ if output_log_path.to_s != "" && File.file?(output_log_path)
     log_tail = file.each_line.to_a.last(15)
   end
 end
+
+# The session's staging path embeds its OnDemand session id (…/output/<uuid>/…),
+# which is exactly the run id the monitor uses — so we can link straight to this
+# run's detail view rather than the run list.
+session_id = output_log_path.to_s[%r{/output/([0-9a-fA-F-]{36})/}, 1]
+monitor_url = session_id ? "/pun/sys/nf_monitor/?run=#{session_id}" : "/pun/sys/nf_monitor/"
 %>
 <p>The pipeline does not offer an interactive interface. <a href="/pun/sys/files/fs/<%= working_path %>">You can find your output files here.</a></p>
+
+<p>
+  <a class="btn btn-primary" href="<%= monitor_url %>" target="_blank" rel="noopener">
+    📊 Open Pipeline Monitor
+  </a>
+  <small class="text-muted">Live task progress, resource usage and reports for this run (opens in a new tab).</small>
+</p>
 
 <div class="ood-appkit-card">
   <h3>Running log</h3>

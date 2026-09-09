@@ -7,7 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-_Nothing yet._
+### Added
+
+- Generated apps' running-job page (`view.html.erb`) now shows an **Open
+  Pipeline Monitor** button that deep-links into the Nextflow Pipeline Monitor
+  (`nf_monitor`) app. The link derives the run id from the session's staging
+  path (`…/output/<uuid>/`), so it opens straight to this run's detail view
+  when the id is available and falls back to the monitor's run list otherwise.
 
 ## [1.4.0] - 2026-06-25
 
